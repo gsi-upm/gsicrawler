@@ -1,4 +1,4 @@
-![Ewe Tasker Logo](./front-end/app/images/logo.png)
+![GSICrawler Logo](./front-end/app/images/logo.png)
 
 This website is useful to the analysis of comments from external aplications like Yelp, Amazon, Twitter, Youtube, Facebook, TripAdvisor an Foursquare. The user will choose
 the type of analysis he wants to carry out (Emotions, Sentiments or Fake Analysis)
@@ -34,6 +34,17 @@ Access from your browser and execute your analysis
 ```
 http://localhost:8888
 ```
+#User Guide
+In this section we will explain the diferent sentiment analysis offered my this framework. We will use Yelp as example platform to analyse in depth. The website offers four different kind of analysis Emotions, Sentiment Fake or all of them. Select the Yelp platform by clicking on the eye button and choose one of the different analysis. Introduce the URL which contains the site you want to process or pick the example one. In this case we will select the Emotion analysis using the example URL.
+
+![img1](./front-end/app/images/readme_img1.png)
+
+A card will be introduced to the main dashboard with the analysis selected. In a few seconds the aplication will show the result. The framework allows to inspect the emotion result of each review of the post analyzed.
+
+![img2](./front-end/app/images/readme_img2.png)
+
+
+
 #License
    Copyright 2016 José Emilio Carmona.
 
