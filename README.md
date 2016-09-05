@@ -10,6 +10,9 @@ shown and the possibility of review each comment one by one will be also offered
 
 *Note: Facebook and Tripadvisor analysis are not currently available.*
 
+#Requirements
+- <a href="https://docs.docker.com/engine/installation/linux/ubuntulinux/">Docker</a>
+
 #Installation
 First of all, clone the git project locally and access to gsicrawler directory.
 ```
@@ -17,16 +20,20 @@ git clone https://github.com/gsi-upm/gsicrawler.git
 
 cd gsicrawler
 ```
+Launch docker
+```
+sudo docker start
+```
 #Run
 Create the project docker image from Dockerfile
 ```
-docker build -t "gsicrawler:dockerfile" .
+sudo docker build -t "gsicrawler:dockerfile" .
 
 ```
 
 Run your docker image locally in port 8888 and run the *start.py* script to initialize the gsicrawler server
 ```
-docker run -p 8888:8888 -t -i gsicrawler:dockerfile python start.py
+sudo docker run -p 8888:8888 -t -i gsicrawler:dockerfile python start.py
 
 ```
 
