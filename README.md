@@ -1,4 +1,4 @@
-![GSICrawler Logo](./front-end/app/images/logo.png)
+![GSICrawler Logo](./front-end/app/images/logo-gsi-crawler.png)
 
 This website is useful to the analysis of comments from external aplications like Yelp, Amazon, Twitter, Youtube, Facebook, TripAdvisor an Foursquare. The user will choose
 the type of analysis he wants to carry out (Emotions, Sentiments or Fake Analysis)
