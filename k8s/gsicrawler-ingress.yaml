@@ -1,0 +1,28 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gsicrawler-ingress
+spec:
+  rules:
+  - host: gsicrawler.cluster.gsi.dit.upm.es
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gsicrawler-web-latest
+          servicePort: 8080
+  - host: gsicrawler-elasticsearch.cluster.gsi.dit.upm.es
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gsicrawler-elasticsearch-latest
+          servicePort: 9200
+  - host: gsicrawler-luigi.cluster.gsi.dit.upm.es
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gsicrawler-elasticsearch-latest
+          servicePort: 8000

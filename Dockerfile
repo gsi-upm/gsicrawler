@@ -3,6 +3,9 @@ from node:7.10.0
 ENV NODE_PATH=/tmp/node_modules APP_NAME=gsi-crawler
 
 # Install dependencies first to use cache
+
+RUN apt-get update && apt-get install -y gettext
+
 RUN npm install -g http-server bower
 
 ADD bower.json /usr/src/bower.json

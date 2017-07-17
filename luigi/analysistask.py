@@ -4,6 +4,7 @@ import random
 import imp
 import re
 import requests
+import os
 from rdflib import Graph, plugin
 from rdflib.serializer import Serializer
 
@@ -200,9 +201,11 @@ class Elasticsearch(CopyToIndex):
     #: the name of the document type.
     doc_type = luigi.Parameter()
     #: the host running the ElasticSearch service.
-    host = 'elasticsearch'
+    host = str(os.environ.get('ES_ENDPOINT'))
     #: the port used by the ElasticSearch service.
-    port = 9200
+    port =  int(os.environ.get('ES_PORT'))
+
+    print(host,port)
     
     def requires(self):
         """

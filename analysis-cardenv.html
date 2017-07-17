@@ -115,7 +115,7 @@
 		</paper-material>
 		<iron-ajax
 			id="scrapurl"
-			url="http://luigi:8000/startAnalysis"
+			url="http://${LUIGI_ENDPOINT}/startAnalysis"
 			handle-as="json"
 			on-response="scrapStarted"
 			last-response="{{response}}"
@@ -243,7 +243,7 @@
 				this.showErrorToast('An error ocurred while analyzing: Connection error. Please check your Luigi endpoint.');
 				return;
 			}
-			else return 'http://elasticsearch:9200/'+response['index']+'/_search?q=id:'+response['id']
+			else return 'http://${ES_ENDPOINT}/'+response['index']+'/_search?q=id:'+response['id']
 		},
 		retrieveInfoDelayed: function(delay){
 			this.async(function(){
@@ -257,7 +257,7 @@
 				response = elasticresponse.hits.hits[0]["_source"]
 			}catch(err){
 				//console.log(err)
-				this.showError('Crawling error. Please try again later.');
+				this.showError('Crawling error.. Please try again later.');
 				this.showErrorToast('An error ocurred while analyzing: Crawling error. Please try again later.');
 				return;
 			}

@@ -11,6 +11,9 @@ services:
       - sefarad-network
     depends_on:
       - elasticsearch
+    environment:
+      - LUIGI_ENDPOINT=localhost:8000
+      - ES_ENDPOINT=localhost:9200
 
   elasticsearch:
     image: elasticsearch
@@ -33,6 +36,11 @@ services:
       - "8000:8000"
     networks:
       - sefarad-network
+    environment:
+      - ES_ENDPOINT=elasticsearch
+      - ES_PORT=9200
+    depends_on:
+      - elasticsearch
 
 
 networks:

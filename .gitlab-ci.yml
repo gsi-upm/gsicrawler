@@ -1,0 +1,7 @@
+deploy:
+  stage: deploy
+  environment: test
+  script:
+    - make -e deploy
+  only:
+    - master

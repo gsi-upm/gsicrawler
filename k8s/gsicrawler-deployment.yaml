@@ -1,0 +1,59 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gsicrawler-latest
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: gsicrawler-latest
+        app: test
+    spec:
+      containers:
+      - name: gsicrawler-web-latest
+        image: gsiupm/gsicrawler-web:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        ports:
+          - name: web
+            containerPort: 8080
+        env:
+          - name: LUIGI_ENDPOINT
+            value: "gsicrawler-luigi.cluster.gsi.dit.upm.es"
+          - name: ES_ENDPOINT
+            value: "gsicrawler-elasticsearch.cluster.gsi.dit.upm.es"
+
+
+      - name: gsicrawler-luigi-latest
+        image: gsiupm/gsicrawler-luigi:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        ports:
+          - name: luigi
+            containerPort: 8000
+            containerPort: 8082
+        env:
+          - name: ES_ENDPOINT
+            value: "gsicrawler-elasticsearch-latest"
+          - name: ES_PORT
+            value: "9200"
+
+      - name: gsicrawler-elasticsearch-latest
+        image: gsiupm/gsicrawler-elasticsearch:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        ports:
+          - name: elasticsearch
+            containerPort: 9200
+            containerPort: 9300
