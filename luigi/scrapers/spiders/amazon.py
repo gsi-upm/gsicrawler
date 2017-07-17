@@ -74,7 +74,7 @@ class AmazonscraperSpider(scrapy.Spider):
 			item['reviews'].append(review)
 		self.current_page = self.current_page + 1
 		nextRequest = None
-		if self.current_page < 10:
+		if self.current_page < 3:
 			nextRequest = self.get_next_request(response)
 		if(nextRequest == None):
 			#print '############ TERMINADO Paginas=%d ############' % self.current_page
