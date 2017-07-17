@@ -1,0 +1,184 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../elements.html">
+<link rel="import" href="../../bower_components/paper-fab-transitions/paper-fab-speed-dial.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="new-analysis-dialog.html">
+<link rel="import" href="font-awesome.html">
+
+<dom-module id="gsicrawler-greeting">
+  <template>
+    <style include="shared-styles"> 
+	#dialogs-container{
+	background:#fff
+	}
+	#scrollable-dialog{
+
+	background:#fff
+	}
+	body{
+	background: #fafafa;
+	  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	  color: #333;
+	}
+	#analysis-menu {
+		position:fixed;
+		bottom: 20px;
+		right: 20px;
+	}
+	#no-analysis-message{
+		text-align: center;
+		color: #aaaaaa;
+	}
+
+	#no-analysis-message span{
+		font-size: 90%;
+	}
+
+    </style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <iron-ajax 
+        id="analysis"
+        url="{{getURL()}}"
+        handle-as="json"
+        params='{"url": "gsicrawler", "website":"website", "analysisType":"sentiments"}'
+        method="POST"
+        header="Content-type:application/json"
+        last-response="{{response}}"
+        on-response="analysiscompleted">
+    </iron-ajax>
+    <iron-ajax 
+        id="elasticsearch"
+        url="{{getelasticURL(response)}}"
+        handle-as="json"
+        method="GET"
+        header="Content-type:application/json"
+        last-response="{{elasticresponse}}"
+        on-response="elasticdata">
+    </iron-ajax>
+
+
+    <section id="analysis-list">
+    <div id="no-analysis-message">
+                <h1>There isn't analysis to show.</h1>
+                <span>Add a new analysis tapping the <iron-icon icon="visibility"></iron-icon> icon!</span>
+    </div>
+    </section>
+    <div id="dialogs-container"></div>
+    <paper-dialog id="scrollable-dialog">
+      <h2 id="scrollable-dialog-title"></h2>
+      <paper-dialog-scrollable><div id="scrollable-content"></div></paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Close</paper-button>
+      </div>
+    </paper-dialog>
+    <div id="analysis-menu">
+        <paper-fab-speed-dial direction="top" class="bottom-right">
+        <paper-fab icon="visibility" class="dropdown-trigger"></paper-fab>
+        <div class="dropdown-content">
+          <paper-fab mini icon="fa:foursquare" on-tap="newFoursquareAnalysis"></paper-fab>
+          <paper-fab mini icon="fa:amazon" on-tap="newAmazonAnalysis"></paper-fab>
+        </div>
+        </paper-fab-speed-dial>    
+    </div>
+    <paper-toast id="toast" duration="3000"></paper-toast>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+      Polymer({
+        is: 'gsicrawler-greeting',
+
+        properties: {
+          greeting: {
+            type: String,
+            value: 'Welcome!',
+            notify: true
+          },
+          url:{
+            type: String
+          },
+          response:{
+            type: Object,
+            value : {'index': '', 'id': ''}
+          },
+          elasticresponse:{
+            type:String
+          }
+        },
+        ready: function(){
+
+        },
+
+        getURL: function(){
+          return 'http://localhost:8000/startAnalysis'
+        },
+
+        getelasticURL: function(response){
+          //console.log(response)
+          return 'http://localhost:9200/'+response['index']+'/_search?q=id:'+response['id']
+        },
+
+
+        newFoursquareAnalysis: function(){
+          //add params here
+          this.showNewAnalysisDialog('foursquare');
+          //this.startAnalysis();
+        },
+        newAmazonAnalysis: function(){
+          this.showNewAnalysisDialog('amazon');
+        },
+
+        showNewAnalysisDialog: function(webpage){
+          var container = document.getElementById('dialogs-container');
+          container.innerHTML = "";
+          var new_analysis = null;
+          if(webpage == 'foursquare'){
+            new_analysis = new NewAnalysisDialog(webpage, 'https://es.foursquare.com/v/cafeter%C3%ADa-hd/4b5b0ca9f964a520d0e028e3');
+          }else if(webpage == 'amazon'){
+            new_analysis = new NewAnalysisDialog(webpage, "http://www.amazon.com/HP-H3C52AA-ABA-K1500-Keyboard/dp/B00E4TOWR0/");
+          }
+
+          new_analysis.style.width = '80%';
+          new_analysis.modal = true;
+          new_analysis.role = "alertdialog";
+          container.appendChild(new_analysis);
+          new_analysis.open();
+
+        },
+
+        startAnalysis: function(){
+          this.$.analysis.generateRequest();
+          $('#no-analysis-message').remove()
+        },
+
+        analysiscompleted: function(){
+          console.log(this.response)
+          this.$.elasticsearch.generateRequest()
+        },
+
+        elasticdata: function(){
+          console.log(this.elasticresponse)
+        }
+
+
+
+      });
+    })();
+  </script>
+
+</dom-module>
