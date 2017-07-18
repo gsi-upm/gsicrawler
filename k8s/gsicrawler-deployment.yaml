@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: gsicrawler-web-latest
-        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler:latest
+        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/web:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -30,7 +30,7 @@ spec:
 
 
       - name: gsicrawler-luigi-latest
-        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler:latest
+        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/luigi:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -47,7 +47,7 @@ spec:
             value: "9200"
 
       - name: gsicrawler-elasticsearch-latest
-        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler:latest
+        image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
         imagePullPolicy: Always
         resources:
           limits:
