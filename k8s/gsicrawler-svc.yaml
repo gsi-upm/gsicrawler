@@ -8,9 +8,12 @@ spec:
   ports:
     - port: 8080
       protocol: TCP
+      name: web
     - port: 8000
       protocol: TCP
+      name: luigi
     - port: 9200
       protocol: TCP
+      name: elasticsearch
   selector:
     role: gsicrawler-latest
