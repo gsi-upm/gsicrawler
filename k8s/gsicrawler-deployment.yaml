@@ -79,6 +79,16 @@ spec:
           limits:
             memory: "2048Mi"
             cpu: "1000m"
+        env:
+        - name: ES_JAVA_OPTS
+          value: -Xms1g -Xmx1g
+        command: ["bin/elasticsearch"]
+        args: ['-Ehttp.host=0.0.0.0',
+               '-Etransport.host=127.0.0.1',
+               '-Ehttp.cors.enabled=true',
+               '-Ehttp.cors.allow-origin="*"',
+               '-Ehttp.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE',
+               '-Ehttp.cors.allow-headers=X-Requested-With, X-Auth-Token, Content-Type, Content-Length"']
         ports:
           - name: elasticsearch
             containerPort: 9200
