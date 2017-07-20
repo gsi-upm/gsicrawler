@@ -32,7 +32,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: gsicrawler-luigi
-  app: gsicrawler
 spec:
   replicas: 1
   template:
@@ -41,6 +40,7 @@ spec:
         role: gsicrawler-luigi
         app: gsicrawler
     spec:
+      containers:
       - name: gsicrawler-luigi
         image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/luigi:latest
         imagePullPolicy: Always
@@ -63,7 +63,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: gsicrawler-es
-  app: gsicrawler
 spec:
   replicas: 1
   template:
@@ -72,6 +71,7 @@ spec:
         role: gsicrawler-es
         app: test
     spec:
+      containers:
       - name: gsicrawler-elasticsearch-latest
         image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
         imagePullPolicy: Always
