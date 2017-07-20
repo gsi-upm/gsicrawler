@@ -2,17 +2,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: gsicrawler-latest
+  name: gsicrawler-web
+  app: gsicrawler
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        role: gsicrawler-latest
-        app: test
+        role: gsicrawler-web
+        app: gsicrawler
     spec:
       containers:
-      - name: gsicrawler-web-latest
+      - name: gsicrawler-web
         image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/web:latest
         imagePullPolicy: Always
         resources:
@@ -27,9 +28,21 @@ spec:
             value: "gsicrawler-luigi.cluster.gsi.dit.upm.es"
           - name: ES_ENDPOINT
             value: "gsicrawler-elasticsearch.cluster.gsi.dit.upm.es"
-
-
-      - name: gsicrawler-luigi-latest
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gsicrawler-luigi
+  app: gsicrawler
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: gsicrawler-luigi
+        app: gsicrawler
+    spec:
+      - name: gsicrawler-luigi
         image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/luigi:latest
         imagePullPolicy: Always
         resources:
@@ -39,21 +52,36 @@ spec:
         ports:
           - name: luigi
             containerPort: 8000
+          - name: luigi2
             containerPort: 8082
         env:
           - name: ES_ENDPOINT
-            value: "gsicrawler-elasticsearch-latest"
+            value: "gsicrawler-es"
           - name: ES_PORT
             value: "9200"
-
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gsicrawler-es
+  app: gsicrawler
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: gsicrawler-es
+        app: test
+    spec:
       - name: gsicrawler-elasticsearch-latest
         image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
         imagePullPolicy: Always
         resources:
           limits:
-            memory: "512Mi"
+            memory: "2048Mi"
             cpu: "1000m"
         ports:
           - name: elasticsearch
             containerPort: 9200
+          - name: elasticsearch-2
             containerPort: 9300
