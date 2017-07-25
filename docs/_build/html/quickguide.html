@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quick Guide &mdash; GSI Crawler 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GSI Crawler 1.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">GSI Crawler 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quick-guide">
+<h1>Quick Guide<a class="headerlink" href="#quick-guide" title="Permalink to this headline">¶</a></h1>
+<p>Here is a quick guide about basic use case of Sefarad. Is necessary to have the Sefarad instance running. If your don&#8217;t have one check <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/installation.html">Installation</a> section to obtain one.</p>
+<div class="section" id="collect-your-tweets-in-a-json-file">
+<h2>Collect your tweets in a json file<a class="headerlink" href="#collect-your-tweets-in-a-json-file" title="Permalink to this headline">¶</a></h2>
+<p>First of all, unanalysed tweets must be stored in a json file. For this example is used a tweets file called sefarad_demo.json
+Available for download <a class="reference external" href="https://lab.cluster.gsi.dit.upm.es/sefarad/sefarad-full/blob/master/sefarad_demo.json">here</a>
+These tweets have the following structure:</p>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span><span class="nt">&quot;user_location&quot;</span><span class="p">:</span><span class="s2">&quot;Spain&quot;</span><span class="p">,</span>
+ <span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="s2">&quot;Hello! This is the tweet that will be analyzed!&quot;</span><span class="p">,</span>
+ <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1234567890</span><span class="p">,</span>
+ <span class="nt">&quot;@timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2016-04-05T16:02:58.000Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="analyse-and-store-your-tweets-with-a-luigi-pipeline">
+<h2>Analyse and store your tweets with a Luigi pipeline<a class="headerlink" href="#analyse-and-store-your-tweets-with-a-luigi-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>Once the tweets are located, download the demo Luigi pipeline sefarad.py. Available <a class="reference external" href="https://lab.cluster.gsi.dit.upm.es/sefarad/sefarad-full/blob/master/sefarad.py">here</a></p>
+<p>Run the pipeline:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python3 -m luigi --module sefarad Elasticsearch --filename sefarad_demo.json --index elasticdemo --doc-type tweet --local-scheduler
+</pre></div>
+</div>
+<p>Now the analysed tweets are stored in an elasticsearch index called elasticdemo. Check it <a class="reference external" href="http://localhost:9200/elasticdemo/_search?pretty">here</a></p>
+</div>
+<div class="section" id="update-widget-and-dashboard-references">
+<h2>Update widget and dashboard references<a class="headerlink" href="#update-widget-and-dashboard-references" title="Permalink to this headline">¶</a></h2>
+<p>Once index is working, is needed to change some Web Components parameters. For example, it is mandatory to update your elasticsearch index name and your elasticsearch doctype.</p>
+<p>These changes must be done in the <strong>dashboard-name.html</strong> file, located in <code class="docutils literal"><span class="pre">elements/dashboard-name</span></code></p>
+<p>In this example spain-chart web component is updated.</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;spain-chart</span>
+        <span class="na">id=</span><span class="s">&quot;spain&quot;</span>
+        <span class="na">index=</span><span class="s">&quot;elasticdemo&quot;</span>
+        <span class="na">subindex=</span><span class="s">&quot;tweet&quot;</span>
+        <span class="na">query=</span><span class="s">&quot;{{query}}&quot;</span>
+        <span class="na">fields=</span><span class="s">&#39;[&quot;user.location&quot;, &quot;sentiment&quot;]&#39;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/spain-chart&gt;</span>
+</pre></div>
+</div>
+<p>Here is the same example with spider-chart web component.</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;spider-chart</span>
+        <span class="na">index=</span><span class="s">&quot;elasticdemo&quot;</span>
+        <span class="na">subindex=</span><span class="s">&quot;tweet&quot;</span>
+        <span class="na">query=</span><span class="s">&quot;{{query}}&quot;</span>
+        <span class="na">fields=</span><span class="s">&#39;[&quot;emotion&quot;, &quot;text&quot;]&#39;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/spider-chart&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sefarad.html">What is Sefarad?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboards-dev.html">Developing your own dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="widgets.html">Web Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Luigi Pipelines</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/quickguide.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

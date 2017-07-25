@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="analysis-card.html">
+<link rel="import" href="reddit-analysis-card.html">
 
 <dom-module id="new-analysis-dialog">
   <link rel="import" type="css" href="../../bower_components/paper-dialog-behavior/paper-dialog-common.css">
@@ -106,7 +107,7 @@
     ],
     ready: function() {
         this.url = this.$.urlinputbox.value;
-        this.$.valid.validate = this.validate.bind(this);
+        this.$.valid.validate = this.validate.bind(this);   
     },
     sentiments: function(e){
     	if(this.okurl()){
@@ -146,6 +147,9 @@
     	
     },
     okurl: function(){
+      if(this.webpage == 'reddit'){
+        return true;
+      }
       if(this.url == undefined || this.url == ""){
         this.showErrorToast("URL field is empty!");
         return false;
@@ -169,6 +173,8 @@
         this.image_logo = "../../images/tripadvisor_logo.png";
       else if(this.webpage == "foursquare")
         this.image_logo = "../../images/foursquare_logo.png";
+      else if(this.webpage == "reddit")
+        this.image_logo = "../../images/reddit_logo.png";
     },
     showErrorToast: function(message) {
       this.showToast(message, '#F44336');
@@ -184,19 +190,34 @@
       toast.show();
     },
     addFakeAnalysis: function() {
-      var analysis = new AnalysisCard(this.url, this.webpage, 'fake');
-      this.appendAnalysisOnTop(analysis);
+      if(this.webpage == 'reddit'){
+        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'fake')
+      }else{
+        var analysis = new AnalysisCard(this.url, this.webpage, 'fake');
+      }      this.appendAnalysisOnTop(analysis);
     },
     addSentimentAnalysis: function() {
-      var analysis = new AnalysisCard(this.url, this.webpage, 'sentiments');
+      if(this.webpage == 'reddit'){
+        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'sentiments')
+      }else{
+        var analysis = new AnalysisCard(this.url, this.webpage, 'sentiments');
+      }
       this.appendAnalysisOnTop(analysis);
     },
     addEmotionAnalysis: function() {
-      var analysis = new AnalysisCard(this.url, this.webpage, 'emotions');
+      if(this.webpage == 'reddit'){
+        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'emotions')
+      }else{
+        var analysis = new AnalysisCard(this.url, this.webpage, 'emotions');
+      }
       this.appendAnalysisOnTop(analysis);
     },
     addAllAnalysis: function(){
-      var analysis = new AnalysisCard(this.url, this.webpage, 'fake,emotions,sentiments');
+      if(this.webpage == 'reddit'){
+        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'fake,emotions,sentiments')
+      }else{
+        var analysis = new AnalysisCard(this.url, this.webpage, 'fake,emotions,sentiments');
+      }
       this.appendAnalysisOnTop(analysis);
     },
     appendAnalysisOnTop: function(analysis) {

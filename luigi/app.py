@@ -20,16 +20,35 @@ def startAnalysis():
 
     jsonreponse = {}
 
-    command = 'python -m luigi --module analysistask Elasticsearch --index gsicrawler --doc-type {website} --website {website} --url {url} --id {id} --analysisType {analysisType}'.format(url=url,website=website,id=identifier,analysisType=analysisType)
-    subprocess.call(command.split(), shell= False)
-    jsonreponse['index'] = 'gsicrawler'
-    jsonreponse['url'] = url
-    jsonreponse['website'] = website
-    jsonreponse['id'] = identifier
-    resp = make_response(json.dumps(jsonreponse))
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-    resp.headers['Content-Type'] = "application/json"
-    return resp
+    if website == 'reddit':
+    	#ES params
+        indexPosts= 'reddit'
+        indexComments='reddit'
+        doc_typePosts='posts'
+        doc_typeComments='comments'
+        print('reddit website - Run luigi reddit analysis task')
+        command = 'python -m luigi --module analysistask ElasticsearchReddit --index-Posts {indexPosts} --index-Comments {indexComments} --doc-type-Posts {doc_typePosts} --doc-type-Comments {doc_typeComments} --website {website} --url {url} --id {id} --analysisType {analysisType}'.format(url=url,website=website,id=identifier,analysisType=analysisType, indexPosts=indexPosts, indexComments=indexComments,doc_typePosts=doc_typePosts,doc_typeComments=doc_typeComments)
+        subprocess.call(command.split(), shell= False)
+        jsonreponse['index'] = 'gsicrawler'
+        jsonreponse['url'] = url
+        jsonreponse['website'] = website
+        jsonreponse['id'] = identifier
+        resp = make_response(json.dumps(jsonreponse))
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Content-Type'] = "application/json"
+        return resp
+    else:
+        command = 'python -m luigi --module analysistask Elasticsearch --index gsicrawler --doc-type {website} --website {website} --url {url} --id {id} --analysisType {analysisType}'.format(url=url,website=website,id=identifier,analysisType=analysisType)
+        subprocess.call(command.split(), shell= False)
+        jsonreponse['index'] = 'gsicrawler'
+        jsonreponse['url'] = url
+        jsonreponse['website'] = website
+        jsonreponse['id'] = identifier
+        resp = make_response(json.dumps(jsonreponse))
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Content-Type'] = "application/json"
+        return resp
+
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 8000)

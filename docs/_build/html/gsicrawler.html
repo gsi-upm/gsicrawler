@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>What is GSI Crawler? &mdash; GSI Crawler 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GSI Crawler 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to GSI Crawler’s documentation!" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to GSI Crawler’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GSI Crawler 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="what-is-gsi-crawler">
+<h1>What is GSI Crawler?<a class="headerlink" href="#what-is-gsi-crawler" title="Permalink to this headline">¶</a></h1>
+<p>GSI Crawler <a class="footnote-reference" href="#f1" id="id1">[1]</a> is an innovative and useful framework which enables to examine social networks and opinion websites by applying sentiment and emotion analysis techniques. Some of the available platforms are FourSquare and Amazon. The user interacts with the tool through a web interface, selecting the analysis type that wants to carry out and the platform that is going to be examined. Depending on the platform  selected, some aditional resources may be required, such as the URL of the specific content that will be analyzed.</p>
+<p>In this documentation we are going to introduce the framework presented above, detailing the global architecture of the project and explaining each module functionalities. Finally we will expose most relevant scenarios inside a case study in order to better understand the system itself.</p>
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<p>GSI Crawler environment is divided in four main modules, each one is focused in one concrete task:</p>
+<ul class="simple">
+<li><strong>Visualisation</strong>, the main function of this module is to represent processed data and display the analysis result, being accessible and interactive. This visualisation is mainly structured in a dashboard, where are represented the results obtained from independent platform queries. The dashboard itself is divided in other components (Polymer Web Components) that globally compound the webpage and redirects the user activity flow.</li>
+<li><strong>Tasks Server</strong>, is a remote server that handle every user request, processing it using Luigi. Luigi is used as an orchestrator to build sequences of tasks named pipelines through analytic services and elasticSearch, in order to facilitate analysis. Luigi is also used to populate elasticSearch with data. The main server goal is to stack those pipelines inside a queue system, executing them and redirecting the response to the client side in order to be shown.</li>
+<li><strong>Senpy</strong> <a class="footnote-reference" href="#f2" id="id2">[2]</a> , is a tool originally developed to create sentiment and emotion analysis servers easily. Its goal is to provide a simple way to turn sentiment analysis algorithms into servers, acesing them by making HTTP requests with the text to be analyzed.</li>
+<li><strong>ElasticSearch</strong> <a class="footnote-reference" href="#f3" id="id3">[3]</a> , represents the persistence layer of the project and stores all the amount of data needed for the visualisation. Once a request is made, the consequent response will be stored in elasticSearch, assigning a valid index so it can be displayed when the task has ended up.</li>
+</ul>
+<p>In this figure is a detailed view of the architecture described above:</p>
+<img alt="_images/arch.png" class="align-center" src="_images/arch.png" />
+</div>
+<div class="section" id="modules">
+<h3>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="visualisation-polymer-web-components">
+<h4>Visualisation - Polymer Web Components<a class="headerlink" href="#visualisation-polymer-web-components" title="Permalink to this headline">¶</a></h4>
+<p>As we explained in section before, the GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. In this section we are going to present those components which actively participate in the main application workflow.</p>
+<p>The GSI Crawler web interface looks like the image presented below,</p>
+<img alt="_images/gsicrawler-default-interface.png" class="align-center" src="_images/gsicrawler-default-interface.png" />
+<p>Inside this user interface we can notice several interesting components represented in the figure:</p>
+<img alt="_images/floating-button.png" class="align-left" src="_images/floating-button.png" />
+<p><strong>Begin to explore</strong> : This is the main input element within the web interface and enables to request a new analysis task for any available platform. It also needs a certain reference about the product or place to be analyzed.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<img alt="_images/floating-button-platforms.png" class="align-left" src="_images/floating-button-platforms.png" />
+<p><strong>Available platforms</strong> : Due to the high scalability offered by the GSI Crawler framework, it allows to perform analysis tasks inside several third party platforms or websites, such as social networks,online marketplaces, restaurants opinions or any other content. The tool has included by default the <em>FourSquare</em> and <em>Amazon</em> scrapers, being able to extract the opinions from a given link.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Choose the analysis</strong> : Once the content provider is selected, a card will pop up to select the analysis type and include the URL of the resource that is going to be treated.</p>
+<img alt="_images/choose-analysis.png" class="align-center" src="_images/choose-analysis.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Observe the result</strong> : Finally, the result will be presented in the dashboard showing the result for the requested analysis.</p>
+<a class="reference internal image-reference" href="_images/amazon-output.png"><img alt="_images/amazon-output.png" class="align-center" src="_images/amazon-output.png" style="width: 241.2px; height: 488.4px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Profundize inside the result</strong> The inferface also enables to go deeper inside the output obtained, being able to check the sentiment or emotion for each review, tweet or opinion, depending on the platform content.</p>
+<img alt="_images/amazon-output-reviews.png" class="align-center" src="_images/amazon-output-reviews.png" />
+</div>
+<div class="section" id="tasks-server">
+<h4>Tasks Server<a class="headerlink" href="#tasks-server" title="Permalink to this headline">¶</a></h4>
+<p>The tasks server is responsible for managing the incoming workflow and set up a valid pipeline to obtain the resources, analyze them and save the result in elasticSearch to be displayed in the client application. Luigi framework is used as an orchestator to build sequence of tasks in order to facilitate the analysis process.</p>
+<p>The main goal of the server is to provide an API REST to add new tasks to the Luigi queue, saving the result in elasticSearch instance and retrieving it asyncronously from the client website. This web service has been implemented using Python Flask library, and contains multiple API calls to queuing tasks depending on the platform selected.</p>
+<p>All the pipelines has the same structure, represented in figure below</p>
+<a class="reference internal image-reference" href="_images/picLuigi.png"><img alt="_images/picLuigi.png" class="align-center" src="_images/picLuigi.png" style="width: 703.0px; height: 317.0px;" /></a>
+<p>As is represented above, pipelines architecture is divided into three main steps, <em>Fetch</em>, <em>Analyze</em> and <em>Save</em>:</p>
+<ul class="simple">
+<li><strong>Fetch</strong> refers to the process of obtain the reviews, tweet, opinion or whatever is desired to be analyzed, from the URL provided. Most of the times, this task involves webpage parsing, recognizing valuable information contained inside html tags and building a new JSON file with only these data. This process is commonly known as <em>scrapping</em> a website. In order to facilitate this filtering process exists multiple extensions or library that offers a well-formed structure to carry out this task being less tedious. Inside the Tasks Server, we have imported the Scrapy library in order to agilize the data mining process. Scrapy is an open source and collaborative framework for extracting the data you need from websites, in a fast, simple, yet extensible way. It is based on sub classes named <em>spiders</em>, where are contained the required methods to extract the information. The GSI Crawler application has available two spiders, one for each platform Foursquare and Amazon respectively. So to conclude, this task focus on extract the valuable data and generate a JSON which contains all the sentences that will analyze the following task in the pipeline.</li>
+<li><strong>Analyze</strong> task is responsible of take the input JSON file generated by the previous task, parse it and analyze each text strign using Senpy remote server for it. Senpy service is based on HTTP calls, obtaining an analyzed result for the text attached in the request. Once the task has collected the analysis result, it generates another JSON containing the original sentence and its analysis result.</li>
+<li><strong>Save</strong> process consists on store the JSON generated previously which contains the analysis result inside elasticSearch instance. ElasticSearch is a distributed, RESTful search and analytics engine capable of solving a growing number of use cases. As the heart of the Elastic Stack, it centrally stores the data so you can discover the expected and uncover the unexpected. To carry put the saving process its necessary to provide two arguments, the <strong>index</strong>, which represents the elastic index where the information will be saved, and the <strong>doc type</strong>, which allows to categorize information that belongs to the same index. It exists a third parameter which is the <strong>id</strong> of the query, but it is automatically generated by default.</li>
+</ul>
+<p>To better understand these concepts, we are going to give a clear example that shows how the storing process works internally. Imagine that the user requests a <strong>sentiment</strong> analysis for a certain <strong>Amazon product</strong>. One elasticSearch parameters approach that would fit could be, <strong>amazon</strong> as the elasticSearch <em>index</em>, <strong>sentiment</strong> as the <em>doc type</em> because there could exist an emotion or even a fake analysis for the same platform, and lastly the <em>id</em> that could be the <strong>datetime</strong> when the task request was triggered.</p>
+<p>Once the Luigi orchestator has been explained, we will conclude this section detailing how the server behaves when it receives a user request, and what parameters are mandatory to run the operation. The RESTful API workflow is shown in diagram below:</p>
+<img alt="_images/task-diagram.png" class="align-center" src="_images/task-diagram.png" />
+</div>
+<div class="section" id="senpy">
+<h4>Senpy<a class="headerlink" href="#senpy" title="Permalink to this headline">¶</a></h4>
+</div>
+<div class="section" id="elastic-seach">
+<h4>Elastic Seach<a class="headerlink" href="#elastic-seach" title="Permalink to this headline">¶</a></h4>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>José Emilio Carmona. (2016). Development of a Social Media Crawler for Sentiment Analysis.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><ol class="first last upperalpha simple" start="10">
+<li>Fernando Sánchez-Rada, Carlos A. Iglesias, Ignacio Corcuera-Platas &amp; Oscar Araque (2016). Senpy: A Pragmatic Linked Sentiment Analysis Framework. In Proceedings DSAA 2016 Special Track on Emotion and Sentiment in Intelligent Systems and Big Social Data Analysis (SentISData).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="http://elastic.co">http://elastic.co</a>.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">What is GSI Crawler?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modules">Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#visualisation-polymer-web-components">Visualisation - Polymer Web Components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tasks-server">Tasks Server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#senpy">Senpy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#elastic-seach">Elastic Seach</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/gsicrawler.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

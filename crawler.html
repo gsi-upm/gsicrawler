@@ -91,6 +91,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="dropdown-content">
           <paper-fab mini icon="fa:foursquare" on-tap="newFoursquareAnalysis"></paper-fab>
           <paper-fab mini icon="fa:amazon" on-tap="newAmazonAnalysis"></paper-fab>
+          <paper-fab mini icon="fa:reddit" on-tap="newRedditAnalysis"></paper-fab>
         </div>
         </paper-fab-speed-dial>    
     </div>
@@ -142,6 +143,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         newAmazonAnalysis: function(){
           this.showNewAnalysisDialog('amazon');
         },
+        newRedditAnalysis: function(){
+          this.showNewAnalysisDialog('reddit');
+        },
 
         showNewAnalysisDialog: function(webpage){
           var container = document.getElementById('dialogs-container');
@@ -151,6 +155,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             new_analysis = new NewAnalysisDialog(webpage, 'https://es.foursquare.com/v/cafeter%C3%ADa-hd/4b5b0ca9f964a520d0e028e3');
           }else if(webpage == 'amazon'){
             new_analysis = new NewAnalysisDialog(webpage, "http://www.amazon.com/HP-H3C52AA-ABA-K1500-Keyboard/dp/B00E4TOWR0/");
+          }else if(webpage == 'reddit'){
+            new_analysis = new NewAnalysisDialog(webpage, "politics");
           }
 
           new_analysis.style.width = '80%';

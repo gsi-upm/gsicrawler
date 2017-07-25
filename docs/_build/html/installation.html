@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quick Start &mdash; GSI Crawler 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GSI Crawler 1.0 documentation" href="index.html" />
+    <link rel="next" title="Developing your own dashboard" href="dashboards-dev.html" />
+    <link rel="prev" title="What is Sefarad?" href="sefarad.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dashboards-dev.html" title="Developing your own dashboard"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sefarad.html" title="What is Sefarad?"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GSI Crawler 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<p>Sefarad installation is based in docker containers, only requirement is to have docker and docker-compose installed.</p>
+<p>For docker installation in Ubuntu, visit this <a class="reference external" href="https://store.docker.com/editions/community/docker-ce-server-ubuntu?tab=description">link</a></p>
+<p>Docker-compose installation detailed instructions are available <a class="reference external" href="https://docs.docker.com/compose/install/">here</a></p>
+<div class="section" id="install-with-docker-compose">
+<h2>Install with docker-compose<a class="headerlink" href="#install-with-docker-compose" title="Permalink to this headline">¶</a></h2>
+<p>First of all, you need to clone the Github repository:</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/sefarad.git
+$ cd sefarad
+</pre></div>
+</div>
+<p>Finally, it is necessary to change your <strong>ElasticSearch</strong> configuration folder permissions.</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ sudo chown -R 105 ./elasticsearch/config/
+</pre></div>
+</div>
+<p>Now the image is ready to run:</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ sudo docker-compose up
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In case of failure bringing up the project try to build the image again using sudo docker-compose build and then run it again.</p>
+</div>
+<p>Sefarad visualisation server is now running at port 8080, you can check with your web browser that the dashboard has no data. The url is <a class="reference external" href="http://localhost:8080/demos/tourpedia">http://localhost:8080/demos/tourpedia</a></p>
+</div>
+<div class="section" id="loading-demo-data-to-visualisation-server">
+<h2>Loading demo data to visualisation server<a class="headerlink" href="#loading-demo-data-to-visualisation-server" title="Permalink to this headline">¶</a></h2>
+<p>Loading data has been developed as a Luigi pipeline. We can found all necessary files inside <code class="docutils literal"><span class="pre">luigi</span></code> folder. You can check your Luigi central scheduler in <a class="reference external" href="http://localhost:8082">http://localhost:8082</a>. This central scheduler is helpful to check if your tasks are working properly.</p>
+<p>Is also possible to configure email alerts in case of failure. This settings can be modified in docker-compose.yml file, inside environment variables for Luigi container.</p>
+<p>For this demo first of all, we execute the Luigi pipeline called add_tweet.</p>
+<p>There are some required parameters in this pipeline:</p>
+<ul class="simple">
+<li>index: Elasticsearch index were data is going to be stored</li>
+<li>doc-type: Elasticsearch doc-type inside the index.</li>
+<li>filename: This is our demo data collected in a JSON file.</li>
+</ul>
+<p>After all this considerations, run the pipeline:</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ sudo docker-compose exec luigi python -m luigi --module add_tweets Elasticsearch --index tourpedia --doc-type places --filename add_demo.json
+</pre></div>
+</div>
+<p>Our Luigi Execution Summary should say:</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>Scheduled 2 tasks of which:
+* 2 ran successfully:
+    - 1 Elasticsearch(date=XXXX-XX-XX, filename=add_demo.json, index=tourpedia, doc_type=places)
+    - 1 FetchDataTask(filename=add_demo.json)
+
+This progress looks :) because there were no failed tasks or missing external dependencies
+</pre></div>
+</div>
+<p>Now is time to check our index in elasticsearch <a class="reference external" href="http://localhost:9200/_cat/indices">here</a> there should be a line with an index called tourpedia.</p>
+<p>Finally, check your Sefarad visualisation environment has data reloading the <a class="reference external" href="http://localhost:8080/demos/tourpedia">http://localhost:8080/demos/tourpedia</a> page.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="sefarad.html">What is Sefarad?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install-with-docker-compose">Install with docker-compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loading-demo-data-to-visualisation-server">Loading demo data to visualisation server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dashboards-dev.html">Developing your own dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="widgets.html">Web Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Luigi Pipelines</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/installation.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configure a custom data source &mdash; GSI Crawler 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GSI Crawler 1.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">GSI Crawler 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="configure-a-custom-data-source">
+<h1>Configure a custom data source<a class="headerlink" href="#configure-a-custom-data-source" title="Permalink to this headline">¶</a></h1>
+<p>In this section we will explain how to save your custom datasets in elasticsearch databases and access through the elastic search browser interface.</p>
+<div class="section" id="previous-knowledge-about-elasticsearch">
+<h2>Previous knowledge about Elasticsearch<a class="headerlink" href="#previous-knowledge-about-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<p>Elasticsearch <a class="footnote-reference" href="#f1" id="id1">[1]</a> is a distributed, RESTful search and analytics engine capable of solving a growing number of use cases. As the heart of the Elastic Stack, it centrally stores your data so you can discover the expected and uncover the unexpected. Before import your own data, there are certain elements inside elasticsearch architecture that you should know:</p>
+<ul class="simple">
+<li>What is an index in Elasticsearch? Well, an index is some type of data organization mechanism, allowing the user to partition data a certain way.</li>
+<li>What is a type in Elasticsearch? A type in Elasticsearch represents a class of similar documents.</li>
+</ul>
+<p>So if we exemplify all these concepts, imagine that your have a football tweet analysis scenario, <strong>MyFootballTweet</strong> will be your index. Within this index, you have three diferent types, <strong>sentiments</strong>, <strong>emotions</strong> and <strong>fake</strong> analysis.</p>
+</div>
+<div class="section" id="analyse-and-import-your-dataset-to-elasticsearch">
+<h2>Analyse and import your dataset to ElasticSearch<a class="headerlink" href="#analyse-and-import-your-dataset-to-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<p>In this section we will explain how should be your dataset structure, how Luigi pipelines works and the workflow implemented depending on your data, how Senpy handle our data and returns the sentiment/emotion analysis, and finally how this data is saved in Elasticsearch and how to visualize it.</p>
+<p>It is important to define correctly the text parameter, which would be the string that analyzed by Senpy.</p>
+<div class="section" id="tweet-datasets">
+<h3>Tweet datasets<a class="headerlink" href="#tweet-datasets" title="Permalink to this headline">¶</a></h3>
+<p>These datasets must have the following JSON structure. The text, id and &#64;timestamp fields are mandatory,and the others are optional parameters:</p>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">[</span>
+   <span class="p">{</span><span class="nt">&quot;user_location&quot;</span><span class="p">:</span><span class="s2">&quot;Spain&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="s2">&quot;Hello! This is the tweet that will be analyzed!&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1234567890</span><span class="p">,</span>
+    <span class="nt">&quot;@timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2016-04-05T16:02:58.000Z&quot;</span>
+   <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="import-your-elasticsearch-indices">
+<h2>Import your ElasticSearch indices<a class="headerlink" href="#import-your-elasticsearch-indices" title="Permalink to this headline">¶</a></h2>
+<p>If you have used docker for installation:</p>
+<p>Firstly, you have to locate your elasticsearch installation folder. Inside this folder you find <code class="docutils literal"><span class="pre">data/nodes</span></code>, copy this folder into <code class="docutils literal"><span class="pre">&lt;sefarad-folder&gt;/elasticsearch/nodes</span></code></p>
+<p>Restart your sefarad instance:</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ docker-compose build
+$ docker-compose up
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://elastic.co">http://elastic.co</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sefarad.html">What is Sefarad?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboards-dev.html">Developing your own dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="widgets.html">Web Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Luigi Pipelines</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/datasource.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

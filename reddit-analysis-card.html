@@ -8,7 +8,7 @@
 <link rel="import" href="sentiment-review-view.html">
 <link rel="import" href="emotion-review-view.html">
 
-<dom-module id="analysis-card">
+<dom-module id="reddit-analysis-card">
 	<style is="custom-style">
 
 		div.card-content{
@@ -54,7 +54,7 @@
 	    }
 
 	    span.grade{
-	    	font-size: 300%;
+	    	font-size: 150%;
 	    }
 
 	    paper-button.red {
@@ -88,25 +88,28 @@
 				</div>
 				<div id="result" style="display:none;">
 					<div class = "analysisInfo">
-						<iron-image preload src="{{ image }}" sizing="contain" style="width:256px; height:256px;"></iron-image>
-						<h3><strong>Name:</strong></h3> <span>{{ name }}</span>
-						<h3><strong>Total Comments:</strong></h3> <span>{{ number_total_reviews }}</span>
+						<!--<iron-image preload src="{{ image }}" sizing="contain" style="width:256px; height:256px;"></iron-image>-->
+						<h3><strong>Search query:</strong></h3> <span>{{ search }}</span>
+						<h3><strong>Number of entries:</strong></h3> <span>{{ number_total_entries }}</span>
+						<h3><strong>Total Comments:</strong></h3> <span>{{ number_total_comments }}</span>
 					</div>
 					<div id="fakeAnalysisInfo" class="analysisInfo">
 						<h3><strong>Fake Comments:</strong></h3> <span>{{ number_fake_reviews }}</span>
 						<h3><strong>Grade:</strong></h3> <h1><span id="fakeGrade" class="grade">{{ grade }}</span></h1>
 						(<strong><span>{{ percent }}</span>%</strong> fake comments detected)
 						<br>
-						<paper-button id="fake-reviews-button" on-tap="showFakeReviews" class="red"><iron-icon icon="fa:commenting-o"></iron-icon> Reviews</paper-button>
+						<!--<paper-button id="fake-reviews-button" on-tap="showFakeReviews" class="red"><iron-icon icon="fa:commenting-o"></iron-icon> Reviews</paper-button>-->
 					</div>
 					<div id="emotionsAnalysisInfo" class="analysisInfo">
 						<h3><strong>Emotion: </strong><i id="disgusted" class="twa twa-2x twa-unamused"></i><i id="angry" class="twa twa-2x twa-angry"></i><i id="afraid" class="twa twa-2x twa-confounded"></i><i id="sad" class="twa twa-2x twa-cry"></i><i id="happy" class="twa twa-2x twa-smiley"></i><i id="surprised" class="twa twa-2x twa-open-mouth"></i></h3> <h1><span id="emotionsGrade" class="grade">{{ predominantEmotion }}</span></h1>
-						<paper-button id="emotions-reviews-button" class="reviews-button" on-tap="showEmotionsReviews" class="blue"><iron-icon icon="fa:commenting-o"></iron-icon> Reviews</paper-button>
+						<!--<paper-button id="emotions-reviews-button" class="reviews-button" on-tap="showEmotionsReviews" class="blue"><iron-icon icon="fa:commenting-o"></iron-icon> Reviews</paper-button>-->
 					</div>
 					<br>
 					<div id="sentimentsAnalysisInfo" class="analysisInfo">
-						<h3><strong>Average Polarity: </strong><span id="symbol"></span></h3> <h1><span id="sentimentsGrade" class="grade">{{ averagePolarity }}</span></h1>
-						<paper-button id="sentiments-reviews-button" class="reviews-button" on-tap="showSentimentsReviews" class="red"><iron-icon icon="fa:commenting-o"></iron-icon> Reviews</paper-button>
+						<h4><strong>Positive Comments: <span id="sentimentsGrade" class="grade">{{ positiveComments }}</span></strong></h4>
+						<h4><strong>Neutral Comments: <span id="sentimentsGrade" class="grade">{{ neutralComments }}</span></strong></h4>
+						<h4><strong>Negative Comments: <span id="sentimentsGrade" class="grade">{{ negativeComments }}</span></strong></h4>
+						<!--<paper-button id="sentiments-reviews-button" class="reviews-button" on-tap="showSentimentsReviews" class="red"><iron-icon icon="fa:commenting-o"></iron-icon> Reviews</paper-button>-->
 					</div>
 
 				</div>
@@ -132,8 +135,8 @@
 </dom-module>
 
 <script>
-	AnalysisCard = Polymer({
-		is: 'analysis-card',
+	RedditAnalysisCard = Polymer({
+		is: 'reddit-analysis-card',
 
 		behaviors: [
   			Polymer.NeonAnimationRunnerBehavior
@@ -154,10 +157,18 @@
 			uuid: String,
 			image_logo: String,
 			image: String,
-			name: String,
+
+			search: String,
+			number_total_entries: Number,
+			number_total_comments: Number,
+			posts : Array,
+			comments: Array,
+			positiveComments: String,
+			neutralComments: String,
+			negativeComments: String,
+
 			grade: String,
 			reviews: Array,
-			number_total_reviews: Number,
 			number_fake_reviews: Number,
 			percent: Number,
 			progress: String,
@@ -215,7 +226,7 @@
 			}
 			this.selectLogo();
 		},
-		scrapStarted: function(event){
+		scrapStarted: function(event){				
 			response = event.detail.response;
 			if(response == null){
 				this.showError('Connection error. Please check your internet connection.');
@@ -252,9 +263,21 @@
 			}, delay);
 		},
 		infoReceived: function(event){
-			elasticresponse = event.detail.response;
+			/*elasticresponse = event.detail.response;
 			try{
-				response = elasticresponse.hits.hits[0]["_source"]
+				//Get posts and comments
+				for(int i = 0; i<response.hits.hits.length; i++){
+					doc_type = response.hits.hits[i]["_type"]
+					if(doc_type == 'posts'){
+						//Entries
+						this.comments = response.hits.hits[i]["_source"]
+					}
+
+					if(doc_type == 'comments'){
+						//Comments
+						this.comments = response.hits.hits[i]["_source"]
+					}
+				}
 			}catch(err){
 				//console.log(err)
 				this.showError('Crawling error.. Please try again later.');
@@ -279,14 +302,14 @@
 					this.showLoading(this.progressmessage);
 				}
 			}else{
-				console.log(response)
-				this.name = response.name;
-				this.image = response.image;
-				this.number_total_reviews = response.reviews.length;
-				this.reviews = response.reviews;
-				if(response.containsFakeAnalysis){
+				console.log(response)*/
+				this.search = this.url
+				this.number_total_entries = '0'
+				this.number_total_comments = '0'
+
+				if(this.analysis_type == 'fake'){
 					this.number_fake_reviews = 0;
-					for(i=0; i < response.reviews.length; i++){
+					/*for(i=0; i < response.reviews.length; i++){
 						if(response.reviews[i]['fake'])
 							this.number_fake_reviews++;
 					}
@@ -296,34 +319,42 @@
 					if(this.percent < 20) this.grade = 'A';
 					else if(this.percent < 40) this.grade = 'B';
 					else if(this.percent < 60) this.grade = 'C';
-					else if(this.percent < 80) this.grade = 'D';
+					else if(this.percent < 80) this.grade = 'D';*/
 					this.applyColorByFakeGrade();
 				}else{
 					this.$.fakeAnalysisInfo.style="display:none;";
 				}
 
-				if(response.containsSentimentsAnalysis){
+				if(this.analysis_type == 'sentiments'){
 					this.averagePolarity = 0;
-					for(i=0; i<response.reviews.length; i++){
-						//this.averagePolarity += response.reviews[i].sentimentAnalysis.entries[0].opinions[0]['marl:hasPolarityValue'];
-						this.averagePolarity += parseInt(response.reviews[i]['polarity']);
-						//console.log(parseInt(response.reviews[i]['polarity']));
-					}
 
-					this.averagePolarity /= this.number_total_reviews;
-					this.averagePolarity = Math.round(this.averagePolarity * 100) / 100
-					this.applyColorBySentimentGrade();
+					/*for(i=0; i<this.comments.length; i++){
+						//this.averagePolarity += response.reviews[i].sentimentAnalysis.entries[0].opinions[0]['marl:hasPolarityValue'];
+						//this.averagePolarity += parseInt(this.comments[i]['polarity']);
+						//console.log(parseInt(response.reviews[i]['polarity']));
+						this.positiveComments += 1
+						this.neutralComments += 1
+						this.negativeComments += 1
+					}
+					this.positiveComments = this.positiveComments *100/this.number_total_comments
+					this.neutralComments = this.neutralComments *100/this.number_total_comments
+					this.negativeComments = this.negativeComments *100/this.number_total_comments*/
+					this.positiveComments = '0 %'
+					this.neutralComments = '0 %'
+					this.negativeComments = '0 %'
+
+					//this.applyColorBySentimentGrade();
 				}else{
 					this.$.sentimentsAnalysisInfo.style="display:none;";
 				}
 
-				if(response.containsEmotionsAnalysis){
+				if(this.analysis_type == 'emotions'){
 					var joy = 0;
 					var surprised = 0;
 					var disgust = 0;
 					var sad = 0;
 					var angry = 0;
-					for(i=0; i<response.reviews.length; i++){
+					/*for(i=0; i<response.reviews.length; i++){
 						//var emotion = this.reviews[i].emotionAnalysis.entries[0]['nif:emotionSets'].emotions[0]['onyx:hasEmotionCategory'];
 						var emotion = this.reviews[i]['emotion'];
 						if(emotion.indexOf('joy') >= 0)
@@ -350,14 +381,14 @@
 					}else{
 						this.predominantEmotion = "Angry";
 					}
-					this.applyColorByEmotionGrade();
+					this.applyColorByEmotionGrade();*/
 				}else{
 					this.$.emotionsAnalysisInfo.style="display:none;";
 				}
 
 				this.showResult();
-				this.showOkToast(this.name +' analysis finished!');
-			}
+				//this.showOkToast(this.search +' analysis finished!');
+			//}
 		},
 		applyColorByFakeGrade: function(){
 			if(this.grade == 'A')
@@ -470,6 +501,8 @@
 	        this.image_logo = "/images/foursquare_logo.png";
 	      else if(this.webpage == "twitter")
 	        this.image_logo = "/images/twitter_logo.png";
+	      else if(this.webpage == "reddit")
+	        this.image_logo = "/images/reddit_logo.png";
 		},
 	    showOkToast: function(message){
 	      this.showToast(message, '#00E676');
