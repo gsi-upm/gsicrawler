@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Luigi Pipelines &mdash; GSI Crawler 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GSI Crawler 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Web Components" href="widgets.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="widgets.html" title="Web Components"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GSI Crawler 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="luigi-pipelines">
+<h1>Luigi Pipelines<a class="headerlink" href="#luigi-pipelines" title="Permalink to this headline">¶</a></h1>
+<p>We use Luigi as orchestrator to build pipelines through our search and indexing system and the analytic services, in order to facilitate analysis. It handles dependency resolution, workflow management, visualization etc. Luigi needs a script describing the pipeline to follow.</p>
+<p>These scripts describe tasks. This tasks has a execution sequence, i.e. the final task depend on the others. This means that for running the script you only need to call the final task.</p>
+<p>For following steps, the example used is sefarad.py (this script is located inside Luigi folder)</p>
+<p>In our example tasks are: FetchDataTask, SenpyTask and Elasticsearch.</p>
+<ul class="simple">
+<li><strong>FetchDataTask</strong>: The main goal of this task is to read the JSON file.</li>
+</ul>
+<div class="code python highlight-python"><div class="highlight"><pre> def run(self):
+&quot;&quot;&quot;
+Writes data in JSON format into the task&#39;s output target.
+The data objects have the following attributes:
+* `_id` is the default Elasticsearch id field,
+* `text`: the text,
+&quot;&quot;&quot;
+#today = datetime.date.today()
+file = self.filename
+
+with open(file) as f:
+    j = json.load(f)
+    for i in j:
+        i[&quot;_id&quot;] = i[&quot;id&quot;] #necessary for elasticsearch index
+with self.output().open(&#39;w&#39;) as output:
+    json.dump(j, output)
+    output.write(&#39;\n&#39;)
+</pre></div>
+</div>
+<ul class="simple">
+<li><strong>SenpyTask</strong>: This task loads data fetched with previous task and send it to Senpy tool in order to analyse data retrieved and check sentiments expressed.</li>
+</ul>
+<div class="code python highlight-python"><div class="highlight"><pre> def run(self):
+&quot;&quot;&quot;
+Send data to Senpy tool and retrieve it analyzed. Store data in a json file.
+&quot;&quot;&quot;
+with self.output().open(&#39;w&#39;) as output:
+    with self.input().open(&#39;r&#39;) as infile:
+        j = json.load(infile)
+        for i in j:
+            r = requests.get(&#39;http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&amp;i=%s&#39; % i[&quot;text&quot;])
+            response = r.content.decode(&#39;utf-8&#39;)
+            response_json = json.loads(response)
+            i[&quot;_id&quot;] = i[&quot;id&quot;]
+            #i[&quot;analysis&quot;] = response_json
+            i[&quot;sentiment&quot;] = response_json[&quot;entries&quot;][0][&quot;sentiments&quot;][0][&quot;marl:hasPolarity&quot;]
+            i[&quot;polarity&quot;] = response_json[&quot;entries&quot;][0][&quot;sentiments&quot;][0][&quot;marl:polarityValue&quot;]
+            output.write(json.dumps(i))
+            #print(i)
+            output.write(&#39;\n&#39;)
+</pre></div>
+</div>
+<ul class="simple">
+<li><strong>Elasticsearch</strong>: This task loads JSON data contained in the file produced in the previous step into an Elasticsearch index.</li>
+</ul>
+<div class="section" id="running-luigi-pipelines">
+<h2>Running Luigi pipelines<a class="headerlink" href="#running-luigi-pipelines" title="Permalink to this headline">¶</a></h2>
+<p>This command is for running your pipelines. You have to introduce your script name in modules and the end task of your script.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>sudo docker-compose <span class="nb">exec </span>luigi python -m luigi --module &lt;your-script-name&gt; &lt;your-final-task&gt; --index &lt;your-elasticsearch-index&gt; --doc-type &lt;your-elasticsearch-doctype&gt; -- filename &lt;your .json path&gt;
+</pre></div>
+</div>
+<p>In our example:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>sudo docker-compose <span class="nb">exec </span>luigi python -m luigi --module add_tweets Elasticsearch --index tourpedia --doc-type places --filename add_demo.json
+</pre></div>
+</div>
+<p>Create your own pipelines like in the example and add them to Luigi folder is also necessary to add your JSON file to this folder, run them with the same command explained above.</p>
+</div>
+<div class="section" id="cron-luigi-pipeline">
+<h2>Cron Luigi Pipeline<a class="headerlink" href="#cron-luigi-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>This cron job is designed for sentiment analysis in Twitter every day. This will update your dashboard content automatically.
+For using this cron pipeline is necessary to change docker-compose.yml file adding your own enviroment variables:</p>
+<p>There are the following parameters available:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you set LUIGI_AUTO_ENABLED to False the other parameters are not needed.</p>
+</div>
+<div class="code yaml highlight-python"><div class="highlight"><pre>- LUIGI_AUTO_ENABLED=True #Set this to True if you want to start Twitter analysis pipeline as a cron job
+- CONSUMER_KEY={your twitter CONSUMER_KEY goes here}
+- CONSUMER_SECRET={your twitter CONSUMER_SECRET goes here}
+- ACCESS_TOKEN={your twitter ACCESS_TOKEN goes here}
+- ACCESS_TOKEN_SECRET={your twitter ACCESS_TOKEN_SECRET goes here}
+- EMAIL={email addres for Luigi notifications}
+- SMTP_HOST={your SMTP server}
+- SMTP_PORT={your SMTP server port}
+- SEARCH_QUERY={twitter hashtag or user you want to track}
+- INDEX={elasticsearch index to store your data}
+- DOC_TYPE={elasticsearch data doctype}
+</pre></div>
+</div>
+<p>Mail configuration is not required but is highly recommended to be notified when a task fails.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Please visit, <a class="reference external" href="https://apps.twitter.com/">https://apps.twitter.com/</a> to create your app if you don&#8217;t have your Twitter credentials.</p>
+</div>
+<p>After your configuration is completed, run Sefarad image again:</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ sudo docker-compose up
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If your get a connection error: build the image again and then run it.</p>
+</div>
+<p>Finally, check your elasticsearch index entered above. If you want to use this new data in your dashboard just update your index and doc-type references in your HTML dashboard file.</p>
+</div>
+<div class="section" id="luigi-service">
+<h2>Luigi Service<a class="headerlink" href="#luigi-service" title="Permalink to this headline">¶</a></h2>
+<p>In order to queue new crawling requests, a Python Flask server has been developed to stack these tasks using Luigi. The service enables to send basic input parameters, such as the url of the website desired to be scrapped, the analysis type and the elasticSearch basic information. The remote service processes all these data and creates performs the pipeline in background, fetching, analyzing and finally saving the data. The service returns the id and index where has been stored in elasticSearch.</p>
+<p>To explain more in deepth this work-flow process, we are going to briefly introduce an illustrative example.</p>
+<p>The case study explained is: &#8220;<strong>Perform a sentiment analysis for HP Wired USB Keyboard from Amazon website</strong>&#8221;. The pipeline architecture is represented below:</p>
+<a class="reference internal image-reference" href="_images/picLuigi.png"><img alt="_images/picLuigi.png" class="align-center" src="_images/picLuigi.png" style="width: 703.0px; height: 320.0px;" /></a>
+<p>The service receives the new task input parameter, which are the url of the product from where the reviews will be extracted, the analysis that is going to be performed and the platform where is hosted the product. The service creates a new elasticSearch task and the execution begins. Once the result is saved in elasticSearch, the API call returns the destination where its stored so the user can retrieve it. This service is only available for Amazon and Foursquare platforms, and is currently used by the GSICrawler dashboard.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="sefarad.html">What is Sefarad?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboards-dev.html">Developing your own dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="widgets.html">Web Components</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Luigi Pipelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-luigi-pipelines">Running Luigi pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cron-luigi-pipeline">Cron Luigi Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#luigi-service">Luigi Service</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/pipelines.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

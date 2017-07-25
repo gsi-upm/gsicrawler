@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>What is Sefarad? &mdash; GSI Crawler 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GSI Crawler 1.0 documentation" href="index.html" />
+    <link rel="next" title="Quick Start" href="installation.html" />
+    <link rel="prev" title="Welcome to Sefarad’s documentation!" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="installation.html" title="Quick Start"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Sefarad’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GSI Crawler 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="what-is-sefarad">
+<h1>What is Sefarad?<a class="headerlink" href="#what-is-sefarad" title="Permalink to this headline">¶</a></h1>
+<p>Sefarad is an environment developed to explore, analyse and visualize data. This environmet has a modular structure.</p>
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<p>Sefarad environment is divided in three main modules, each one is focused in one concrete task:</p>
+<ul class="simple">
+<li>Visualisation, the main function of this module is to represent data which were processed and draw different charts to visualize interesting data. This visualisation is structured in several dashboards, which are web pages oriented to display all the collected information . In addition, these dashboards are divided in other components (Polymer Web Components) that globally compound the dashboard itself.</li>
+<li>ElasticSearch <a class="footnote-reference" href="#f0" id="id1">[1]</a>, represents the persistence layer of the project and stores all the amount of data needed for the visualisation.</li>
+<li>Luigi, is used as an orchestrator to build sequences of tasks named pipelines through analytic services and elasticSearch, in order to facilitate analysis. Luigi is also used to populate elasticSearch with data.</li>
+</ul>
+<p>In this figure is a detailed view of the architecture described above.</p>
+<a class="reference internal image-reference" href="_images/arch.png"><img alt="_images/arch.png" class="align-center" src="_images/arch.png" style="width: 829.0px; height: 320.0px;" /></a>
+</div>
+<div class="section" id="dashboards">
+<h2>Dashboards<a class="headerlink" href="#dashboards" title="Permalink to this headline">¶</a></h2>
+<p>Sefarad framework has multiple predefined dashboards which are ready to be used. Due to its high flexibility, it enables to display any kind of information, either user custom data sets or others included by default in the project.</p>
+<p>In this section we are going to explain each dashboard, detailing most user-attractive functionalities using a predefined dataset and presenting the real value of the tool, so anyone can use Sefarad framework by applying their customized data.</p>
+<p>Due to the modular architecture offered by Sefarad framework, each dashboard has its own structure regardless, being able to interact with the components without influecing the rest. Moreover we are going to focus on explain what can be done in every dashboard through a case study without deepening inside its internal behaviour.</p>
+<div class="section" id="sparql-dbpedia">
+<h3>SPARQL DBpedia <a class="footnote-reference" href="#f1" id="id2">[2]</a><a class="headerlink" href="#sparql-dbpedia" title="Permalink to this headline">¶</a></h3>
+<p>DBpedia is a crowd-sourced community effort to extract structured information from Wikipedia and make this information available on the Web. DBpedia allows you to ask sophisticated queries against Wikipedia, and to link the different data sets on the Web to Wikipedia data.</p>
+<p>This dashboard provides a graphic interface to ask SPARQL queries against DBpedia.</p>
+<a class="reference internal image-reference" href="_images/dbpedia.png"><img alt="_images/dbpedia.png" class="align-center" src="_images/dbpedia.png" style="width: 1117.0px; height: 400.0px;" /></a>
+</div>
+<div class="section" id="tourpedia">
+<h3>Tourpedia <a class="footnote-reference" href="#f1" id="id3">[2]</a><a class="headerlink" href="#tourpedia" title="Permalink to this headline">¶</a></h3>
+<p>TourPedia is the result of an European project. It is a demo of OpenNER (Open Polarity Enhanced Name Entity Recognition). It contains information about accommodations, restaurants, points of interest and attractions of different places in Europe.</p>
+<p>TourPedia provides two main datasets: Places and Reviews. Each place contains useful information such as the name, the address and its URI to Facebook, Foursquare, GooglePlaces and Booking. Reviews contain also some useful details ready for us to exploit.</p>
+<p>This dashboard also allows you to ask SPARQL quereies against our TourPedia database.</p>
+<a class="reference internal image-reference" href="_images/tourpedia.png"><img alt="_images/tourpedia.png" class="align-center" src="_images/tourpedia.png" style="width: 1088.0px; height: 400.0px;" /></a>
+</div>
+<div class="section" id="financial-twitter-tracker">
+<h3>Financial Twitter Tracker <a class="footnote-reference" href="#f1" id="id4">[2]</a><a class="headerlink" href="#financial-twitter-tracker" title="Permalink to this headline">¶</a></h3>
+<p>Financial Twitter Tracker is an R&amp;D project of GSI Group that contains information about people talking about brands in social media like Twitter, Facebook, and more...</p>
+<p>This dashboard provides interactive Web Components to visualize people&#8217;s opinion polarities and also has a SPARQL editor to ask queries about these opinions using RDF specifications.</p>
+<a class="reference internal image-reference" href="_images/ftt.png"><img alt="_images/ftt.png" class="align-center" src="_images/ftt.png" style="width: 1097.0px; height: 400.0px;" /></a>
+</div>
+<div class="section" id="footballmood">
+<h3>Footballmood <a class="footnote-reference" href="#f2" id="id5">[3]</a><a class="headerlink" href="#footballmood" title="Permalink to this headline">¶</a></h3>
+<p>Footballmood is an application developed for sentiment analysis of football in Twitter. This dashboard provides interactive Web Components to visualize people&#8217;s opinion polarities and also has a SPARQL editor to ask queries about football players against DBpedia.</p>
+<a class="reference internal image-reference" href="_images/footballmood.png"><img alt="_images/footballmood.png" class="align-center" src="_images/footballmood.png" style="width: 1093.0px; height: 400.0px;" /></a>
+</div>
+<div class="section" id="aspects">
+<h3>Aspects <a class="footnote-reference" href="#f3" id="id6">[4]</a><a class="headerlink" href="#aspects" title="Permalink to this headline">¶</a></h3>
+<p>Aspects dashboard is an analyser developed for aspects sentiment analysis of restaurant reviews. This is the result of analysis showed on a dashboard based on web components and D3.js. To view your data you can use widgets and visualize it through them.</p>
+<p>The data used for the dashboard is the Semeval 2015 ABSA dataset (Task 12) for restaurant domain, available <a class="reference external" href="http://alt.qcri.org/semeval2015/task12/">here</a></p>
+<a class="reference internal image-reference" href="_images/aspects.png"><img alt="_images/aspects.png" class="align-center" src="_images/aspects.png" style="width: 1124.0px; height: 400.0px;" /></a>
+</div>
+<div class="section" id="gsi-crawler">
+<h3>GSI Crawler <a class="footnote-reference" href="#f4" id="id7">[5]</a><a class="headerlink" href="#gsi-crawler" title="Permalink to this headline">¶</a></h3>
+<p>This dashboard is useful to the analysis of comments from external aplications like Amazon and Foursquare. The user will choose the type of analysis he wants to carry out (Emotions, Sentiments or Fake Analysis) and he will also supply, for instance, a direct URL to a Amazon’s Product.</p>
+<p>GSI Crawler functionalities relies on enqueue system. The website generates a query with relevant information, such as the url, the website, the analysis type that is going to be performed etc. This parameters trigger a Luigi pipeline, which is a sequence of tasks that follow a depedency tree each other. These tasks fetch the information from the provided link, preprocess it, run the sentiment or emotion analysis using Senpy tool <a class="footnote-reference" href="#f5" id="id8">[6]</a> and finally store it in elasticSearch so it can be accessed from the client.</p>
+<p>The website receives the path where the result has been saved, retrieving the information and making a query to elasticSearch to add a new card within the user interface containing the output data.</p>
+<a class="reference internal image-reference" href="_images/gsicrawler.png"><img alt="_images/gsicrawler.png" class="align-center" src="_images/gsicrawler.png" style="width: 1131.0px; height: 400.0px;" /></a>
+<p>GSICrawler tool is directly connected with a Luigi task service, adding a new task to a remote queue everytime an analysis is requested, and retrieving the result from the elasticSearch index obtained. The queue service is detailed in <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/pipelines.html#luigi-service">Pipelines &gt; Luigi Service</a> section.</p>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="f0" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://elastic.co">http://elastic.co</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>, <a class="fn-backref" href="#id4">3</a>)</em> Enrique Conde Sánchez. (2016). Development of a Social Media Monitoring System based on Elasticsearch and Web Components Technologies.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>Alberto Pascual Saavedra. (2016). Development of a Dashboard for Sentiment Analysis of Football in Twitter based on Web Components and D3.js.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td>Manuel García-Amado. (2016). Development of an Aspect-based Sentiment Analyzer for the Social Web and Application to Product Reviews.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[5]</a></td><td>José Emilio Carmona. (2016). Development of a Social Media Crawler for Sentiment Analysis.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[6]</a></td><td><ol class="first last upperalpha simple" start="10">
+<li>Fernando Sánchez-Rada, Carlos A. Iglesias, Ignacio Corcuera-Platas &amp; Oscar Araque (2016). Senpy: A Pragmatic Linked Sentiment Analysis Framework. In Proceedings DSAA 2016 Special Track on Emotion and Sentiment in Intelligent Systems and Big Social Data Analysis (SentISData).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">What is Sefarad?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dashboards">Dashboards</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sparql-dbpedia">SPARQL DBpedia </a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tourpedia">Tourpedia </a></li>
+<li class="toctree-l3"><a class="reference internal" href="#financial-twitter-tracker">Financial Twitter Tracker </a></li>
+<li class="toctree-l3"><a class="reference internal" href="#footballmood">Footballmood </a></li>
+<li class="toctree-l3"><a class="reference internal" href="#aspects">Aspects </a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gsi-crawler">GSI Crawler </a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboards-dev.html">Developing your own dashboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="widgets.html">Web Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Luigi Pipelines</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/sefarad.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
