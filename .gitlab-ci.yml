@@ -1,3 +1,35 @@
+variables:
+  LUIGI_IMAGE: $CI_REGISTRY_IMAGE/luigi
+  WEB_IMAGE: $CI_REGISTRY_IMAGE/web
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+
+stages:
+  - build
+  - push
+  - deploy
+
+build-luigi:
+  stage: build
+  script:
+    - make -e build-luigi
+
+build-web:
+  stage: build
+  script:
+    - make -e build-web
+
+push-web:
+  stage: push
+  script:
+    - make -e push-web
+
+push-luigi:
+  stage: push
+  script:
+    - make -e push-luigi
+  
 deploy:
   stage: deploy
   environment: test

@@ -119,19 +119,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           elasticresponse:{
             type:String
-          }
+          },
+          luigiurl: {
+            type: String,
+            value: 'LUIGI!',
+            notify: true
+          },
+          elasticsearchurl: {
+            type: String,
+            value: 'ES!',
+            notify: true
+          },
         },
         ready: function(){
+            console.log('LUIGI: '+this.luigiurl);
+            console.log('ES: '+this.elasticsearchurl);
+            console.log('Greeting: ' + this.greeting);
           
         },
 
         getURL: function(){
-          return 'http://localhost:8000/startAnalysis'
+          return this.luigiurl + '/startAnalysis';
         },
 
         getelasticURL: function(response){
           //console.log(response)
-          return 'http://localhost:9200/'+response['index']+'/_search?q=id:'+response['id']
+          return this.elasticsearchurl + '/'+response['index']+'/_search?q=id:'+response['id']
         },
 
 
@@ -148,15 +161,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         showNewAnalysisDialog: function(webpage){
+          console.log('ShowNewAnalysisDialog '+this.getURL());
           var container = document.getElementById('dialogs-container');
           container.innerHTML = "";
           var new_analysis = null;
           if(webpage == 'foursquare'){
-            new_analysis = new NewAnalysisDialog(webpage, 'https://es.foursquare.com/v/cafeter%C3%ADa-hd/4b5b0ca9f964a520d0e028e3');
+            new_analysis = new NewAnalysisDialog(webpage, 'https://es.foursquare.com/v/cafeter%C3%ADa-hd/4b5b0ca9f964a520d0e028e3', this.getURL(), this.elasticsearchurl);
           }else if(webpage == 'amazon'){
-            new_analysis = new NewAnalysisDialog(webpage, "http://www.amazon.com/HP-H3C52AA-ABA-K1500-Keyboard/dp/B00E4TOWR0/");
+            new_analysis = new NewAnalysisDialog(webpage, "http://www.amazon.com/HP-H3C52AA-ABA-K1500-Keyboard/dp/B00E4TOWR0/", this.getURL(), this.elasticsearchurl);
           }else if(webpage == 'reddit'){
-            new_analysis = new NewAnalysisDialog(webpage, "politics");
+            new_analysis = new NewAnalysisDialog(webpage, "politics", this.getURL(), this.elasticsearchurl());
           }
 
           new_analysis.style.width = '80%';

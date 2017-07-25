@@ -17,5 +17,17 @@ deploy:
 	@$(KUBECTL) create secret docker-registry $(CI_REGISTRY) --docker-server=$(CI_REGISTRY) --docker-username=$(CI_REGISTRY_USER) --docker-email=$(CI_REGISTRY_USER) --docker-password=$(CI_BUILD_TOKEN)
 	@$(KUBECTL) apply -f /tmp/cwd/k8s/
 
+build-luigi:
+	docker build luigi -t $(LUIGI_IMAGE)
+
+push-luigi: build-luigi
+	docker push $(LUIGI_IMAGE)
+
+build-web:
+	docker build . -t $(WEB_IMAGE)
+
+push-web: build-web
+	docker push $(WEB_IMAGE)
+
 .PHONY:
 	deploy

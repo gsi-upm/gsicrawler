@@ -3,6 +3,8 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: gsicrawler-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - host: gsicrawler.cluster.gsi.dit.upm.es
@@ -12,13 +14,6 @@ spec:
         backend:
           serviceName: gsicrawler-web
           servicePort: 8080
-  - host: gsicrawler-elasticsearch.cluster.gsi.dit.upm.es
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: gsicrawler-es
-          servicePort: 9200
   - host: gsicrawler-luigi.cluster.gsi.dit.upm.es
     http:
       paths:
@@ -26,3 +21,7 @@ spec:
         backend:
           serviceName: gsicrawler-luigi
           servicePort: 8000
+      - path: /tasks/
+        backend:
+          serviceName: gsicrawler-luigi
+          servicePort: 8082

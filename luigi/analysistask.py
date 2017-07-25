@@ -180,6 +180,9 @@ class AnalysisTask(luigi.Task):
                                 if random.random() < probFake:
                                     review["fake"] = True
                                 else: review["fake"] = False
+                                output.write(json.dumps(i))
+                                #print(i)
+                                output.write('\n')
 
     def output(self):
         """

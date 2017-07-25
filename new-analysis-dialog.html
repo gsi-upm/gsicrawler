@@ -95,12 +95,16 @@
       webpage: {
         type: String,
         observer: '_webpageChanged'
-      }
+      },
+      luigiurl: String,
+      elasticsearchurl: String,
     },
-    factoryImpl: function(webpage, field_value){
+    factoryImpl: function(webpage, field_value, luigiurl, elasticsearchurl){
       this.webpage = webpage;
       this.field_value = field_value;
       this._webpageChanged(webpage);
+      this.luigiurl = luigiurl;
+      this.elasticsearchurl = elasticsearchurl;
     },
     behaviors: [
       Polymer.PaperDialogBehavior
@@ -189,36 +193,27 @@
       toast.text = message;
       toast.show();
     },
+    addCard: function(atype) {
+        var ctype;
+        if(this.webpage == 'reddit'){
+            ctype = RedditAnalysisCard;
+        }
+        else {
+            ctype = AnalysisCard;
+        }
+        analysis = new ctype(this.url, this.webpage, atype, this.luigiurl, this.elasticsearchurl);
+        this.appendAnalysisOnTop(analysis);
+    },
     addFakeAnalysis: function() {
-      if(this.webpage == 'reddit'){
-        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'fake')
-      }else{
-        var analysis = new AnalysisCard(this.url, this.webpage, 'fake');
-      }      this.appendAnalysisOnTop(analysis);
+        this.addCard('fake');
     },
     addSentimentAnalysis: function() {
-      if(this.webpage == 'reddit'){
-        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'sentiments')
-      }else{
-        var analysis = new AnalysisCard(this.url, this.webpage, 'sentiments');
-      }
-      this.appendAnalysisOnTop(analysis);
+        this.addCard('sentiments');
     },
     addEmotionAnalysis: function() {
-      if(this.webpage == 'reddit'){
-        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'emotions')
-      }else{
-        var analysis = new AnalysisCard(this.url, this.webpage, 'emotions');
-      }
-      this.appendAnalysisOnTop(analysis);
     },
     addAllAnalysis: function(){
-      if(this.webpage == 'reddit'){
-        var analysis = new RedditAnalysisCard(this.url, this.webpage, 'fake,emotions,sentiments')
-      }else{
-        var analysis = new AnalysisCard(this.url, this.webpage, 'fake,emotions,sentiments');
-      }
-      this.appendAnalysisOnTop(analysis);
+        this.addCard('fake,emotions,sentiments');
     },
     appendAnalysisOnTop: function(analysis) {
       var analysis_list = document.getElementById('analysis-list');

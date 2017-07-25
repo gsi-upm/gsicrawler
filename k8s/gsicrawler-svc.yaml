@@ -18,19 +18,11 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 8000
+    - name: luigiproxy
+      port: 8000
+      protocol: TCP
+    - name: luigiweb
+      port: 8082
       protocol: TCP
   selector:
     role: gsicrawler-luigi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gsicrawler-es
-spec:
-  type: ClusterIP
-  ports:
-    - port: 9200
-      protocol: TCP
-  selector:
-    role: gsicrawler-es

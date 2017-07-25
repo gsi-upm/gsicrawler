@@ -26,7 +26,7 @@ spec:
           - name: LUIGI_ENDPOINT
             value: "gsicrawler-luigi.cluster.gsi.dit.upm.es"
           - name: ES_ENDPOINT
-            value: "gsicrawler-elasticsearch.cluster.gsi.dit.upm.es"
+            value: "sefarad-elasticsearch.cluster.gsi.dit.upm.es"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -49,48 +49,12 @@ spec:
             memory: "512Mi"
             cpu: "1000m"
         ports:
-          - name: luigi
+          - name: luigiproxy
             containerPort: 8000
-          - name: luigi2
+          - name: luigiweb
             containerPort: 8082
         env:
           - name: ES_ENDPOINT
             value: "gsicrawler-es"
           - name: ES_PORT
             value: "9200"
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: gsicrawler-es
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        role: gsicrawler-es
-        app: test
-    spec:
-      containers:
-      - name: gsicrawler-elasticsearch-latest
-        image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "2048Mi"
-            cpu: "1000m"
-        env:
-        - name: ES_JAVA_OPTS
-          value: -Xms1g -Xmx1g
-        command: ["bin/elasticsearch"]
-        args: ['-Ehttp.host=0.0.0.0',
-               '-Etransport.host=127.0.0.1',
-               '-Ehttp.cors.enabled=true',
-               '-Ehttp.cors.allow-origin="*"',
-               '-Ehttp.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE',
-               '-Ehttp.cors.allow-headers=X-Requested-With, X-Auth-Token, Content-Type, Content-Length"']
-        ports:
-          - name: elasticsearch
-            containerPort: 9200
-          - name: elasticsearch-2
-            containerPort: 9300

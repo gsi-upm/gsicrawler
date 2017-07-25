@@ -115,7 +115,7 @@
 		</paper-material>
 		<iron-ajax
 			id="scrapurl"
-			url="http://localhost:8000/startAnalysis"
+			url="{{ luigiurl }}"
 			handle-as="json"
 			on-response="scrapStarted"
 			last-response="{{response}}"
@@ -164,6 +164,14 @@
 			response: Object,
 			progressmessage: String,
 			averagePolarity: Number,
+            luigiurl: {
+                type: String,
+                value: "http://localhost:8000/startAnalysis"
+            },
+            elasticsearchurl: {
+                type: String,
+                value: "http://localhost:9200"
+            },
 
 			predominantEmotion: String,
 
@@ -190,10 +198,12 @@
 		  this.style.display = 'block';
 	      this.playAnimation('entry');
 	    },
-		factoryImpl: function(url, webpage, analysis_type){
+		factoryImpl: function(url, webpage, analysis_type, luigiurl, elasticsearchurl){
 			this.webpage = webpage;
 			this.url = url;
 			this.analysis_type = analysis_type;
+            this.luigiurl = luigiurl;
+            this.elasticsearchurl = elasticsearchurl;
 			this.loaded = false;
 			this.progress = '0';
 			this.progressmessage = 'Crawling...';
@@ -243,7 +253,7 @@
 				this.showErrorToast('An error ocurred while analyzing: Connection error. Please check your Luigi endpoint.');
 				return;
 			}
-			else return 'http://localhost:9200/'+response['index']+'/_search?q=id:'+response['id']
+			else return this.elasticsearchurl + '/'+response['index']+'/_search?q=id:'+response['id']
 		},
 		retrieveInfoDelayed: function(delay){
 			this.async(function(){

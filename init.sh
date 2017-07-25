@@ -5,7 +5,7 @@ if [ -f /.dockerenv ]; then
     cp -a /usr/src/bower_components /usr/src/app/;
 fi
 
-envsubst < /usr/src/app/analysis-cardenv.html > /usr/src/app/analysis-card.html;
+envsubst < /usr/src/app/demo/indexenv.html > /usr/src/app/demo/index.html;
 
 bower link --allow-root
 bower link $APP_NAME --allow-root

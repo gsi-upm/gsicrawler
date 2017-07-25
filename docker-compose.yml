@@ -12,14 +12,14 @@ services:
     depends_on:
       - elasticsearch
     environment:
-      - LUIGI_ENDPOINT=localhost:8000
-      - ES_ENDPOINT=localhost:9200
+      - LUIGI_ENDPOINT=http://localhost:18000
+      - ES_ENDPOINT=http://localhost:19200
 
   elasticsearch:
     image: elasticsearch
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "19200:9200"
+      - "19300:9300"
     volumes:
       - ./elasticsearch/nodes:/usr/share/elasticsearch/data/nodes
       - ./elasticsearch/config:/usr/share/elasticsearch/config
@@ -32,8 +32,7 @@ services:
     volumes:
       - ./luigi:/usr/src/app
     ports:
-      - "8082:8082"
-      - "8000:8000"
+      - "18000:8000"
     networks:
       - sefarad-network
     environment:
