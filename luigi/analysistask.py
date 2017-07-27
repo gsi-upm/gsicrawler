@@ -13,7 +13,7 @@ from luigi.contrib.esindex import CopyToIndex
 from scrapy.crawler import CrawlerProcess
 from scrapers.foursquare import FourSquareSpider
 import subprocess
-
+import scraperReddit
 
 class ScrapyTask(luigi.Task):
     """
@@ -264,17 +264,19 @@ class FetchTaskReddit(luigi.Task):
         * `text`: the text,
         * `date`: the day when the data was created.
         """
-        #today = datetime.date.today()
-        print(self.website, self.analysisType)
-        filePath = '/tmp/_scrapy-%s.json' % self.id
+
+
+        filePathA = '/tmp/articles-%s.json' % self.id
+        filePathC = '/tmp/comments-%s.json' % self.id
         #scraperImported = imp.load_source(self.website, 'scrapers/%s.py' % (self.website))
         #scraperImported.startScraping(self.url, filePath)
-        print(self.url, filePath)
+        #print(self.url, filePath)
+
         if self.website == 'reddit':
-            print('###############################')
-            print('---Reddit SEARCH API REQUEST---')
-            print('###############################')
-            #command= 'python myscript.py -a param={param}'.format(param=param)
+            #Get the articles
+            scraperReddit.getArticles(search = self.url, limit = 50, filePath = filePathA)
+            scraperReddit.getComments(articlesJSON = filePathA, filePath = filePathC)
+            #Get the comments
 
         #print(command)
         #subprocess.call(command.split(), shell= False)    
@@ -287,8 +289,140 @@ class FetchTaskReddit(luigi.Task):
         :return: the target output for this task.
         :rtype: object (:py:class:`luigi.target.Target`)
         """
-        return luigi.LocalTarget(path='/tmp/_scrapy-%s.json' % self.id)
+        return [luigi.LocalTarget(path='/tmp/articles-%s.json' % self.id), luigi.LocalTarget(path='/tmp/comments-%s.json' % self.id)]
 
+class AnalysisTaskArticles(luigi.Task):
+    """
+    Generates a local file containing 5 elements of data in JSON format.
+    """
+
+    #: the date parameter.
+
+    #date = luigi.DateParameter(default=datetime.date.today())
+    #field = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    
+    url = luigi.Parameter()
+
+    id = luigi.Parameter()
+
+    website = luigi.Parameter()
+
+    analysisType = luigi.Parameter()
+
+    def requires(self):
+        """
+        This task's dependencies:
+        * :py:class:`~.SenpyTask`
+        :return: object (:py:class:`luigi.task.Task`)
+        """
+        return FetchTaskReddit(self.url, self.id, self.website, self.analysisType)
+
+
+    def run(self):
+        """
+        Writes data in JSON format into the task's output target.
+        The data objects have the following attributes:
+        * `_id` is the default Elasticsearch id field,
+        * `text`: the text,
+        * `date`: the day when the data was created.
+        """
+
+        #today = datetime.date.today()
+        if(self.website == 'reddit'):
+
+            with self.output().open('w') as output:
+                with self.input()[0].open('r') as infile:
+                    for lineAux in infile:
+                        line = json.loads(lineAux)
+                        if 'sentiments' in self.analysisType:
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % line['title'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
+                            line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]
+                            output.write(json.dumps(line))
+                            output.write('\n')
+                        if 'emotions' in self.analysisType:    
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % line['title'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
+                            output.write(json.dumps(line))
+                            output.write('\n')
+
+
+    def output(self):
+        """
+        Returns the target output for this task.
+        In this case, a successful execution of this task will create a file on the local filesystem.
+        :return: the target output for this task.
+        :rtype: object (:py:class:`luigi.target.Target`)
+        """
+        return luigi.LocalTarget(path='/tmp/articles_analyzed-%s.json' % self.id)
+
+class AnalysisTaskComments(luigi.Task):
+    """
+    Generates a local file containing 5 elements of data in JSON format.
+    """
+
+    #: the date parameter.
+
+    #date = luigi.DateParameter(default=datetime.date.today())
+    #field = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    
+    url = luigi.Parameter()
+
+    id = luigi.Parameter()
+
+    website = luigi.Parameter()
+
+    analysisType = luigi.Parameter()
+
+    def requires(self):
+        """
+        This task's dependencies:
+        * :py:class:`~.SenpyTask`
+        :return: object (:py:class:`luigi.task.Task`)
+        """
+        return FetchTaskReddit(self.url, self.id, self.website, self.analysisType)
+
+
+    def run(self):
+        """
+        Writes data in JSON format into the task's output target.
+        The data objects have the following attributes:
+        * `_id` is the default Elasticsearch id field,
+        * `text`: the text,
+        * `date`: the day when the data was created.
+        """
+
+        #today = datetime.date.today()
+        if(self.website == 'reddit'):
+            with self.output().open('w') as output:
+                with self.input()[1].open('r') as infile:
+                    for lineAux in infile:
+                        line = json.loads(lineAux)
+                        if 'sentiments' in self.analysisType:
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % line['body'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
+                            line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]   
+                        if 'emotions' in self.analysisType:    
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % line['body'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]               
+
+
+    def output(self):
+        """
+        Returns the target output for this task.
+        In this case, a successful execution of this task will create a file on the local filesystem.
+        :return: the target output for this task.
+        :rtype: object (:py:class:`luigi.target.Target`)
+        """
+        return luigi.LocalTarget(path='/tmp/comments_analyzed-%s.json' % self.id)
 
 
 class AnalysisTaskReddit(luigi.Task):
@@ -332,24 +466,46 @@ class AnalysisTaskReddit(luigi.Task):
         #today = datetime.date.today()
         if(self.website == 'reddit'):
             #Analyze posts
-            if(filesource== 'posts'):
+            if(self.filesource== 'posts'):
                 print('Analyze posts')
                 #Parse json and send post title to Senpy
+                data = ''
+                with open('articles.json') as data_file:    
+                    data = json.load(data_file)
+                    for line in data:
+                        if 'sentiments' in self.analysisType:
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % line['title'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
+                            line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]   
+                        if 'emotions' in self.analysisType:    
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % line['title'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
+                with open('articles.json', 'w') as outfile:
+                    json.dump(data, outfile)
 
-            if(filesource == 'comments'):
+            if(self.filesource == 'comments'):
                 print('Analyze comments')
                 #Parse json and send comment to Senpy
-
-            print('########################')
-            print('ADD SENPY CODE')
-            print('########################')
-            #Recorrer JSON y añadir sentiment o emotion
-            #Sentiment
-            #review["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
-            #review["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]  
-            #Emotion
-            #review["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
-
+                with open('comments.json') as data_file:    
+                    data = json.load(data_file)
+                    for line in data:
+                        if 'sentiments' in self.analysisType:
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % line['body'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
+                            line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]   
+                        if 'emotions' in self.analysisType:    
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % line['body'])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
+                with open('comments.json', 'w') as outfile:
+                    json.dump(data, outfile)
 
     def output(self):
         """
@@ -409,7 +565,7 @@ class ElasticsearchPosts(CopyToIndex):
         * :py:class:`~.SenpyTask`
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTaskReddit(self.url, self.id, self.website, self.analysisType,self.filesource)
+        return AnalysisTaskArticles(self.url, self.id, self.website, self.analysisType)
 
 class ElasticsearchComments(CopyToIndex):
     """
@@ -456,7 +612,7 @@ class ElasticsearchComments(CopyToIndex):
         * :py:class:`~.SenpyTask`
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTaskReddit(self.url, self.id, self.website, self.analysisType,self.filesource)
+        return AnalysisTaskComments(self.url, self.id, self.website, self.analysisType)
 
 class ElasticsearchReddit(luigi.WrapperTask):
     url = luigi.Parameter()
