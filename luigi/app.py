@@ -24,7 +24,7 @@ def startAnalysis():
     	#ES params
         indexPosts= 'reddit'
         indexComments='reddit'
-        doc_typePosts='posts'
+        doc_typePosts='articles'
         doc_typeComments='comments'
         print('reddit website - Run luigi reddit analysis task')
         command = 'python -m luigi --module analysistask ElasticsearchReddit --index-Posts {indexPosts} --index-Comments {indexComments} --doc-type-Posts {doc_typePosts} --doc-type-Comments {doc_typeComments} --website {website} --url {url} --id {id} --analysisType {analysisType}'.format(url=url,website=website,id=identifier,analysisType=analysisType, indexPosts=indexPosts, indexComments=indexComments,doc_typePosts=doc_typePosts,doc_typeComments=doc_typeComments)
