@@ -337,6 +337,8 @@ class AnalysisTaskArticles(luigi.Task):
                 with self.input()[0].open('r') as infile:
                     for lineAux in infile:
                         line = json.loads(lineAux)
+                        line["id"] = str(self.id)
+                        line["createdAt"] = line["id"]
                         if 'sentiments' in self.analysisType:
                             r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % line['title'])
                             response = r.content.decode('utf-8')
@@ -405,6 +407,8 @@ class AnalysisTaskComments(luigi.Task):
                 with self.input()[1].open('r') as infile:
                     for lineAux in infile:
                         line = json.loads(lineAux)
+                        line["id"] = str(self.id)
+                        line["createdAt"] = line["id"]
                         try:
                             if 'sentiments' in self.analysisType:
                                 #print('### LINE: %s' % line['body'])
