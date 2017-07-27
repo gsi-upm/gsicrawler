@@ -29,7 +29,7 @@ def startAnalysis():
         print('reddit website - Run luigi reddit analysis task')
         command = 'python -m luigi --module analysistask ElasticsearchReddit --index-Posts {indexPosts} --index-Comments {indexComments} --doc-type-Posts {doc_typePosts} --doc-type-Comments {doc_typeComments} --website {website} --url {url} --id {id} --analysisType {analysisType}'.format(url=url,website=website,id=identifier,analysisType=analysisType, indexPosts=indexPosts, indexComments=indexComments,doc_typePosts=doc_typePosts,doc_typeComments=doc_typeComments)
         subprocess.call(command.split(), shell= False)
-        jsonreponse['index'] = 'gsicrawler'
+        jsonreponse['index'] = 'reddit'
         jsonreponse['url'] = url
         jsonreponse['website'] = website
         jsonreponse['id'] = identifier

@@ -30,7 +30,7 @@ def getPersonalInfo():
 
 ## Getting the articles
 
-def getArticles(search = '', limit = 10, filePath = 'articles.json'):
+def getArticles(search = '', limit = 4, filePath = 'articles.json'):
     limit = "&limit="+str(limit)
     sort = '&sort=top'
     URL = "https://oauth.reddit.com/search"
@@ -40,29 +40,26 @@ def getArticles(search = '', limit = 10, filePath = 'articles.json'):
 
     # Save the JSON with the different articles
 
-    articlesJSON = []
-    for article in searchResponseJson['data']['children']:
-        articleData = article['data']
-        jsonArticle = {}
-        jsonArticle['id'] = articleData['id']
-        jsonArticle['subredditName'] = articleData['subreddit']
-        jsonArticle['subreddit_id'] = articleData['subreddit_id']
-        jsonArticle['permalink'] = articleData['permalink']
-        jsonArticle['title'] = articleData['title']
-        jsonArticle['media'] = articleData['url']
-        jsonArticle['num_comments'] = articleData['num_comments']
-        jsonArticle['author'] = articleData['author']
-        jsonArticle['score'] = articleData['score']
-        jsonArticle['archived'] = articleData['archived']
-        jsonArticle['timestamp'] = articleData['created_utc']
-        jsonArticle['ups'] = articleData['ups']
-        jsonArticle['downs'] = articleData['downs']
-        jsonArticle['search_term'] = [search]
-        articlesJSON.append(jsonArticle)
-
     with open(filePath, 'w') as outfile:
-        json.dump(articlesJSON, outfile)
-
+        for article in searchResponseJson['data']['children']:
+            articleData = article['data']
+            jsonArticle = {}
+            jsonArticle['id'] = articleData['id']
+            jsonArticle['subredditName'] = articleData['subreddit']
+            jsonArticle['subreddit_id'] = articleData['subreddit_id']
+            jsonArticle['permalink'] = articleData['permalink']
+            jsonArticle['title'] = articleData['title']
+            jsonArticle['media'] = articleData['url']
+            jsonArticle['num_comments'] = articleData['num_comments']
+            jsonArticle['author'] = articleData['author']
+            jsonArticle['score'] = articleData['score']
+            jsonArticle['archived'] = articleData['archived']
+            jsonArticle['timestamp'] = articleData['created_utc']
+            jsonArticle['ups'] = articleData['ups']
+            jsonArticle['downs'] = articleData['downs']
+            jsonArticle['search_term'] = [search]
+            outfile.write(json.dumps(jsonArticle))
+            outfile.write('\n')
 
 # Auxiliar method to save the JSON with the different comments
 
@@ -96,13 +93,13 @@ def moveInsideCommentsTree(comment, commentsJSON):
 def getComments(articlesJSON = 'articles.json', filePath = 'comments.json'):
     commentsJSON = []
 
-    with open(articlesJSON) as json_file:    
+    with open(articlesJSON) as json_file, open(filePath, 'w') as outfile:
         for line in json_file:
             article = json.loads(line)
             commentsResponse = requests.get("https://oauth.reddit.com"+article['permalink']+"", headers=headers)
             commentsResponseJson = commentsResponse.json()
             for comment in commentsResponseJson:
                 moveInsideCommentsTree(comment, commentsJSON)
-
-    with open(filePath, 'w') as outfile:
-        json.dump(commentsJSON,outfile)
+        for comment in commentsJSON:
+            outfile.write(json.dumps(comment))
+            outfile.write('\n')

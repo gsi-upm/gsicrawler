@@ -33,6 +33,7 @@ services:
       - ./luigi:/usr/src/app
     ports:
       - "18000:8000"
+      - "8082:8082"
     networks:
       - sefarad-network
     environment:
