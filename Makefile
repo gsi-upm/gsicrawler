@@ -2,32 +2,65 @@ NAME=gsicrawler
 
 DEVPORT=8080
 
-KUBE_CA_PEM_FILE=""
+
+# Deployment with Kubernetes
+# 
+
+# Check if the KUBE_CA_PEM_FILE exists. Otherwise, create it from KUBE_CA_BUNDLE
+KUBE_CA_TEMP=false
+ifeq ($(wildcard $(KUBE_CA_PEM_FILE)),) 
+    KUBE_CA_PEM_FILE:=$(shell mktemp)
+	CREATED:=$(shell echo -e "$$KUBE_CA_BUNDLE" > $(KUBE_CA_PEM_FILE))
+	KUBE_CA_TEMP=true
+else
+	KUBE_CA_PEM_FILE=""
+endif 
 KUBE_URL=""
 KUBE_TOKEN=""
 KUBE_NAMESPACE=$(NAME)
 KUBECTL=docker run --rm -v $(KUBE_CA_PEM_FILE):/tmp/ca.pem -v $$PWD:/tmp/cwd/ -i lachlanevenson/k8s-kubectl --server="$(KUBE_URL)" --token="$(KUBE_TOKEN)" --certificate-authority="/tmp/ca.pem" -n $(KUBE_NAMESPACE)
+
+CI_PROJECT_NAME=$(NAME)
 CI_REGISTRY=docker.io
 CI_REGISTRY_USER=gitlab
-CI_BUILD_TOKEN=""
 CI_COMMIT_REF_NAME=master
+LUIGI_IMAGE=registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/luigi
+WEB_IMAGE=registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/web
+
+info:
+	@echo $(KUBE_CA_PEM_FILE)
+	@echo $(KUBE_CA_TEMP)
+	cat $(KUBE_CA_PEM_FILE)
+	@echo $$KUBE_CA_BUNDLE
+	@echo $(CREATED)
 
 deploy:
-	@$(KUBECTL) delete secret $(CI_REGISTRY) || true
-	@$(KUBECTL) create secret docker-registry $(CI_REGISTRY) --docker-server=$(CI_REGISTRY) --docker-username=$(CI_REGISTRY_USER) --docker-email=$(CI_REGISTRY_USER) --docker-password=$(CI_BUILD_TOKEN)
 	@$(KUBECTL) apply -f /tmp/cwd/k8s/
 
-build-luigi:
-	docker build luigi -t $(LUIGI_IMAGE)
+deploy-check:
+	@$(KUBECTL) get deploy,pods,svc,ingress
 
-push-luigi: build-luigi
-	docker push $(LUIGI_IMAGE)
+login:
+ifeq ($(CI_BUILD_TOKEN),)
+	@echo "Not logging to the docker registry" "$(CI_REGISTRY)"
+else
+	docker login -u gitlab-ci-token -p $(CI_BUILD_TOKEN) $(CI_REGISTRY)
+endif
 
-build-web:
-	docker build . -t $(WEB_IMAGE)
+build:
+	docker-compose build
 
-push-web: build-web
-	docker push $(WEB_IMAGE)
+push:
+	docker-compose push
+
+build-%:
+	docker-compose build $*
+
+push-%:
+	docker-compose build $*
+
+ci:
+	gitlab-runner exec shell ${action}
 
 .PHONY:
 	deploy

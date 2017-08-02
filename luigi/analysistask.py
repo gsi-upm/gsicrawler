@@ -15,6 +15,20 @@ from scrapers.foursquare import FourSquareSpider
 import subprocess
 import scraperReddit
 
+
+def get_amazon_id(url, regexes=["\/dp\/.*\/", "\/product\/.*\/"]):
+    amazon_id = None
+    for regex in regexes:
+        m = re.search(regex, url)
+        if m and m.group(0):
+            tokens = m.group(0).split('/')
+            if len(tokens) > 1:
+                amazon_id = tokens.split('/')[2]
+        if amazon_id:
+            break
+    return amazon_id
+
+
 class ScrapyTask(luigi.Task):
     """
     Generates a local file containing 5 elements of data in JSON format.
@@ -55,25 +69,8 @@ class ScrapyTask(luigi.Task):
             #command= 'python myscript.py -a param={param}'.format(param=param)
 
         if self.website == 'amazon':
-            m = re.search("\/product\/.*\/", self.url)
-            try:
-                if m:
-                    str = m.group(0)
-                    amazon_id = str.split('/')[2]
-            except:
-                pass
-            m = re.search("\/dp\/.*\/", self.url)
-            try:
-                if m:
-                    str = m.group(0)
-                    amazon_id = str.split('/')[2]
-            except:
-                pass
-            try:
-                self.url.index("amazon.com")
-                domain = ".com"
-            except:
-                domain = ".es"
+            amazon_id = self.get_amazon_id(self.url)
+            domain = '.com' if 'amazon.com' in self.url else '.es' # TODO: Add an "else"
             command = 'scrapy runspider -a domain={domain} -a amazon_id={amazon_id} -a filePath={filePath} scrapers/spiders/{website}.py'.format(domain=domain,amazon_id=amazon_id,filePath=filePath,website=self.website)
         else:    
             command = 'scrapy runspider -a url={url} -a filePath={filePath} --nolog scrapers/spiders/{website}.py'.format(url=self.url,filePath=filePath,website=self.website)
@@ -147,7 +144,17 @@ class AnalysisTask(luigi.Task):
             with self.output().open('w') as output:
                 with self.input().open('r') as infile:
                     for line in infile:
-                        i = json.loads(line)
+                        attempts = 0
+                        done = False
+                        i = None
+                        while not done:
+                            try:
+                                attempts += 1
+                                i = json.loads(line)
+                            except json.decoder.JSONDecodeError:
+                                if attempts >= 3:
+                                    print('ERROR decoding: {}'.format(line))
+                                    continue
                         print(self.id)
                         i["id"] = str(self.id)
                         i["_id"] = i["id"]
@@ -157,23 +164,29 @@ class AnalysisTask(luigi.Task):
                                 i["containsSentimentsAnalysis"] = True
                                 r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % review["reviewBody"])
                                 response = r.content.decode('utf-8')
-                                response_json = json.loads(response)
-                                #i["analysis"] = response_json
-                                review["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
-                                review["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]   
-                                output.write(json.dumps(i))
-                                #print(i)
-                                output.write('\n')
+                                try:
+                                    response_json = json.loads(response)
+                                    #i["analysis"] = response_json
+                                    review["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
+                                    review["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]   
+                                    output.write(json.dumps(i))
+                                    #print(i)
+                                    output.write('\n')
+                                except json.decoder.JSONDecodeError:
+                                    pass
                             if 'emotions' in self.analysisType:
                                 i["containsEmotionsAnalysis"] = True
                                 r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % review["reviewBody"])
                                 response = r.content.decode('utf-8')
-                                response_json = json.loads(response)
-                                #i["analysis"] = response_json
-                                review["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
-                                output.write(json.dumps(i))
-                                #print(i)
-                                output.write('\n')
+                                try:
+                                    response_json = json.loads(response)
+                                    #i["analysis"] = response_json
+                                    review["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
+                                    output.write(json.dumps(i))
+                                    #print(i)
+                                    output.write('\n')
+                                except json.decoder.JSONDecodeError:
+                                    pass
                             if 'fake' in self.analysisType:
                                 i["containsFakeAnalysis"] = True
                                 probFake = 0.3
@@ -294,7 +307,7 @@ class FetchTaskReddit(luigi.Task):
         """
         return [luigi.LocalTarget(path='/tmp/articles-%s.json' % self.id), luigi.LocalTarget(path='/tmp/comments-%s.json' % self.id)]
 
-class AnalysisTaskArticles(luigi.Task):
+class AnalysisTaskGeneric(luigi.Task):
     """
     Generates a local file containing 5 elements of data in JSON format.
     """
@@ -311,6 +324,9 @@ class AnalysisTaskArticles(luigi.Task):
     website = luigi.Parameter()
 
     analysisType = luigi.Parameter()
+    output_file = luigi.Parameter()
+    input_index = luigi.Parameter()
+    analysis_field = luigi.Parameter(default='text')
 
     def requires(self):
         """
@@ -331,29 +347,40 @@ class AnalysisTaskArticles(luigi.Task):
         """
 
         #today = datetime.date.today()
-        if(self.website == 'reddit'):
 
-            with self.output().open('w') as output:
-                with self.input()[0].open('r') as infile:
-                    for lineAux in infile:
-                        line = json.loads(lineAux)
-                        line["id"] = str(self.id)
-                        line["createdAt"] = line["id"]
-                        if 'sentiments' in self.analysisType:
-                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % line['title'])
-                            response = r.content.decode('utf-8')
+        with self.output().open('w') as output:
+            with self.input()[self.input_index].open('r') as infile:
+                for ix, lineAux in enumerate(infile):
+                    self.set_status_message("Lines read: %d" % ix)
+                    line = json.loads(lineAux)
+                    line["id"] = str(self.id)
+                    line["createdAt"] = line["id"]
+                    text = line[self.analysis_field]
+                    if 'sentiments' in self.analysisType:
+                        r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/',
+                                         params={'algo': 'sentiment-tass',
+                                                 'i': text})
+                        response = r.content.decode('utf-8')
+                        try:
                             response_json = json.loads(response)
                             line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
                             line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]
                             output.write(json.dumps(line))
                             output.write('\n')
-                        if 'emotions' in self.analysisType:    
-                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % line['title'])
-                            response = r.content.decode('utf-8')
+                        except json.decoder.JSONDecodeError:
+                            pass
+                    if 'emotions' in self.analysisType:    
+                        r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/',
+                                        params={'algo': 'emotion-anew',
+                                                'i': text})
+                        response = r.content.decode('utf-8')
+                        try:
                             response_json = json.loads(response)
                             line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
                             output.write(json.dumps(line))
                             output.write('\n')
+                        except json.decoder.JSONDecodeError:
+                            pass
 
 
     def output(self):
@@ -363,83 +390,18 @@ class AnalysisTaskArticles(luigi.Task):
         :return: the target output for this task.
         :rtype: object (:py:class:`luigi.target.Target`)
         """
-        return luigi.LocalTarget(path='/tmp/articles_analyzed-%s.json' % self.id)
+        return luigi.LocalTarget(path=self.output_file.format(self.id))
 
-class AnalysisTaskComments(luigi.Task):
-    """
-    Generates a local file containing 5 elements of data in JSON format.
-    """
+class AnalysisTaskArticles(AnalysisTaskGeneric):
+    input_index = 0
+    output_file = '/tmp/articles_analyzed-{}.json'
+    analysis_field = 'title'
 
-    #: the date parameter.
+class AnalysisTaskComments(AnalysisTaskGeneric):
+    input_index = 1
+    output_file = '/tmp/comments_analyzed-{}.json'
+    analysis_field = 'body'
 
-    #date = luigi.DateParameter(default=datetime.date.today())
-    #field = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    
-    url = luigi.Parameter()
-
-    id = luigi.Parameter()
-
-    website = luigi.Parameter()
-
-    analysisType = luigi.Parameter()
-
-    def requires(self):
-        """
-        This task's dependencies:
-        * :py:class:`~.SenpyTask`
-        :return: object (:py:class:`luigi.task.Task`)
-        """
-        return FetchTaskReddit(self.url, self.id, self.website, self.analysisType)
-
-
-    def run(self):
-        """
-        Writes data in JSON format into the task's output target.
-        The data objects have the following attributes:
-        * `_id` is the default Elasticsearch id field,
-        * `text`: the text,
-        * `date`: the day when the data was created.
-        """
-
-        #today = datetime.date.today()
-        if(self.website == 'reddit'):
-            with self.output().open('w') as output:
-                with self.input()[1].open('r') as infile:
-                    for lineAux in infile:
-                        line = json.loads(lineAux)
-                        line["id"] = str(self.id)
-                        line["createdAt"] = line["id"]
-                        try:
-                            if 'sentiments' in self.analysisType:
-                                #print('### LINE: %s' % line['body'])
-                                r = requests.post('http://test.senpy.cluster.gsi.dit.upm.es/api/',
-                                    data={"algo": "sentiment-tass",
-                                    "i": line['body']})
-                                response = r.content.decode('utf-8')
-                                #print('### CONTENT: %s' % response)        
-                                response_json = json.loads(response)
-                                line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
-                                line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]   
-                                output.write(json.dumps(line))
-                                output.write('\n')
-                            if 'emotions' in self.analysisType:    
-                                r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % line['body'])
-                                response = r.content.decode('utf-8')
-                                response_json = json.loads(response)
-                                line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
-                                output.write(json.dumps(line))
-                                output.write('\n')
-                        except Exception as ex:
-                            print('EXCEPTION: ', ex)
-
-    def output(self):
-        """
-        Returns the target output for this task.
-        In this case, a successful execution of this task will create a file on the local filesystem.
-        :return: the target output for this task.
-        :rtype: object (:py:class:`luigi.target.Target`)
-        """
-        return luigi.LocalTarget(path='/tmp/comments_analyzed-%s.json' % self.id)
 
 
 class ElasticsearchPosts(CopyToIndex):

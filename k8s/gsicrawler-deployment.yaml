@@ -18,13 +18,13 @@ spec:
         resources:
           limits:
             memory: "512Mi"
-            cpu: "1000m"
+            cpu: "500m"
         ports:
           - name: web
             containerPort: 8080
         env:
           - name: LUIGI_ENDPOINT
-            value: "gsicrawler-luigi.cluster.gsi.dit.upm.es"
+            value: "http://gsicrawler-luigi.cluster.gsi.dit.upm.es"
           - name: ES_ENDPOINT
             value: "sefarad-elasticsearch.cluster.gsi.dit.upm.es"
 ---
