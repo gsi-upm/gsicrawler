@@ -8,8 +8,13 @@ from pprint import pprint as print
 
 ## Configuration
 
-client_auth = requests.auth.HTTPBasicAuth('JYtWboDkSqwhig', 'nv3x_lKNkRTMLDoSX9xg7TJ93A4')
-post_data = {"grant_type": "password", "username": "merinom", "password": "GSIGSI"}
+reddit_user = os.environ["REDDIT_USER"]
+reddit_pass = os.environ["REDDIT_PASS"]
+reddit_client = os.environ["REDDIT_CLIENT"]
+reddit_token = os.environ["REDDIT_TOKEN"]
+
+client_auth = requests.auth.HTTPBasicAuth(reddit_client, reddit_token)
+post_data = {"grant_type": "password", "username": reddit_user, "password": reddit_pass}
 headers = {"User-Agent": "GSI-UPM/1 by merinom"}
 
 
@@ -45,7 +50,7 @@ def getArticles(search = '', limit = 4, filePath = 'articles.json'):
             articleData = article['data']
             jsonArticle = {}
             jsonArticle['id'] = articleData['id']
-            jsonArticle['subredditName'] = articleData['subreddit']
+            jsonArticle['subreddit'] = articleData['subreddit']
             jsonArticle['subreddit_id'] = articleData['subreddit_id']
             jsonArticle['permalink'] = articleData['permalink']
             jsonArticle['title'] = articleData['title']

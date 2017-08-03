@@ -1,4 +1,16 @@
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gsicrawler-config
+data:
+    REDDIT_USER: $REDDIT_USER
+    REDDIT_CLIENT: $REDDIT_CLIENT
+    REDDIT_TOKEN: $REDDIT_TOKEN
+    REDDIT_PASS: $REDDIT_PASS
+    ES_ENDPOINT: "gsicrawler-es"
+    ES_PORT: "9200"
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -13,7 +25,7 @@ spec:
     spec:
       containers:
       - name: gsicrawler-web
-        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/web:latest
+        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/sefarad:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -53,8 +65,6 @@ spec:
             containerPort: 8000
           - name: luigiweb
             containerPort: 8082
-        env:
-          - name: ES_ENDPOINT
-            value: "gsicrawler-es"
-          - name: ES_PORT
-            value: "9200"
+        envFrom:
+        - configMapRef:
+            name: gsicrawler-config
