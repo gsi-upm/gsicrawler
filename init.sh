@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # Copy bower dependencies when using -v $PWD/:/usr/src/app
-if [ -f /.dockerenv ]; then
-    cp -a /usr/src/bower_components /usr/src/app/;
+if [ -f /.dockerenv ] && [ ! -f /usr/src/app/bower_components ]; then
+    ln -s /usr/src/bower_components /usr/src/app/;
 fi
 
-envsubst < /usr/src/app/demo/indexenv.html > /usr/src/app/demo/index.html;
+envsubst < /usr/src/app/indexenv.html > /usr/src/app/index.html;
 
 bower link --allow-root
 bower link $APP_NAME --allow-root

@@ -15,6 +15,10 @@ from scrapers.foursquare import FourSquareSpider
 import subprocess
 import scraperReddit
 
+ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
+ES_PORT = os.environ.get('ES_PORT')
+
+print('ES connection: {} : {}'.format(ES_ENDPOINT, ES_PORT))
 
 def get_amazon_id(url, regexes=["\/dp\/.*\/", "\/product\/.*\/"]):
     amazon_id = None
@@ -169,9 +173,6 @@ class AnalysisTask(luigi.Task):
                                     #i["analysis"] = response_json
                                     review["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
                                     review["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]   
-                                    output.write(json.dumps(i))
-                                    #print(i)
-                                    output.write('\n')
                                 except json.decoder.JSONDecodeError:
                                     pass
                             if 'emotions' in self.analysisType:
@@ -182,9 +183,6 @@ class AnalysisTask(luigi.Task):
                                     response_json = json.loads(response)
                                     #i["analysis"] = response_json
                                     review["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
-                                    output.write(json.dumps(i))
-                                    #print(i)
-                                    output.write('\n')
                                 except json.decoder.JSONDecodeError:
                                     pass
                             if 'fake' in self.analysisType:
@@ -193,9 +191,8 @@ class AnalysisTask(luigi.Task):
                                 if random.random() < probFake:
                                     review["fake"] = True
                                 else: review["fake"] = False
-                                output.write(json.dumps(i))
-                                #print(i)
-                                output.write('\n')
+                            output.write(json.dumps(i))
+                            output.write('\n')
 
     def output(self):
         """
@@ -237,9 +234,9 @@ class Elasticsearch(CopyToIndex):
     #: the name of the document type.
     doc_type = luigi.Parameter()
     #: the host running the ElasticSearch service.
-    host = str(os.environ.get('ES_ENDPOINT'))
+    host = ES_ENDPOINT
     #: the port used by the ElasticSearch service.
-    port =  int(os.environ.get('ES_PORT'))
+    port = ES_PORT
 
     print(host,port)
     
@@ -365,8 +362,6 @@ class AnalysisTaskGeneric(luigi.Task):
                             response_json = json.loads(response)
                             line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
                             line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]
-                            output.write(json.dumps(line))
-                            output.write('\n')
                         except json.decoder.JSONDecodeError:
                             pass
                     if 'emotions' in self.analysisType:    
@@ -377,10 +372,15 @@ class AnalysisTaskGeneric(luigi.Task):
                         try:
                             response_json = json.loads(response)
                             line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
-                            output.write(json.dumps(line))
-                            output.write('\n')
                         except json.decoder.JSONDecodeError:
                             pass
+                    if 'fake' in self.analysisType:
+                        probFake = 0.3
+                        if random.random() < probFake:
+                            line["fake"] = True
+                        else: line["fake"] = False
+                    output.write(json.dumps(line))
+                    output.write('\n')
 
 
     def output(self):
@@ -436,9 +436,9 @@ class ElasticsearchPosts(CopyToIndex):
     #: the name of the document type.
     doc_type = luigi.Parameter()
     #: the host running the ElasticSearch service.
-    host = str(os.environ.get('ES_ENDPOINT'))
+    host = ES_ENDPOINT
     #: the port used by the ElasticSearch service.
-    port =  int(os.environ.get('ES_PORT'))
+    port = ES_PORT
 
     print(host,port)
     
@@ -482,9 +482,9 @@ class ElasticsearchComments(CopyToIndex):
     #: the name of the document type.
     doc_type = luigi.Parameter()
     #: the host running the ElasticSearch service.
-    host = str(os.environ.get('ES_ENDPOINT'))
+    host = ES_ENDPOINT
     #: the port used by the ElasticSearch service.
-    port =  int(os.environ.get('ES_PORT'))
+    port = ES_PORT
 
     print(host,port)
     
@@ -508,9 +508,9 @@ class ElasticsearchReddit(luigi.WrapperTask):
     doc_type_Posts = luigi.Parameter()
     doc_type_Comments = luigi.Parameter()
     #: the host running the ElasticSearch service.
-    host = str(os.environ.get('ES_ENDPOINT'))
+    host = ES_ENDPOINT
     #: the port used by the ElasticSearch service.
-    port =  int(os.environ.get('ES_PORT'))
+    port = ES_PORT
 
     def requires(self):
         #Task - Elasticsearch Posts

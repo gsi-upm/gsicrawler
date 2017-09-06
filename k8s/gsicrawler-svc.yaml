@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: gsicrawler-web
+  name: $CRAWLER_ENDPOINT
 spec:
   type: ClusterIP
   ports:
@@ -14,7 +14,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gsicrawler-luigi
+  name: $LUIGI_ENDPOINT
 spec:
   type: ClusterIP
   ports:

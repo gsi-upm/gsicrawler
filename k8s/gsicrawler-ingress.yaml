@@ -7,21 +7,21 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: gsicrawler.cluster.gsi.dit.upm.es
+  - host: $CRAWLER_ENDPOINT_EXTERNAL
     http:
       paths:
       - path: /
         backend:
-          serviceName: gsicrawler-web
+          serviceName: $CRAWLER_ENDPOINT
           servicePort: 8080
-  - host: gsicrawler-luigi.cluster.gsi.dit.upm.es
+  - host: $LUIGI_ENDPOINT_EXTERNAL
     http:
       paths:
       - path: /
         backend:
-          serviceName: gsicrawler-luigi
+          serviceName: $LUIGI_ENDPOINT
           servicePort: 8000
       - path: /tasks/
         backend:
-          serviceName: gsicrawler-luigi
+          serviceName: $LUIGI_ENDPOINT
           servicePort: 8082

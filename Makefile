@@ -48,6 +48,9 @@ deploy: ## Deploy to kubernetes using the credentials in KUBE_CA_PEM_FILE (or KU
 deploy-check: ## Get the deployed configuration.
 	@$(KUBECTL) get deploy,pods,svc,ingress
 
+deploy-delete: ## Delete all deployment (and resources) from the k8s cluster
+	@$(KUBECTL)  delete deploy,svc,ingress,cm --all
+
 login: ## Log in to the registry. It will only be used in the server, or when running a CI task locally (if CI_BUILD_TOKEN is set).
 ifeq ($(CI_BUILD_TOKEN),)
 	@echo "Not logging in to the docker registry" "$(CI_REGISTRY)"
@@ -73,6 +76,9 @@ info: ## Print variables. Useful for debugging.
 	@echo LUIGI_IMAGE=$(LUIGI_IMAGE)
 	@echo WEB_IMAGE=$(WEB_IMAGE)
 
+delete-prod-db:
+	@$(KUBECTL) run --rm curl --image=appropriate/curl -- 
+
 #
 # For local development
 # 
@@ -80,14 +86,14 @@ info: ## Print variables. Useful for debugging.
 build: ## Build all docker images
 	docker-compose build
 
-push: ## Push docker all built docker images to the registry
+push: build ## Push docker all built docker images to the registry
 	docker-compose push
 
 build-%: ## Build a specific image. For example, to build the 'web' image: make build-web
 	docker-compose build $*
 
-push-%: ## Push a specific image to the repository. For example, to push the 'web' image: make push-web
-	docker-compose build $*
+push-%: build-% ## Push a specific image to the repository. For example, to push the 'web' image: make push-web
+	docker-compose push $*
 
 ci: ## Run a task locally like GitLab will run it in the server. For example: make -e action=build ci
 	gitlab-runner exec shell ${action}

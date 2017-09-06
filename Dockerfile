@@ -8,13 +8,15 @@ RUN apt-get update && apt-get install -y gettext
 
 RUN npm install -g http-server bower
 
-ADD bower.json /usr/src/bower.json
+WORKDIR /usr/src/app/
 
-RUN cd /usr/src && \
-    bower install --allow-root 
+ADD bower.json /usr/src/app/bower.json
+
+# Install the application, move the resulting libraries to /usr/src (so it doesn't get overwritten when
+# mounting it as a volue, and link to it.
+RUN bower install --allow-root  && mv bower_components .. && ln -s /usr/src/bower_components /usr/src/app/
 
 ADD . /usr/src/app
 
-WORKDIR /usr/src/app/
 
 CMD ["/usr/src/app/init.sh"]

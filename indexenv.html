@@ -9,8 +9,8 @@
     <template is="dom-bind">
 
       <gsicrawler-greeting
-        luigiURL="${LUIGI_ENDPOINT}"
-        elasticsearchURL="${ES_ENDPOINT}"></gsicrawler-greeting>
+        luigiURL="http://${LUIGI_ENDPOINT_EXTERNAL}"
+        elasticsearchURL="http://${ES_ENDPOINT_EXTERNAL}"></gsicrawler-greeting>
     <!-- <button id="databutton" onclick="changedata()">Click to change data</button> -->
     </template>
   </body>

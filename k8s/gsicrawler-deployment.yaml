@@ -8,8 +8,13 @@ data:
     REDDIT_CLIENT: $REDDIT_CLIENT
     REDDIT_TOKEN: $REDDIT_TOKEN
     REDDIT_PASS: $REDDIT_PASS
-    ES_ENDPOINT: "gsicrawler-es"
-    ES_PORT: "9200"
+    ES_ENDPOINT_EXTERNAL: "$ES_ENDPOINT_EXTERNAL"
+    ES_ENDPOINT: $ES_ENDPOINT
+    ES_PORT: "$ES_PORT"
+    LUIGI_ENDPOINT: $LUIGI_ENDPOINT
+    LUIGI_ENDPOINT_EXTERNAL: $LUIGI_ENDPOINT_EXTERNAL
+    CRAWLER_ENDPOINT: $CRAWLER_ENDPOINT
+    CRAWLER_ENDPOINT_EXTERNAL: $CRAWLER_ENDPOINT_EXTERNAL
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -34,11 +39,9 @@ spec:
         ports:
           - name: web
             containerPort: 8080
-        env:
-          - name: LUIGI_ENDPOINT
-            value: "http://gsicrawler-luigi.cluster.gsi.dit.upm.es"
-          - name: ES_ENDPOINT
-            value: "sefarad-elasticsearch.cluster.gsi.dit.upm.es"
+        envFrom:
+        - configMapRef:
+            name: gsicrawler-config
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
