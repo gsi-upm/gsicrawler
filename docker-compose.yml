@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  sefarad:
+  web:
     build: .
     image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/sefarad
     ports:
