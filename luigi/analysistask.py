@@ -20,15 +20,13 @@ ES_PORT = os.environ.get('ES_PORT')
 
 print('ES connection: {} : {}'.format(ES_ENDPOINT, ES_PORT))
 
-def get_amazon_id(url, regexes=["\/dp\/.*\/", "\/product\/.*\/"]):
+
+def get_amazon_id(url, regexes=[r"\/dp\/(.*)\/", r"\/product\/(.*)\/"]):
     amazon_id = None
     for regex in regexes:
         m = re.search(regex, url)
-        if m and m.group(0):
-            tokens = m.group(0).split('/')
-            if len(tokens) > 1:
-                amazon_id = tokens.split('/')[2]
-        if amazon_id:
+        if m and len(m.groups()) > 0:
+            amazon_id = m.group(1)
             break
     return amazon_id
 
@@ -73,7 +71,7 @@ class ScrapyTask(luigi.Task):
             #command= 'python myscript.py -a param={param}'.format(param=param)
 
         if self.website == 'amazon':
-            amazon_id = self.get_amazon_id(self.url)
+            amazon_id = get_amazon_id(self.url)
             domain = '.com' if 'amazon.com' in self.url else '.es' # TODO: Add an "else"
             command = 'scrapy runspider -a domain={domain} -a amazon_id={amazon_id} -a filePath={filePath} scrapers/spiders/{website}.py'.format(domain=domain,amazon_id=amazon_id,filePath=filePath,website=self.website)
         else:    
@@ -362,8 +360,8 @@ class AnalysisTaskGeneric(luigi.Task):
                             response_json = json.loads(response)
                             line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
                             line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]
-                        except json.decoder.JSONDecodeError:
-                            pass
+                        except (json.decoder.JSONDecodeError, KeyError) as ex:
+                            print('Failed analysis of entry: {}'.format(ex))
                     if 'emotions' in self.analysisType:    
                         r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/',
                                         params={'algo': 'emotion-anew',
@@ -372,13 +370,8 @@ class AnalysisTaskGeneric(luigi.Task):
                         try:
                             response_json = json.loads(response)
                             line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
-                        except json.decoder.JSONDecodeError:
-                            pass
-                    if 'fake' in self.analysisType:
-                        probFake = 0.3
-                        if random.random() < probFake:
-                            line["fake"] = True
-                        else: line["fake"] = False
+                        except (json.decoder.JSONDecodeError, KeyError) as ex:
+                            print('Failed analysis of entry: {}'.format(ex))
                     output.write(json.dumps(line))
                     output.write('\n')
 

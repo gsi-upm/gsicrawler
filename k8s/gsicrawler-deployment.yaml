@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: gsicrawler-web
-        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/sefarad:latest
+        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/web:latest
         imagePullPolicy: Always
         resources:
           limits:
