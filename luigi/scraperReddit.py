@@ -63,12 +63,24 @@ def getArticles(search = '', limit = 4, filePath = 'articles.json'):
             jsonArticle['ups'] = articleData['ups']
             jsonArticle['downs'] = articleData['downs']
             jsonArticle['search_term'] = [search]
+
+            
+            jsonArticle['@context'] = ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
+            jsonArticle['@type'] = "BlogPost"
+            jsonArticle['@id'] = "reddit.com" + articleData['permalink']
+            jsonArticle['about'] = [search]
+            jsonArticle['text'] = articleData['title']
+            jsonArticle['creator'] = articleData['author']
+            jsonArticle['datePublished'] = articleData['created_utc']
+
+
+            
             outfile.write(json.dumps(jsonArticle))
             outfile.write('\n')
 
 # Auxiliar method to save the JSON with the different comments
 
-def moveInsideCommentsTree(comment, commentsJSON):
+def moveInsideCommentsTree(comment, article, commentsJSON):
     if isinstance(comment, list):
         for element in comment:
             moveInsideCommentsTree(element, commentsJSON)
@@ -85,6 +97,14 @@ def moveInsideCommentsTree(comment, commentsJSON):
         jsonComment['subreddit_id'] = comment['subreddit_id']
         jsonComment['ups'] = comment['ups']
         jsonComment['id'] = comment['name']
+
+        jsonComment['@context'] = ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
+        jsonComment['@type'] = "Comment"
+        jsonComment['@id'] = article['@id']
+        jsonComment['about'] = article['search']
+        jsonComment['text'] = comment['body']
+        jsonComment['creator'] = comment['author']
+        jsonComment['datePublished'] = comment['created_utc']
         commentsJSON.append(jsonComment)
     if 'data' in comment:
         moveInsideCommentsTree(comment['data'], commentsJSON)
@@ -104,7 +124,7 @@ def getComments(articlesJSON = 'articles.json', filePath = 'comments.json'):
             commentsResponse = requests.get("https://oauth.reddit.com"+article['permalink']+"", headers=headers)
             commentsResponseJson = commentsResponse.json()
             for comment in commentsResponseJson:
-                moveInsideCommentsTree(comment, commentsJSON)
+                moveInsideCommentsTree(comment, article, commentsJSON)
         for comment in commentsJSON:
             outfile.write(json.dumps(comment))
             outfile.write('\n')
