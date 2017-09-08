@@ -100,7 +100,8 @@ def moveInsideCommentsTree(comment, article, commentsJSON):
 
         jsonComment['@context'] = ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
         jsonComment['@type'] = "Comment"
-        jsonComment['@id'] = article['@id']
+        jsonComment['parentItem'] = article['@id']
+        jsonComment['@id'] = comment['name']
         jsonComment['about'] = article['search']
         jsonComment['text'] = comment['body']
         jsonComment['creator'] = comment['author']
