@@ -4,6 +4,7 @@ import json
 import requests.auth
 import os
 from pprint import pprint as print
+import datetime
 
 
 ## Configuration
@@ -71,7 +72,7 @@ def getArticles(search = '', limit = 4, filePath = 'articles.json'):
             jsonArticle['about'] = [search]
             jsonArticle['text'] = articleData['title']
             jsonArticle['creator'] = articleData['author']
-            jsonArticle['datePublished'] = articleData['created_utc']
+            jsonArticle['datePublished'] = str(datetime.datetime.fromtimestamp(int(articleData['created_utc'])).strftime('%Y-%m-%d %H:%M:%S'))
 
 
             
@@ -83,7 +84,7 @@ def getArticles(search = '', limit = 4, filePath = 'articles.json'):
 def moveInsideCommentsTree(comment, article, commentsJSON):
     if isinstance(comment, list):
         for element in comment:
-            moveInsideCommentsTree(element, commentsJSON)
+            moveInsideCommentsTree(element, article, commentsJSON)
     if 'body' in comment:
         jsonComment = {}
         jsonComment['body'] = comment['body']
@@ -102,17 +103,17 @@ def moveInsideCommentsTree(comment, article, commentsJSON):
         jsonComment['@type'] = "Comment"
         jsonComment['parentItem'] = article['@id']
         jsonComment['@id'] = comment['name']
-        jsonComment['about'] = article['search']
+        jsonComment['about'] = article['about']
         jsonComment['text'] = comment['body']
         jsonComment['creator'] = comment['author']
-        jsonComment['datePublished'] = comment['created_utc']
+        jsonComment['datePublished'] = str(datetime.datetime.fromtimestamp(int(comment['created_utc'])).strftime('%Y-%m-%d %H:%M:%S'))
         commentsJSON.append(jsonComment)
     if 'data' in comment:
-        moveInsideCommentsTree(comment['data'], commentsJSON)
+        moveInsideCommentsTree(comment['data'], article, commentsJSON)
     if 'children' in comment:
-        moveInsideCommentsTree(comment['children'], commentsJSON)
+        moveInsideCommentsTree(comment['children'],article, commentsJSON)
     if 'replies' in comment:
-        moveInsideCommentsTree(comment['replies'], commentsJSON)
+        moveInsideCommentsTree(comment['replies'],article, commentsJSON)
         
 ## Getting the comment of each article given as JSON file
 

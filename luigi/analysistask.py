@@ -395,8 +395,7 @@ class AnalysisTaskGeneric(luigi.Task):
                         response = r.content.decode('utf-8')
                         try:
                             response_json = json.loads(response)
-                            line["sentiment"] = response_json["entries"][0]["sentiments"][0]["marl:hasPolarity"].split(":")[1]   
-                            line["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]
+                            line["sentiment"] = response_json["entries"][0]["sentiments"]   
                         except (json.decoder.JSONDecodeError, KeyError) as ex:
                             print('Failed analysis of entry: {}'.format(ex))
                     if 'emotions' in self.analysisType:    
@@ -406,7 +405,7 @@ class AnalysisTaskGeneric(luigi.Task):
                         response = r.content.decode('utf-8')
                         try:
                             response_json = json.loads(response)
-                            line["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
+                            line["emotion"] = response_json["entries"][0]["emotions"]
                         except (json.decoder.JSONDecodeError, KeyError) as ex:
                             print('Failed analysis of entry: {}'.format(ex))
                     output.write(json.dumps(line))
