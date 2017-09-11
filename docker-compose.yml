@@ -35,8 +35,6 @@ services:
     ports:
       - "18000:8000"
       - "8082:8082"
-    env_file:
-      - .env
     networks:
       - sefarad-network
     depends_on:

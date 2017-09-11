@@ -51,6 +51,7 @@ def getArticles(search = '', limit = 4, filePath = 'articles.json'):
             articleData = article['data']
             jsonArticle = {}
             jsonArticle['id'] = articleData['id']
+            jsonArticle['articleSection'] = articleData['subreddit']
             jsonArticle['subreddit'] = articleData['subreddit']
             jsonArticle['subreddit_id'] = articleData['subreddit_id']
             jsonArticle['permalink'] = articleData['permalink']
@@ -67,7 +68,7 @@ def getArticles(search = '', limit = 4, filePath = 'articles.json'):
 
             
             jsonArticle['@context'] = ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
-            jsonArticle['@type'] = "BlogPost"
+            jsonArticle['@type'] = "BlogPosting"
             jsonArticle['@id'] = "reddit.com" + articleData['permalink']
             jsonArticle['about'] = [search]
             jsonArticle['text'] = articleData['title']
@@ -94,6 +95,7 @@ def moveInsideCommentsTree(comment, article, commentsJSON):
         jsonComment['downs'] = comment['downs']
         jsonComment['likes'] = comment['likes']
         jsonComment['score'] = comment['score']
+        jsonComment['articleSection'] = comment['subreddit']
         jsonComment['subreddit'] = comment['subreddit']
         jsonComment['subreddit_id'] = comment['subreddit_id']
         jsonComment['ups'] = comment['ups']
