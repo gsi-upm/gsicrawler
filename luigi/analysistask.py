@@ -9,11 +9,13 @@ from rdflib import Graph, plugin
 from rdflib.serializer import Serializer
 
 import luigi
+import tweepy
 from luigi.contrib.esindex import CopyToIndex
 from scrapy.crawler import CrawlerProcess
 from scrapers.foursquare import FourSquareSpider
 import subprocess
 import scraperReddit
+from scrapers.twitter import retrieve_tweets
 
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 ES_PORT = os.environ.get('ES_PORT')
@@ -74,10 +76,15 @@ class ScrapyTask(luigi.Task):
             amazon_id = get_amazon_id(self.url)
             domain = '.com' if 'amazon.com' in self.url else '.es' # TODO: Add an "else"
             command = 'scrapy runspider -a domain={domain} -a amazon_id={amazon_id} -a filePath={filePath} scrapers/spiders/{website}.py'.format(domain=domain,amazon_id=amazon_id,filePath=filePath,website=self.website)
+            print(command)
+            subprocess.call(command.split(), shell= False)   
+        if self.website == 'twitter':
+            retrieve_tweets(self.url, filePath, count=1000)
+
         else:    
             command = 'scrapy runspider -a url={url} -a filePath={filePath} --nolog scrapers/spiders/{website}.py'.format(url=self.url,filePath=filePath,website=self.website)
-        print(command)
-        subprocess.call(command.split(), shell= False)    
+            print(command)
+            subprocess.call(command.split(), shell= False)    
 
 
     def output(self):
@@ -139,7 +146,37 @@ class AnalysisTask(luigi.Task):
             #review["polarity"] = response_json["entries"][0]["sentiments"][0]["marl:polarityValue"]  
             #Emotion
             #review["emotion"] = response_json["entries"][0]["emotions"][0]["onyx:hasEmotion"]["onyx:hasEmotionCategory"].split("#")[1]
-
+        if(self.website == 'twitter'):
+            with self.output().open('w') as output:
+                with self.input().open('r') as infile:
+                    for line in infile:
+                        i = json.loads(line)
+                        if 'sentiments' in self.analysisType:
+                            i["containsSentimentsAnalysis"] = True
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % i["text"])
+                            response = r.content.decode('utf-8')
+                            response_json = json.loads(response)
+                            #i["analysis"] = response_json
+                            i["sentiments"] = response_json["entries"][0]["sentiments"]
+                        if 'emotions' in self.analysisType:
+                            i["containsEmotionsAnalysis"] = True
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % i["text"])
+                            response = r.content.decode('utf-8')
+                            try:
+                                response_json = json.loads(response)
+                                #i["analysis"] = response_json
+                                i["emotion"] = response_json["entries"][0]["emotions"]
+                            except json.decoder.JSONDecodeError:
+                                pass
+                        if 'fake' in self.analysisType:
+                            i["containsFakeAnalysis"] = True
+                            probFake = 0.3
+                            if random.random() < probFake:
+                                i["fake"] = True
+                            else: i["fake"] = False 
+                        output.write(json.dumps(i))
+                        #print(i)
+                        output.write('\n')
 
 
         else:
