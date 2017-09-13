@@ -57,8 +57,8 @@
   </style>
   <template>
    	  <h2>New Analysis</h2><img class="logo" src="{{image_logo}}" style="max-width:100px;">
-   	  <custom-validator id="valid" validator-name="validator" hidden></custom-validator>
-   	  <paper-input id="urlinputbox" label="Insert a URL to analyze" bind-value="{{url}}"  auto-validate validator="validator" error-message="URL invalid!"></paper-input>
+   	  <!--<custom-validator id="valid" validator-name="validator" hidden></custom-validator>-->
+   	  <paper-input id="urlinputbox" label="Insert a entity to analyze" bind-value="{{url}}"></paper-input>
       <div class="buttons" style="float: left;">
         <paper-button raised class="yellow left" on-tap="fillexample"><iron-icon icon="fa:bars"></iron-icon> Analysis Example</paper-button>
       </div>
@@ -110,7 +110,7 @@
     ],
     ready: function() {
         this.url = this.$.urlinputbox.value;
-        this.$.valid.validate = this.validate.bind(this);   
+        //this.$.valid.validate = this.validate.bind(this);   
     },
     sentiments: function(e){
     	if(this.okurl()){
@@ -146,6 +146,9 @@
       if(this.webpage == 'reddit'){
         return true;
       }
+      if(this.webpage == 'twitter'){
+        return true;
+      }
       if(this.url == undefined || this.url == ""){
         this.showErrorToast("URL field is empty!");
         return false;
@@ -171,6 +174,8 @@
         this.image_logo = "../../images/foursquare_logo.png";
       else if(this.webpage == "reddit")
         this.image_logo = "../../images/reddit_logo.png";
+      else if(this.webpage == "twitter")
+        this.image_logo = "../../images/twitter_logo.png";
     },
     showErrorToast: function(message) {
       this.showToast(message, '#F44336');

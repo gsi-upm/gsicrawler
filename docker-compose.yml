@@ -13,8 +13,8 @@ services:
     depends_on:
       - elasticsearch
     environment:
-      - LUIGI_ENDPOINT=http://localhost:18000
-      - ES_ENDPOINT=http://localhost:19200
+      - LUIGI_ENDPOINT_EXTERNAL=localhost:18000
+      - ES_ENDPOINT_EXTERNAL=localhost:19200
 
   elasticsearch:
     image: elasticsearch
@@ -37,9 +37,6 @@ services:
       - "8082:8082"
     networks:
       - sefarad-network
-    environment:
-      - ES_ENDPOINT=elasticsearch
-      - ES_PORT=9200
     depends_on:
       - elasticsearch
 
