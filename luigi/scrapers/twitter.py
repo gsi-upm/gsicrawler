@@ -3,14 +3,6 @@ import json
 import os
 import argparse
 
-def filter_tweet(tweet):
-    result = {}
-    result['@type'] = 'Review'
-    result['reviewBody'] = tweet['text']
-    result['author'] = {'@type':'Person', 'name':tweet['user']['name']}
-    result['datePublished'] = tweet['created_at']
-    return result
-
 def retrieve_tweets(query, filePath, count=200):
 
     consumer_key = os.environ["TWITTER_CONSUMER_KEY"]
@@ -49,7 +41,7 @@ def retrieve_tweets(query, filePath, count=200):
             if tweet["in_reply_to_status_id"]:
                 mytweet["_id"] = tweet["id"]
                 mytweet["@context"] =  ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
-                mytweet["@type"] =  ["BlogPost","Comment"]
+                mytweet["@type"] =  ["BlogPosting","Comment"]
                 mytweet["@id"] = 'https://twitter.com/{screen_name}/status/{id}'.format(screen_name=tweet['user']['screen_name'], id=tweet["id"])
                 mytweet["about"] = query
                 mytweet["text"] = tweet["text"]
@@ -61,7 +53,7 @@ def retrieve_tweets(query, filePath, count=200):
             else:
                 mytweet["_id"] = tweet["id"]
                 mytweet["@context"] =  ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
-                mytweet["@type"] =  "BlogPost"
+                mytweet["@type"] =  "BlogPosting"
                 mytweet["@id"] = 'https://twitter.com/{screen_name}/status/{id}'.format(screen_name=tweet['user']['screen_name'], id=tweet["id"])
                 mytweet["about"] = query
                 mytweet["text"] = tweet["text"]
@@ -70,15 +62,3 @@ def retrieve_tweets(query, filePath, count=200):
                 json.dump(mytweet, output)
                 output.write('\n')
 
-def start():
-    parser = argparse.ArgumentParser(description='Retrieve tweets by hashtag.')
-    parser.add_argument('--hashtag', metavar='N', type=str, nargs='+',
-                   help='Hashtag to retrieve tweets')
-    args = parser.parse_args()
-
-    retrieve_tweets(args.hashtag)
-
-def startScraping(hashtag, resultPath):
-    scrapy_result = retrieve_tweets(hashtag)
-    with open(resultPath, 'w') as file:
-        file.write(json.dumps(scrapy_result))

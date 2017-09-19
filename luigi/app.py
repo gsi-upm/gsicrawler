@@ -39,7 +39,7 @@ def startAnalysis():
         resp.headers['Content-Type'] = "application/json"
         return resp
     else:
-        command = 'python -m luigi --module analysistask Elasticsearch --index gsicrawler --doc-type "{website}" --website "{website}" --url "{url}" --id "{id}" --analysisType "{analysisType}"'.format(url=url,website=website,id=identifier,analysisType=analysisType)
+        command = 'python -m luigi --module analysistask PipelineTask --index gsicrawler --doc-type "{website}" --website "{website}" --url "{url}" --id "{id}" --analysisType "{analysisType}"'.format(url=url,website=website,id=identifier,analysisType=analysisType)
         subprocess.call(shlex.split(command), shell= False)
         jsonreponse['index'] = 'gsicrawler'
         jsonreponse['url'] = url

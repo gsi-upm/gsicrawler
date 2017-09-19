@@ -10,11 +10,11 @@ services:
      - .:/usr/src/app
     networks:
       - sefarad-network
+    environment:
+      - LUIGI_ENDPOINT_EXTERNAL=${LUIGI_ENDPOINT_EXTERNAL}
+      - ES_ENDPOINT_EXTERNAL=${ES_ENDPOINT_EXTERNAL}
     depends_on:
       - elasticsearch
-    environment:
-      - LUIGI_ENDPOINT_EXTERNAL=localhost:18000
-      - ES_ENDPOINT_EXTERNAL=localhost:19200
 
   elasticsearch:
     image: elasticsearch
@@ -24,6 +24,15 @@ services:
     volumes:
       - ./elasticsearch/nodes:/usr/share/elasticsearch/data/nodes
       - ./elasticsearch/config:/usr/share/elasticsearch/config
+    networks:
+      - sefarad-network
+
+  fuseki:
+    image: stain/jena-fuseki
+    ports:
+      - "13030:3030"
+    environment:
+      - ADMIN_PASSWORD=${FUSEKI_PASSWORD}
     networks:
       - sefarad-network
 
@@ -37,6 +46,19 @@ services:
       - "8082:8082"
     networks:
       - sefarad-network
+    environment:
+      - REDDIT_CLIENT=${REDDIT_CLIENT}
+      - REDDIT_TOKEN=${REDDIT_TOKEN}
+      - REDDIT_PASS=${REDDIT_PASS}
+      - REDDIT_USER=${REDDIT_USER}
+      - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
+      - TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}
+      - TWITTER_ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN}
+      - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+      - ES_ENDPOINT=${ES_ENDPOINT}
+      - ES_PORT=${ES_PORT}
+      - FUSEKI_ENDPOINT_EXTERNAL=${FUSEKI_ENDPOINT_EXTERNAL}
+
     depends_on:
       - elasticsearch
 

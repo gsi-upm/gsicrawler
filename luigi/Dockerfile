@@ -2,7 +2,7 @@ FROM python:3
 
 RUN apt-get update && apt-get install -y gettext
 
-RUN pip install luigi elasticsearch rdflib requests sqlalchemy tweepy flask ftfy scrapy
+RUN pip install luigi elasticsearch rdflib requests sqlalchemy tweepy flask ftfy scrapy rdflib-jsonld
 
 WORKDIR /usr/src/app
 

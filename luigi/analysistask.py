@@ -157,7 +157,12 @@ class AnalysisTask(luigi.Task):
                             response = r.content.decode('utf-8')
                             response_json = json.loads(response)
                             #i["analysis"] = response_json
-                            i["sentiments"] = response_json["entries"][0]["sentiments"]
+                            sentiments_arr = response_json["entries"][0]["sentiments"]
+                            for x, sentiment in enumerate(sentiments_arr):
+                                sentiment["@id"] = i["@id"]
+                                sentiments_arr[x] = sentiment
+                            #print(sentiments_arr) 
+                            i["sentiments"] = sentiments_arr
                         if 'emotions' in self.analysisType:
                             i["containsEmotionsAnalysis"] = True
                             r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&i=%s' % i["text"])
@@ -165,7 +170,12 @@ class AnalysisTask(luigi.Task):
                             try:
                                 response_json = json.loads(response)
                                 #i["analysis"] = response_json
-                                i["emotion"] = response_json["entries"][0]["emotions"]
+                                emotions_arr = response_json["entries"][0]["emotions"]
+                                for x, emotion in enumerate(emotions_arr):
+                                    emotion["@id"] = i["@id"]
+                                    emotion['onyx:hasEmotion']["@id"] = i["@id"]
+                                    emotions_arr[x] = emotion
+                                i["emotion"] = emotions_arr
                             except json.decoder.JSONDecodeError:
                                 pass
                         if 'fake' in self.analysisType:
@@ -238,6 +248,61 @@ class AnalysisTask(luigi.Task):
         """
         return luigi.LocalTarget(path='/tmp/_analyzed-%s.json' % self.id)
 
+
+class SemanticTask(luigi.Task):
+    """
+    This task loads JSON data contained in a :py:class:`luigi.target.Target` and insert into Fuseki platform as a semantic 
+    """
+     #: date task parameter (default = today)
+    url = luigi.Parameter()
+
+    id = luigi.Parameter()
+
+    website = luigi.Parameter()
+
+    analysisType = luigi.Parameter()
+    #file = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+    def requires(self):
+        """
+        This task's dependencies:
+        * :py:class:`~.SenpyTask` 
+        :return: object (:py:class:`luigi.task.Task`)
+        """
+        return AnalysisTask(self.url, self.id, self.website, self.analysisType)
+
+    def run(self):
+        """
+        Receive data from Senpy and is indexed in Fuseki
+        """
+
+        f = []
+
+        with self.input().open('r') as infile:
+            for i, line in enumerate(infile):
+                self.set_status_message("Lines read: %d" % i)
+                w = json.loads(line)
+                f.append(w)
+            f = json.dumps(f)
+            self.set_status_message("JSON created")
+            #print(f)
+            #g = Graph().parse(data=f, format='json-ld')
+            r = requests.put('http://{fuseki}/gsicrawler/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT')),
+                headers={'Content-Type':'application/ld+json'},
+                data=f)
+            self.set_status_message("Data sent to fuseki")
+
+    def output(self):
+        """
+        Returns the target output for this task.
+        In this case, a successful execution of this task will create a file on the local filesystem.
+        :return: the target output for this task.
+        :rtype: object (:py:class:`luigi.target.Target`)
+        """
+        return luigi.LocalTarget(path='/tmp/_n3-%s.json' % self.id)
+
+
+
 class Elasticsearch(CopyToIndex):
     """
     This task loads JSON data contained in a :py:class:`luigi.target.Target` into an ElasticSearch index.
@@ -260,9 +325,9 @@ class Elasticsearch(CopyToIndex):
 
     id = luigi.Parameter()
 
-    analysisType = luigi.Parameter()
-
     website = luigi.Parameter()
+
+    analysisType = luigi.Parameter()
 
     #: the name of the index in ElasticSearch to be updated.
     index = luigi.Parameter()
@@ -282,6 +347,41 @@ class Elasticsearch(CopyToIndex):
         :return: object (:py:class:`luigi.task.Task`)
         """
         return AnalysisTask(self.url, self.id, self.website, self.analysisType)
+
+
+class PipelineTask(luigi.Task):
+  
+    #: date task parameter (default = today)
+    url = luigi.Parameter()
+
+    id = luigi.Parameter()
+
+    analysisType = luigi.Parameter()
+
+    website = luigi.Parameter()
+
+    #: the name of the index in ElasticSearch to be updated.
+    index = luigi.Parameter()
+    #: the name of the document type.
+    doc_type = luigi.Parameter()
+    #: the host running the ElasticSearch service.
+    host = ES_ENDPOINT
+    #: the port used by the ElasticSearch service.
+    port = ES_PORT
+   
+    def requires(self):
+        """
+        This task's dependencies:
+        * :py:class:`~.SenpyTask`
+        :return: object (:py:class:`luigi.task.Task`)
+        """
+
+        yield SemanticTask(self.url, self.id, self.website, self.analysisType)
+        
+        index=self.index
+        doc_type=self.doc_type
+
+        yield Elasticsearch(self.url, self.id, self.website, self.analysisType, index, doc_type)
 
 ################################## REDDIT PIPELINE ##############################################
 
@@ -390,12 +490,13 @@ class AnalysisTaskGeneric(luigi.Task):
                     text = line[self.analysis_field]
                     if 'sentiments' in self.analysisType:
                         r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/',
-                                         params={'algo': 'sentiment-tass',
+                                         params={'algo': 'sentiment-meaningCloud',
+                                                 'apiKey': '9eee4626ccd5bd8df5b10cf86a811081',
                                                  'i': text})
                         response = r.content.decode('utf-8')
                         try:
                             response_json = json.loads(response)
-                            line["sentiment"] = response_json["entries"][0]["sentiments"]   
+                            line["sentiments"] = response_json["entries"][0]["sentiments"]   
                         except (json.decoder.JSONDecodeError, KeyError) as ex:
                             print('Failed analysis of entry: {}'.format(ex))
                     if 'emotions' in self.analysisType:    
@@ -405,7 +506,7 @@ class AnalysisTaskGeneric(luigi.Task):
                         response = r.content.decode('utf-8')
                         try:
                             response_json = json.loads(response)
-                            line["emotion"] = response_json["entries"][0]["emotions"]
+                            line["emotions"] = response_json["entries"][0]["emotions"]
                         except (json.decoder.JSONDecodeError, KeyError) as ex:
                             print('Failed analysis of entry: {}'.format(ex))
                     output.write(json.dumps(line))
