@@ -31,6 +31,8 @@ services:
     image: stain/jena-fuseki
     ports:
       - "13030:3030"
+    volumes:
+     - ./fuseki:/fuseki
     environment:
       - ADMIN_PASSWORD=${FUSEKI_PASSWORD}
     networks:

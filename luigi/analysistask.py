@@ -79,7 +79,7 @@ class ScrapyTask(luigi.Task):
             print(command)
             subprocess.call(command.split(), shell= False)   
         if self.website == 'twitter':
-            retrieve_tweets(self.url, filePath, count=1000)
+            retrieve_tweets(self.url, filePath, count=10)
 
         else:    
             command = 'scrapy runspider -a url={url} -a filePath={filePath} --nolog scrapers/spiders/{website}.py'.format(url=self.url,filePath=filePath,website=self.website)
@@ -159,7 +159,7 @@ class AnalysisTask(luigi.Task):
                             #i["analysis"] = response_json
                             sentiments_arr = response_json["entries"][0]["sentiments"]
                             for x, sentiment in enumerate(sentiments_arr):
-                                sentiment["@id"] = i["@id"]
+                                sentiment["@id"] = i["@id"]+"#Sentiment{num}".format(num=x)
                                 sentiments_arr[x] = sentiment
                             #print(sentiments_arr) 
                             i["sentiments"] = sentiments_arr
@@ -172,8 +172,8 @@ class AnalysisTask(luigi.Task):
                                 #i["analysis"] = response_json
                                 emotions_arr = response_json["entries"][0]["emotions"]
                                 for x, emotion in enumerate(emotions_arr):
-                                    emotion["@id"] = i["@id"]
-                                    emotion['onyx:hasEmotion']["@id"] = i["@id"]
+                                    emotion["@id"] = i["@id"]+"#Emotion{num}".format(num=x)
+                                    emotion['onyx:hasEmotion']["@id"] = i["@id"]+"#Emotion{num}".format(num=x)
                                     emotions_arr[x] = emotion
                                 i["emotion"] = emotions_arr
                             except json.decoder.JSONDecodeError:
@@ -287,7 +287,7 @@ class SemanticTask(luigi.Task):
             self.set_status_message("JSON created")
             #print(f)
             #g = Graph().parse(data=f, format='json-ld')
-            r = requests.put('http://{fuseki}/gsicrawler/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT')),
+            r = requests.put('http://{fuseki}/gsicrawler/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT_EXTERNAL')),
                 headers={'Content-Type':'application/ld+json'},
                 data=f)
             self.set_status_message("Data sent to fuseki")

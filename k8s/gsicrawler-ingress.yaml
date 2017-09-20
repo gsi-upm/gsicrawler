@@ -25,3 +25,10 @@ spec:
         backend:
           serviceName: $LUIGI_ENDPOINT
           servicePort: 8082
+  - host: $FUSEKI_ENDPOINT_EXTERNAL
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: $FUSEKI_ENDPOINT
+          servicePort: 3030
