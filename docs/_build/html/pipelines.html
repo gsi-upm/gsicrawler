@@ -146,7 +146,7 @@ For using this cron pipeline is necessary to change docker-compose.yml file addi
 <p>In order to queue new crawling requests, a Python Flask server has been developed to stack these tasks using Luigi. The service enables to send basic input parameters, such as the url of the website desired to be scrapped, the analysis type and the elasticSearch basic information. The remote service processes all these data and creates performs the pipeline in background, fetching, analyzing and finally saving the data. The service returns the id and index where has been stored in elasticSearch.</p>
 <p>To explain more in deepth this work-flow process, we are going to briefly introduce an illustrative example.</p>
 <p>The case study explained is: “<strong>Perform a sentiment analysis for HP Wired USB Keyboard from Amazon website</strong>”. The pipeline architecture is represented below:</p>
-<a class="reference internal image-reference" href="_images/picLuigi.png"><img alt="_images/picLuigi.png" class="align-center" src="_images/picLuigi.png" style="width: 703.0px; height: 320.0px;" /></a>
+<a class="reference internal image-reference" href="_images/picLuigi.png"><img alt="_images/picLuigi.png" class="align-center" src="_images/picLuigi.png" style="width: 960.0px; height: 320.0px;" /></a>
 <p>The service receives the new task input parameter, which are the url of the product from where the reviews will be extracted, the analysis that is going to be performed and the platform where is hosted the product. The service creates a new elasticSearch task and the execution begins. Once the result is saved in elasticSearch, the API call returns the destination where its stored so the user can retrieve it. This service is only available for Amazon and Foursquare platforms, and is currently used by the GSICrawler dashboard.</p>
 </div>
 </div>
@@ -181,6 +181,8 @@ For using this cron pipeline is necessary to change docker-compose.yml file addi
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="gsicrawler.html">What is GSI Crawler?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gsicrawler.html#architecture">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gsicrawler.html#install">Install</a></li>
 </ul>
 
 
