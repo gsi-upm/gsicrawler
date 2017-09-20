@@ -1,9 +1,9 @@
 What is GSI Crawler?
 ----------------
 
-GSI Crawler [#f1]_ is an innovative and useful framework which enables to examine social networks and opinion websites by applying sentiment and emotion analysis techniques. At the moment, there are two available platforms: Twitter and Reddit. The user interacts with the tool through a web interface, selecting the analysis type that wants to carry out and the platform that is going to be examined. Depending on the platform  selected, some aditional resources may be required, such as the URL of the specific content that will be analyzed.
+GSI Crawler [#f1]_ is an innovative and useful framework which enables to examine social networks and opinion websites by applying sentiment and emotion analysis techniques. At the moment, there are two available platforms: Twitter and Reddit. The user interacts with the tool through a web interface, selecting the analysis type he wants to carry out and the platform that is going to be examined. Depending on the selected, some additional resources may be required, such as the URL of the specific content that will be analyzed.
 
-In this documentation we are going to introduce the framework presented above, detailing the global architecture of the project and explaining each module functionalities. Finally we will expose most relevant scenarios inside a case study in order to better understand the system itself. 
+In this documentation we are going to introduce the framework presented above, detailing the global architecture of the project and explaining each module functionality. Finally we will expose most a case study in order to better understand the system itself. 
 
 
 
@@ -36,7 +36,7 @@ The following figure describes the architecture from a modular point of view, be
 
 Web App - Polymer Web Components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-As we explained in section before, the GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. In this section we are going to present those components which actively participate in the main application workflow.
+GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. In this section we are going to present those components which actively participate in the main application workflow.
 
 The GSI Crawler web interface looks like the image presented below,
 
@@ -54,7 +54,7 @@ Inside this user interface we can notice several interesting components represen
 .. image:: images/floating-button-platforms.png
   :align: left
 
-**Available platforms** : Due to the high scalability offered by the GSI Crawler framework, it allows to perform analysis tasks inside several third party platforms or websites, such as social networks or any other content. The tool has included by default the *Twitter* and *Reddit* scrapers, being able to extract the opinions from a given link.
+**Available platforms** : Due to the high scalability offered by the GSI Crawler framework, it allows to perform analysis tasks inside several third party platforms or websites such as social networks. The tool has included by default the *Twitter* and *Reddit* scrapers, being able to extract the opinions from a given link.
 
 |
 
@@ -90,13 +90,13 @@ All the pipelines has the same structure, represented in figure below
 
 As is represented above, pipelines architecture is divided into three main steps, *Fetch*, *Analyze*, *Semantic* and *Save*:
 
-* **Fetch** refers to the process of obtaining tweets, comments or whatever is desired to be analyzed, from the URL provided. Most of the times, this task involves webpage parsing, recognizing valuable information contained inside html tags and building a new JSON file with only these data. This process is commonly known as *scrapping* a website. In order to facilitate this filtering process exists multiple extensions or library that offers a well-formed structure to carry out this task being less tedious. Inside the Tasks Server, we have imported the Scrapy library in order to agilize the data mining process. Scrapy is an open source and collaborative framework for extracting the data you need from websites, in a fast, simple, yet extensible way. It is based on sub classes named *spiders*, where are contained the required methods to extract the information. The GSI Crawler application has available two spiders for each Twitter and Reddit platform respectively. So to conclude, this task focus on extract the valuable data and generate a JSON which contains all the sentences that will analyze the following task in the pipeline.
+* **Fetch** refers to the process of obtaining tweets, comments or whatever is desired to be analyzed, from the provided URL. Most of the times, this task involves webpage parsing, recognizing valuable information contained inside html tags and building a new JSON file with the selected data. This process is commonly known as *scrapping* a website. In order to facilitate this filtering process,there exist multiple extensions or libraries that offer a well-formed structure to carry out this task in a more comfortable way. Inside the Tasks Server, we have imported the Scrapy library in order to agilize the data mining process. Scrapy is an open source and collaborative framework for extracting the data from websites, in a fast, simple, yet extensible way. It is based on sub classes named *spiders*, where contain the required methods to extract the information. The GSI Crawler application has available two spiders, one for each Twitter and Reddit platform. So to conclude, this task focuses on extracting the valuable data and generates a JSON which contains all the sentences that will analyze the following task in the pipeline.
 
-* **Analyze** task is responsible of take the input JSON file generated by the previous task, parse it and analyze each text strign using Senpy remote server for it. Senpy service is based on HTTP calls, obtaining an analyzed result for the text attached in the request. Once the task has collected the analysis result, it generates another JSON containing the original sentence and its analysis result.
+* **Analyze** task is responsible of taking the input JSON file generated by the previous task, parsing it and analyzing each text strign using Senpy remote server for it. Senpy service is based on HTTP calls, obtaining an analyzed result for the text attached in the request. Once the task has collected the analysis result, it generates another JSON containing the original sentence and its analysis result.
 
 * **Semantic** task aims to structure data into triplets so as to be understood by the different ontologies supported. It takes as input the original JSON data and returns another JSON with the desired structure.
 
-* **Save** process consists on store the JSON generated previously which contains the analysis result inside elasticSearch instance or Fuseki. ElasticSearch is a distributed, RESTful search and analytics engine capable of solving a growing number of use cases. As the heart of the Elastic Stack, it centrally stores the data so you can discover the expected and uncover the unexpected. To carry put the saving process its necessary to provide two arguments, the **index**, which represents the elastic index where the information will be saved, and the **doc type**, which allows to categorize information that belongs to the same index. It exists a third parameter which is the **id** of the query, but it is automatically generated by default.
+* **Save** process consists on storing the JSON generated previously which contains the analysis result inside elasticSearch instance or Fuseki. ElasticSearch is a distributed, RESTful search and analytics engine capable of solving a growing number of use cases. As the heart of the Elastic Stack, it centrally stores the data so it is possible to discover the expected and uncover the unexpected. To carry out the saving process, it's necessary to provide two arguments, the **index**, which represents the elastic index where the information will be saved, and the **doc type**, which allows to categorize information that belongs to the same index. It exists a third parameter which is the **id** of the query, but it is automatically generated by default.
 
 To better understand these concepts, we are going to give a clear example that shows how the storing process works internally. Imagine that the user requests a **sentiment** analysis for a certain **Tweet**. One elasticSearch parameters approach that would fit could be, **twitter** as the elasticSearch *index*, **sentiment** as the *doc type* because there could exist an emotion within the same platform, and lastly the *id* that could be the **datetime** when the task request was triggered.
 
