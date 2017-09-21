@@ -60,6 +60,8 @@ services:
       - ES_ENDPOINT=${ES_ENDPOINT}
       - ES_PORT=${ES_PORT}
       - FUSEKI_ENDPOINT_EXTERNAL=${FUSEKI_ENDPOINT_EXTERNAL}
+      - API_KEY_MEANING_CLOUD=${API_KEY_MEANING_CLOUD}
+
 
     depends_on:
       - elasticsearch

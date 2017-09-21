@@ -5,6 +5,7 @@ import imp
 import re
 import requests
 import os
+import time
 from rdflib import Graph, plugin
 from rdflib.serializer import Serializer
 
@@ -19,6 +20,7 @@ from scrapers.twitter import retrieve_tweets
 
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 ES_PORT = os.environ.get('ES_PORT')
+API_KEY_MEANING_CLOUD = os.environ.get('API_KEY_MEANING_CLOUD')
 
 print('ES connection: {} : {}'.format(ES_ENDPOINT, ES_PORT))
 
@@ -153,11 +155,10 @@ class AnalysisTask(luigi.Task):
                         i = json.loads(line)
                         if 'sentiments' in self.analysisType:
                             i["containsSentimentsAnalysis"] = True
-                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % i["text"])
-                            response = r.content.decode('utf-8')
-                            response_json = json.loads(response)
+                            r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-meaningCloud&apiKey={}&i={}'.format(API_KEY_MEANING_CLOUD, i["text"])).json()
                             #i["analysis"] = response_json
-                            sentiments_arr = response_json["entries"][0]["sentiments"]
+                            time.sleep(0.51)
+                            sentiments_arr = r["entries"][0]["sentiments"]
                             for x, sentiment in enumerate(sentiments_arr):
                                 sentiment["@id"] = i["@id"]+"#Sentiment{num}".format(num=x)
                                 sentiments_arr[x] = sentiment
@@ -211,7 +212,7 @@ class AnalysisTask(luigi.Task):
                         for review in i['reviews']:
                             if 'sentiments' in self.analysisType:
                                 i["containsSentimentsAnalysis"] = True
-                                r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&i=%s' % review["reviewBody"])
+                                r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-meaningCloud&apiKey={}&i={}'.format(API_KEY_MEANING_CLOUD, review["reviewBody"]))
                                 response = r.content.decode('utf-8')
                                 try:
                                     response_json = json.loads(response)
@@ -248,8 +249,68 @@ class AnalysisTask(luigi.Task):
         """
         return luigi.LocalTarget(path='/tmp/_analyzed-%s.json' % self.id)
 
-
 class SemanticTask(luigi.Task):
+    """
+    Generates a local file containing 5 elements of data in JSON format.
+    """
+
+    #: the date parameter.
+
+    #date = luigi.DateParameter(default=datetime.date.today())
+    #field = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    
+    url = luigi.Parameter()
+
+    id = luigi.Parameter()
+
+    website = luigi.Parameter()
+
+    analysisType = luigi.Parameter()
+
+    def requires(self):
+        """
+        This task's dependencies:
+        * :py:class:`~.SenpyTask`
+        :return: object (:py:class:`luigi.task.Task`)
+        """
+        return AnalysisTask(self.url, self.id, self.website, self.analysisType)
+
+
+    def run(self):
+        """
+        Writes data in JSON format into the task's output target.
+        The data objects have the following attributes:
+        * `_id` is the default Elasticsearch id field,
+        * `text`: the text,
+        * `date`: the day when the data was created.
+        """
+        with self.output().open('w') as output:
+            with self.input().open('r') as infile:
+                for line in infile:
+                    i = json.loads(line)
+                    r = requests.get('http://model.dbpedia-spotlight.org/en/annotate?text=%s&confidence=0.2&support=20' % i["text"], headers={"Accept":"application/json"}).json()
+                    entities_arr = r["Resources"]
+                    for x, entity in enumerate(entities_arr):
+                        entity["@id"] = i["@id"]+"#Entity{num}".format(num=x)
+                        entities_arr[x] = entity
+                    i["entities"] = entities_arr
+                    output.write(json.dumps(i))
+                    #print(i)
+                    output.write('\n')
+
+
+       
+    def output(self):
+        """
+        Returns the target output for this task.
+        In this case, a successful execution of this task will create a file on the local filesystem.
+        :return: the target output for this task.
+        :rtype: object (:py:class:`luigi.target.Target`)
+        """
+        return luigi.LocalTarget(path='/tmp/_semantic-%s.json' % self.id)
+
+
+class FusekiTask(luigi.Task):
     """
     This task loads JSON data contained in a :py:class:`luigi.target.Target` and insert into Fuseki platform as a semantic 
     """
@@ -269,7 +330,7 @@ class SemanticTask(luigi.Task):
         * :py:class:`~.SenpyTask` 
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTask(self.url, self.id, self.website, self.analysisType)
+        return SemanticTask(self.url, self.id, self.website, self.analysisType)
 
     def run(self):
         """
@@ -279,18 +340,20 @@ class SemanticTask(luigi.Task):
         f = []
 
         with self.input().open('r') as infile:
-            for i, line in enumerate(infile):
-                self.set_status_message("Lines read: %d" % i)
-                w = json.loads(line)
-                f.append(w)
-            f = json.dumps(f)
-            self.set_status_message("JSON created")
-            #print(f)
-            #g = Graph().parse(data=f, format='json-ld')
-            r = requests.put('http://{fuseki}/gsicrawler/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT_EXTERNAL')),
-                headers={'Content-Type':'application/ld+json'},
-                data=f)
-            self.set_status_message("Data sent to fuseki")
+            with self.output().open('w') as outfile:
+                for i, line in enumerate(infile):
+                    self.set_status_message("Lines read: %d" % i)
+                    w = json.loads(line)
+                    f.append(w)
+                f = json.dumps(f)
+                self.set_status_message("JSON created")
+                #print(f)
+                #g = Graph().parse(data=f, format='json-ld')
+                r = requests.put('http://{fuseki}/gsicrawler/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT_EXTERNAL')),
+                    headers={'Content-Type':'application/ld+json'},
+                    data=f)
+                self.set_status_message("Data sent to fuseki")
+                outfile.write(f)
 
     def output(self):
         """
@@ -346,7 +409,7 @@ class Elasticsearch(CopyToIndex):
         * :py:class:`~.SenpyTask`
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTask(self.url, self.id, self.website, self.analysisType)
+        return SemanticTask(self.url, self.id, self.website, self.analysisType)
 
 
 class PipelineTask(luigi.Task):
@@ -376,7 +439,7 @@ class PipelineTask(luigi.Task):
         :return: object (:py:class:`luigi.task.Task`)
         """
 
-        yield SemanticTask(self.url, self.id, self.website, self.analysisType)
+        yield FusekiTask(self.url, self.id, self.website, self.analysisType)
         
         index=self.index
         doc_type=self.doc_type
@@ -491,7 +554,7 @@ class AnalysisTaskGeneric(luigi.Task):
                     if 'sentiments' in self.analysisType:
                         r = requests.get('http://test.senpy.cluster.gsi.dit.upm.es/api/',
                                          params={'algo': 'sentiment-meaningCloud',
-                                                 'apiKey': '9eee4626ccd5bd8df5b10cf86a811081',
+                                                 'apiKey': API_KEY_MEANING_CLOUD,
                                                  'i': text})
                         response = r.content.decode('utf-8')
                         try:
