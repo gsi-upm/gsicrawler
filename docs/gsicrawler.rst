@@ -1,9 +1,9 @@
 What is GSI Crawler?
 ----------------
 
-GSI Crawler [#f1]_ is an innovative and useful framework which enables to examine social networks and opinion websites by applying sentiment and emotion analysis techniques. At the moment, there are two available platforms: Twitter and Reddit. The user interacts with the tool through a web interface, selecting the analysis type he wants to carry out and the platform that is going to be examined. Depending on the selected, some additional resources may be required, such as the URL of the specific content that will be analyzed.
+GSI Crawler [#f1]_ is an innovative and useful framework which aims to extract information from web pages enriching following semantic approaches. At the moment, there are three available platforms: Twitter, Reddit and News. The user interacts with the tool through a web interface, selecting the analysis type he wants to carry out and the platform that is going to be examined.
 
-In this documentation we are going to introduce the framework presented above, detailing the global architecture of the project and explaining each module functionality. Finally we will expose most a case study in order to better understand the system itself. 
+In this documentation we are going to introduce this framework, detailing the global architecture of the project and explaining each module functionality. Finally we will expose most a case study in order to better understand the system itself. 
 
 
 
@@ -16,11 +16,11 @@ Overview
 
 GSI Crawler environment can be defined from a high level point of view as follows:
 
-* **Data Acquisition**: this is the core function of GSI Crawler, consisting on extracting data according to the petitions sent to it. It works thanks to the use of web crawlers, which will be explained in more detail in the Modules section.
+* **Data Ingestion**: this is the core function of GSI Crawler, consisting on extracting data according to the petitions sent to it. It works thanks to the use of web crawlers, which will be explained in more detail in the Modules section.
 
-* **Semantic Representation**: apart from obtaining data, they will be processed following semantic paradigms apart from conventional ones.
+* **Semantic Representation**: before its storage, data will be enriched following semantic paradigms in order to allow a more powerful analysis later.
 
-* **Data Storage**: once a request is made, its response will be stored with the aim of processing or visualising when needed.
+* **Data Storage**: after data acquisition and enrichment, the storage process is carried out. At this moment, both ElasticSearch and Fuseki are available for fulfulling this task.
 
 
 
@@ -78,19 +78,19 @@ Inside this user interface we can notice several interesting components represen
 Tasks Server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The tasks server is responsible of managing the incoming workflow and setting up a valid pipeline to obtain, analyze, organize and save the results in Fuseki or elasticSearch to be displayed in the client application. Luigi framework is used as an orchestator to build a sequence of tasks in order to facilitate the analysis process. 
+The tasks server is responsible of managing the incoming workflow and setting up a valid pipeline to obtain, analyze, organize and save the results in Fuseki or ElasticSearch to be displayed in the client application. Luigi framework is used as an orchestator to build a sequence of tasks in order to facilitate the analysis process. 
 
-The main goal of the server is to provide an API REST to add new tasks to the Luigi queue, saving the result in elasticSearch instance and retrieving it asyncronously from the client website. This web service has been implemented using Python Flask library, and contains multiple API calls to queuing tasks depending on the platform selected. 
+This tasks server is activated periodically by an administrator of processes called cron, whose aim is to obtain more information everyday. That way, any user can visualize data any time with the certainty that there will be stored data in the system.
 
-All the pipelines has the same structure, represented in figure below
+All the pipelines have the same structure, as represented in the figure below.
 
-.. image:: images/picLuigi.png
+.. image:: images/picLuigiNews.png
   :scale: 80%
   :align: center
 
 As is represented above, pipelines architecture is divided into three main steps, *Fetch*, *Analyze*, *Semantic* and *Save*:
 
-* **Fetch** refers to the process of obtaining tweets, comments or whatever is desired to be analyzed, from the provided URL. Most of the times, this task involves webpage parsing, recognizing valuable information contained inside html tags and building a new JSON file with the selected data. This process is commonly known as *scrapping* a website. In order to facilitate this filtering process,there exist multiple extensions or libraries that offer a well-formed structure to carry out this task in a more comfortable way. Inside the Tasks Server, we have imported the Scrapy library in order to agilize the data mining process. Scrapy is an open source and collaborative framework for extracting the data from websites, in a fast, simple, yet extensible way. It is based on sub classes named *spiders*, where contain the required methods to extract the information. The GSI Crawler application has available two spiders, one for each Twitter and Reddit platform. So to conclude, this task focuses on extracting the valuable data and generates a JSON which contains all the sentences that will analyze the following task in the pipeline.
+* **Fetch** refers to the process of obtaining tweets, comments or any content which is desired to be analyzed, from the provided URL. Most of the times, this task involves webpage parsing, recognizing valuable information contained inside html tags and building a new JSON file with the selected data. This process is commonly known as *scrapping* a website. In order to facilitate this filtering process,there exist multiple extensions or libraries that offer a well-formed structure to carry out this task in a more comfortable way. Inside the Tasks Server, we have imported the Scrapy library in order to agilize the data mining process. Scrapy is an open source and collaborative framework for extracting the data from websites, in a fast, simple, yet extensible way. It is based on sub classes named *spiders*, which contain the required methods to extract the information. Apart from the use of the Scrapy library, several APIs have also been used for retrieving data. The GSI Crawler application has three available scrapers, one for each Twitter and Reddit platform, and another one which includes spiders for different news sources. So to conclude, this task focuses on extracting the valuable data and generates a JSON which can be analyzed by the following task in the pipeline.
 
 * **Analyze** task is responsible of taking the input JSON file generated by the previous task, parsing it and analyzing each text strign using Senpy remote server for it. Senpy service is based on HTTP calls, obtaining an analyzed result for the text attached in the request. Once the task has collected the analysis result, it generates another JSON containing the original sentence and its analysis result.
 
