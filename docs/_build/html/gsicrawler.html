@@ -62,26 +62,21 @@
 <div class="section" id="web-app-polymer-web-components">
 <h3>Web App - Polymer Web Components<a class="headerlink" href="#web-app-polymer-web-components" title="Permalink to this headline">¶</a></h3>
 <p>GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. In this section we are going to present those components which actively participate in the main application workflow.</p>
-<p>The GSI Crawler web interface looks like the image presented below,</p>
-<img alt="_images/gsicrawler-interface.png" class="align-center" src="_images/gsicrawler-interface.png" />
-<p>Inside this user interface we can notice several interesting components represented in the figure:</p>
-<img alt="_images/floating-button.png" class="align-left" src="_images/floating-button.png" />
-<p><strong>Begin to explore</strong> : This is the main input element within the web interface and enables to request a new analysis task for any available platform. It also needs a certain reference about the product or place to be analyzed.</p>
+<p>This example shows the representation of data obtained from the News scraper.</p>
+<img alt="_images/news1.png" class="align-center" src="_images/news1.png" />
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<img alt="_images/floating-button-platforms.png" class="align-left" src="_images/floating-button-platforms.png" />
-<p><strong>Available platforms</strong> : Due to the high scalability offered by the GSI Crawler framework, it allows to perform analysis tasks inside several third party platforms or websites such as social networks. The tool has included by default the <em>Twitter</em> and <em>Reddit</em> scrapers, being able to extract the opinions from a given link.</p>
+<p>The list of news obtained which fits the selected filters is shown as represented in the following image. The headline of each news item appears along with the logo of its source and the emotion analysis representation of its content, displayed as an emoji.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<p><strong>Choose the analysis</strong> : Once the content provider is selected, a card will pop up to select the analysis type and include the URL of the resource that is going to be treated.</p>
-<img alt="_images/choose-analysis.png" class="align-center" src="_images/choose-analysis.png" />
+<img alt="_images/news2.png" class="align-left" src="_images/news2.png" />
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<p><strong>Observe and profundize into the result</strong> : Finally, the result will be presented in the dashboard showing the result for the requested analysis.</p>
-<a class="reference internal image-reference" href="_images/analysis.png"><img alt="_images/analysis.png" class="align-center" src="_images/analysis.png" style="width: 690.0px; height: 380.4px;" /></a>
+<p>Additionaly, it is possible to use the Sparql editor to execute semantic queries which work making use of several ontologies in order to enrich the gathered data.</p>
+<img alt="_images/news3.png" class="align-left" src="_images/news3.png" />
 </div>
 <div class="section" id="tasks-server">
 <h3>Tasks Server<a class="headerlink" href="#tasks-server" title="Permalink to this headline">¶</a></h3>

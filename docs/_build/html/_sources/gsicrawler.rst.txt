@@ -38,38 +38,32 @@ Web App - Polymer Web Components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. In this section we are going to present those components which actively participate in the main application workflow.
 
-The GSI Crawler web interface looks like the image presented below,
+This example shows the representation of data obtained from the News scraper.
 
-.. image:: images/gsicrawler-interface.png
+.. image:: images/news1.png
   :align: center
 
-Inside this user interface we can notice several interesting components represented in the figure:
+|
 
-.. image:: images/floating-button.png
+The list of news obtained which fits the selected filters is shown as represented in the following image. The headline of each news item appears along with the logo of its source and the emotion analysis representation of its content, displayed as an emoji.
+
+|
+
+.. image:: images/news2.png
   :align: left
 
-**Begin to explore** : This is the main input element within the web interface and enables to request a new analysis task for any available platform. It also needs a certain reference about the product or place to be analyzed.
-
 |
-.. image:: images/floating-button-platforms.png
+
+Additionaly, it is possible to use the Sparql editor to execute semantic queries which work making use of several ontologies in order to enrich the gathered data.
+
+.. image:: images/news3.png
   :align: left
 
-**Available platforms** : Due to the high scalability offered by the GSI Crawler framework, it allows to perform analysis tasks inside several third party platforms or websites such as social networks. The tool has included by default the *Twitter* and *Reddit* scrapers, being able to extract the opinions from a given link.
 
-|
 
-**Choose the analysis** : Once the content provider is selected, a card will pop up to select the analysis type and include the URL of the resource that is going to be treated.
 
-.. image:: images/choose-analysis.png
-  :align: center
 
-|
 
-**Observe and profundize into the result** : Finally, the result will be presented in the dashboard showing the result for the requested analysis. 
-
-.. image:: images/analysis.png
-  :scale: 60%
-  :align: center
 
 
 
