@@ -1,0 +1,170 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Architecture &#8212; GSI Crawler 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting started" href="tutorials.html" />
+    <link rel="prev" title="What is GSI Crawler?" href="gsicrawler.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>GSI Crawler environment can be defined from a high level point of view as follows:</p>
+<ul class="simple">
+<li><strong>Data Ingestion</strong>: this is the core function of GSI Crawler, consisting on extracting data according to the petitions sent to it. It works thanks to the use of web crawlers, which will be explained in more detail in the Modules section.</li>
+<li><strong>Semantic Representation</strong>: before its storage, data will be enriched following semantic paradigms in order to allow a more powerful analysis later.</li>
+<li><strong>Data Storage</strong>: after data acquisition and enrichment, the storage process is carried out. At this moment, both ElasticSearch and Fuseki are available for fulfulling this task.</li>
+</ul>
+</div>
+<div class="section" id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<p>The following figure describes the architecture from a modular point of view, being each of the modules described below.</p>
+<img alt="_images/arch.png" class="align-center" src="_images/arch.png" />
+<div class="section" id="tasks-server">
+<h3>Tasks Server<a class="headerlink" href="#tasks-server" title="Permalink to this headline">¶</a></h3>
+<p>The tasks server is responsible of managing the incoming workflow and setting up a valid pipeline to obtain, analyze, organize and save the results in Fuseki or ElasticSearch to be displayed in the client application. Luigi framework is used as an orchestator to build a sequence of tasks in order to facilitate the analysis process.</p>
+<p>This tasks server is activated periodically by an administrator of processes called cron, whose aim is to obtain more information everyday. That way, any user can visualize data any time with the certainty that there will be stored data in the system.</p>
+<p>All the pipelines have the same structure, as represented in the figure below.</p>
+<a class="reference internal image-reference" href="_images/picLuigiNews.png"><img alt="_images/picLuigiNews.png" class="align-center" src="_images/picLuigiNews.png" style="width: 768.0px; height: 432.0px;" /></a>
+<p>As is represented above, pipelines architecture is divided into three main steps, <em>Fetch</em>, <em>Analyze</em>, <em>Semantic</em> and <em>Save</em>:</p>
+<ul class="simple">
+<li><strong>Fetch</strong> refers to the process of obtaining tweets, comments or any content which is desired to be analyzed, from the provided URL. Most of the times, this task involves webpage parsing, recognizing valuable information contained inside html tags and building a new JSON file with the selected data. This process is commonly known as <em>scraping</em> a website. In order to facilitate this filtering process,there exist multiple extensions or libraries that offer a well-formed structure to carry out this task in a more comfortable way. Inside the Tasks Server, we have imported the Scrapy library in order to agilize the data mining process. Scrapy is an open source and collaborative framework for extracting the data from websites, in a fast, simple, yet extensible way. It is based on sub classes named <em>spiders</em>, which contain the required methods to extract the information. Apart from the use of the Scrapy library, several APIs have also been used for retrieving data. The GSI Crawler application has three available scrapers, one for each Twitter and Reddit platform, and another one which includes spiders for different news sources. So to conclude, this task focuses on extracting the valuable data and generates a JSON which can be analyzed by the following task in the pipeline.</li>
+<li><strong>Analyze</strong> task is responsible of taking the input JSON file generated by the previous task, parsing it and analyzing each text strign using Senpy remote server for it. Senpy service is based on HTTP calls, obtaining an analyzed result for the text attached in the request. Once the task has collected the analysis result, it generates another JSON containing the original sentence and its analysis result.</li>
+<li><strong>Semantic</strong> task aims to structure data into triplets so as to be understood by the different ontologies supported. It takes as input the original JSON data and returns another JSON with the desired structure.</li>
+<li><strong>Store</strong> process consists on storing the JSON generated previously which contains the analysis result inside elasticSearch instance or Fuseki. ElasticSearch is a distributed, RESTful search and analytics engine capable of solving a growing number of use cases. As the heart of the Elastic Stack, it centrally stores the data so it is possible to discover the expected and uncover the unexpected. To carry out the saving process, it’s necessary to provide two arguments, the <strong>index</strong>, which represents the elastic index where the information will be saved, and the <strong>doc type</strong>, which allows to categorize information that belongs to the same index. It exists a third parameter which is the <strong>id</strong> of the query, but it is automatically generated by default.</li>
+</ul>
+<p>To better understand these concepts, we are going to give a clear example that shows how the pipeline processes work internally. Imagine that the user requests a <strong>sentiment</strong> analysis for a certain <strong>Tweet</strong>. One elasticSearch parameters approach that would fit could be, <strong>twitter</strong> as the elasticSearch <em>index</em>, <strong>sentiment</strong> as the <em>doc type</em> because there could exist an emotion within the same platform, and lastly the <em>id</em> that could be the <strong>datetime</strong> when the task request was triggered.</p>
+<p>Once the Luigi orchestator has been explained, we will conclude this section detailing how the server behaves when it receives a user request, and what parameters are mandatory to run the operation. The workflow is shown in diagram below:</p>
+<img alt="_images/task-diagram.png" class="align-center" src="_images/task-diagram.png" />
+</div>
+<div class="section" id="web-app-polymer-web-components">
+<h3>Web App - Polymer Web Components<a class="headerlink" href="#web-app-polymer-web-components" title="Permalink to this headline">¶</a></h3>
+<p>GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. In this section we are going to present those components which actively participate in the main application workflow.</p>
+<p>This example shows the representation of data obtained from the News scraper.</p>
+<img alt="_images/news1.png" class="align-center" src="_images/news1.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>The list of news obtained which fits the selected filters is shown as represented in the following image. The headline of each news item appears along with the logo of its source and the emotion analysis representation of its content, displayed as an emoji.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<img alt="_images/news2.png" class="align-center" src="_images/news2.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Additionaly, it is possible to use the Sparql editor to execute semantic queries which work making use of several ontologies in order to enrich the gathered data.</p>
+<img alt="_images/news3.png" class="align-center" src="_images/news3.png" />
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gsicrawler.html">What is GSI Crawler?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modules">Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Getting started</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/architecture.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

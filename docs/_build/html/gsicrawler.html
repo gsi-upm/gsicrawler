@@ -23,6 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture" href="architecture.html" />
     <link rel="prev" title="Welcome to GSI Crawler’s documentation!" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -41,166 +42,8 @@
             
   <div class="section" id="what-is-gsi-crawler">
 <h1>What is GSI Crawler?<a class="headerlink" href="#what-is-gsi-crawler" title="Permalink to this headline">¶</a></h1>
-<p>GSI Crawler <a class="footnote-reference" href="#f1" id="id1">[1]</a> is an innovative and useful framework which aims to extract information from web pages enriching following semantic approaches. At the moment, there are three available platforms: Twitter, Reddit and News. The user interacts with the tool through a web interface, selecting the analysis type he wants to carry out and the platform that is going to be examined.</p>
+<p>GSI Crawler is an innovative and useful framework which aims to extract information from web pages enriching following semantic approaches. At the moment, there are three available platforms: Twitter, Reddit and News. The user interacts with the tool through a web interface, selecting the analysis type he wants to carry out and the platform that is going to be examined.</p>
 <p>In this documentation we are going to introduce this framework, detailing the global architecture of the project and explaining each module functionality. Finally we will expose most a case study in order to better understand the system itself.</p>
-</div>
-<div class="section" id="architecture">
-<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p>GSI Crawler environment can be defined from a high level point of view as follows:</p>
-<ul class="simple">
-<li><strong>Data Ingestion</strong>: this is the core function of GSI Crawler, consisting on extracting data according to the petitions sent to it. It works thanks to the use of web crawlers, which will be explained in more detail in the Modules section.</li>
-<li><strong>Semantic Representation</strong>: before its storage, data will be enriched following semantic paradigms in order to allow a more powerful analysis later.</li>
-<li><strong>Data Storage</strong>: after data acquisition and enrichment, the storage process is carried out. At this moment, both ElasticSearch and Fuseki are available for fulfulling this task.</li>
-</ul>
-</div>
-<div class="section" id="modules">
-<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
-<p>The following figure describes the architecture from a modular point of view, being each of the modules described below.</p>
-<img alt="_images/arch.png" class="align-center" src="_images/arch.png" />
-<div class="section" id="tasks-server">
-<h3>Tasks Server<a class="headerlink" href="#tasks-server" title="Permalink to this headline">¶</a></h3>
-<p>The tasks server is responsible of managing the incoming workflow and setting up a valid pipeline to obtain, analyze, organize and save the results in Fuseki or ElasticSearch to be displayed in the client application. Luigi framework is used as an orchestator to build a sequence of tasks in order to facilitate the analysis process.</p>
-<p>This tasks server is activated periodically by an administrator of processes called cron, whose aim is to obtain more information everyday. That way, any user can visualize data any time with the certainty that there will be stored data in the system.</p>
-<p>All the pipelines have the same structure, as represented in the figure below.</p>
-<a class="reference internal image-reference" href="_images/picLuigiNews.png"><img alt="_images/picLuigiNews.png" class="align-center" src="_images/picLuigiNews.png" style="width: 768.0px; height: 432.0px;" /></a>
-<p>As is represented above, pipelines architecture is divided into three main steps, <em>Fetch</em>, <em>Analyze</em>, <em>Semantic</em> and <em>Save</em>:</p>
-<ul class="simple">
-<li><strong>Fetch</strong> refers to the process of obtaining tweets, comments or any content which is desired to be analyzed, from the provided URL. Most of the times, this task involves webpage parsing, recognizing valuable information contained inside html tags and building a new JSON file with the selected data. This process is commonly known as <em>scraping</em> a website. In order to facilitate this filtering process,there exist multiple extensions or libraries that offer a well-formed structure to carry out this task in a more comfortable way. Inside the Tasks Server, we have imported the Scrapy library in order to agilize the data mining process. Scrapy is an open source and collaborative framework for extracting the data from websites, in a fast, simple, yet extensible way. It is based on sub classes named <em>spiders</em>, which contain the required methods to extract the information. Apart from the use of the Scrapy library, several APIs have also been used for retrieving data. The GSI Crawler application has three available scrapers, one for each Twitter and Reddit platform, and another one which includes spiders for different news sources. So to conclude, this task focuses on extracting the valuable data and generates a JSON which can be analyzed by the following task in the pipeline.</li>
-<li><strong>Analyze</strong> task is responsible of taking the input JSON file generated by the previous task, parsing it and analyzing each text strign using Senpy remote server for it. Senpy service is based on HTTP calls, obtaining an analyzed result for the text attached in the request. Once the task has collected the analysis result, it generates another JSON containing the original sentence and its analysis result.</li>
-<li><strong>Semantic</strong> task aims to structure data into triplets so as to be understood by the different ontologies supported. It takes as input the original JSON data and returns another JSON with the desired structure.</li>
-<li><strong>Store</strong> process consists on storing the JSON generated previously which contains the analysis result inside elasticSearch instance or Fuseki. ElasticSearch is a distributed, RESTful search and analytics engine capable of solving a growing number of use cases. As the heart of the Elastic Stack, it centrally stores the data so it is possible to discover the expected and uncover the unexpected. To carry out the saving process, it’s necessary to provide two arguments, the <strong>index</strong>, which represents the elastic index where the information will be saved, and the <strong>doc type</strong>, which allows to categorize information that belongs to the same index. It exists a third parameter which is the <strong>id</strong> of the query, but it is automatically generated by default.</li>
-</ul>
-<p>To better understand these concepts, we are going to give a clear example that shows how the pipeline processes work internally. Imagine that the user requests a <strong>sentiment</strong> analysis for a certain <strong>Tweet</strong>. One elasticSearch parameters approach that would fit could be, <strong>twitter</strong> as the elasticSearch <em>index</em>, <strong>sentiment</strong> as the <em>doc type</em> because there could exist an emotion within the same platform, and lastly the <em>id</em> that could be the <strong>datetime</strong> when the task request was triggered.</p>
-<p>Once the Luigi orchestator has been explained, we will conclude this section detailing how the server behaves when it receives a user request, and what parameters are mandatory to run the operation. The workflow is shown in diagram below:</p>
-<img alt="_images/task-diagram.png" class="align-center" src="_images/task-diagram.png" />
-</div>
-<div class="section" id="web-app-polymer-web-components">
-<h3>Web App - Polymer Web Components<a class="headerlink" href="#web-app-polymer-web-components" title="Permalink to this headline">¶</a></h3>
-<p>GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. In this section we are going to present those components which actively participate in the main application workflow.</p>
-<p>This example shows the representation of data obtained from the News scraper.</p>
-<img alt="_images/news1.png" class="align-center" src="_images/news1.png" />
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-<p>The list of news obtained which fits the selected filters is shown as represented in the following image. The headline of each news item appears along with the logo of its source and the emotion analysis representation of its content, displayed as an emoji.</p>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-<img alt="_images/news2.png" class="align-left" src="_images/news2.png" />
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-<p>Additionaly, it is possible to use the Sparql editor to execute semantic queries which work making use of several ontologies in order to enrich the gathered data.</p>
-<img alt="_images/news3.png" class="align-left" src="_images/news3.png" />
-</div>
-</div>
-</div>
-<div class="section" id="install">
-<h1>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h1>
-<p>GSI Crawler installation is based in docker containers, so it is required to have both docker and docker-compose installed.</p>
-<p>For docker installation in Ubuntu, visit this <a class="reference external" href="https://store.docker.com/editions/community/docker-ce-server-ubuntu?tab=description">link</a>.</p>
-<p>Docker-compose installation detailed instructions are available <a class="reference external" href="https://docs.docker.com/compose/install/">here</a>.</p>
-<p>First of all, you need to clone the repository:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
-$ cd gsicrawler
-</pre></div>
-</div>
-<p>Then, it is needed to set up the environment variables. For this task, first create a file named <code class="docutils literal"><span class="pre">.env</span></code> in the root directory of the project. Once you have created the file, you should add a new attribute for the luigi service in the file called <code class="docutils literal"><span class="pre">docker-compose.yml</span></code>, being <code class="docutils literal"><span class="pre">.env</span></code> its value.</p>
-<p>Finally, to run the image:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ sudo docker-compose up
-</pre></div>
-</div>
-</div>
-<div class="section" id="tutorial">
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>In this section we are going to build a Crawler from scratch, making use of the CNN news crawler as a reference. A pre-requirement for building a scraper is understanding how Luigi pipelines work. Essentialy, they are a concatenation of tasks compound by certain parameters which execute a concrete function and return and output which is used by the following task. The dependencies of tasks are described semantically as “one task requires another”. For a better understanding of Luigi, please visit this <a class="reference external" href="https://luigi.readthedocs.io/en/stable/">documentation</a>.</p>
-<p>As it was shown in the tasks server diagram, the first task is related to the obtention of data. In this case, the scraper will use the CNN API for news, so the information to be extracted is obtained from a JSON returned by accessing a certain endpoint. In other cases, the information has to be extracted making use of the <a class="reference external" href="https://docs.scrapy.org/en/latest/">Scrapy</a> library, which allows to extract data allocated between HTML tags in an easy way using CSS selectors.</p>
-<p>So, the first step is to create that script that is in charge of extracting the desired data. Additionaly, data is required to be organised according to <cite>schema.org</cite>. For achieving this, in our example we should look to the <a class="reference external" href="http://schema.org/NewsArticle">NewsArticle</a> entity to know how to structure our data fields. The result of each collected news item contains the following attributes, whose name is specified in the schema reference. The Python dictionary depicted below should be saved as a JSON in order to be understood by the following task.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">aux</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;NewsArticle&quot;</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;@id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;datePublished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;firstPublishDate&quot;</span><span class="p">]</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;dateModified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;lastModifiedDate&quot;</span><span class="p">]</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;articleBody&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;about&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;headline&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;headline&quot;</span><span class="p">]</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;search&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">search</span>
-<span class="n">aux</span><span class="p">[</span><span class="s2">&quot;thumbnailUrl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;thumbnail&quot;</span><span class="p">]</span> <span class="c1">##########</span>
-<span class="n">news</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aux</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>This script is called from a task like shown in the image below. As this is the first task, it doesn’t require any other task.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ScrapyTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates a local file containing 5 elements of data in JSON format.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
-
-    <span class="nb">id</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
-
-    <span class="n">analysisType</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Writes data in JSON format into the task&#39;s output target.</span>
-<span class="sd">        The data objects have the following attributes:</span>
-<span class="sd">        * _id is the default Elasticsearch id field,</span>
-<span class="sd">        * text: the text,</span>
-<span class="sd">        * date: the day when the data was created.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">filePath</span> <span class="o">=</span> <span class="s1">&#39;/tmp/_scrapy-</span><span class="si">%s</span><span class="s1">.json&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
-        <span class="n">retrieveCnnNews</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
-        <span class="n">retrieveNytimesNews</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the target output for this task.</span>
-<span class="sd">        In this case, a successful execution of this task will create a file on the local filesystem.</span>
-<span class="sd">        :return: the target output for this task.</span>
-<span class="sd">        :rtype: object (🇵🇾class:luigi.target.Target)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;/tmp/_scrapy-</span><span class="si">%s</span><span class="s1">.json&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The second step requires reading the information extracted from the first one, which was stored in a JSON file, and enriching it with a sentiment and emotion analysis. In our case, we have used the Senpy service, which returns the sentiment score of each news article according to Marl ontology and the emotion analysis according to Onyx ontology. As a result of this process, the returned JSON contains three additional fields: sentiment, polarity (the score associated to the sentiment field) and emotion. This code would look like this (if senpy service was used):</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="s1">&#39;sentiments&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysisType</span><span class="p">:</span>
-    <span class="n">i</span><span class="p">[</span><span class="s2">&quot;containsSentimentsAnalysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=sentiment-tass&amp;i=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-    <span class="n">response_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="n">i</span><span class="p">[</span><span class="s2">&quot;sentiments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">response_json</span><span class="p">[</span><span class="s2">&quot;entries&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;sentiments&quot;</span><span class="p">]</span>
-<span class="k">if</span> <span class="s1">&#39;emotions&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysisType</span><span class="p">:</span>
-    <span class="n">i</span><span class="p">[</span><span class="s2">&quot;containsEmotionsAnalysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://test.senpy.cluster.gsi.dit.upm.es/api/?algo=emotion-anew&amp;i=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The following tasks would be storing the generated JSON in the previous tasks in the desired way according to one or more database schemes. After that, the visualization part has to be developed. For creating a dashboard, follow this <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/dashboards-dev.html">documentation</a>.</p>
-<p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="f1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>José Emilio Carmona. (2016). Development of a Social Media Crawler for Sentiment Analysis.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[2]</td><td><ol class="first last upperalpha simple" start="10">
-<li>Fernando Sánchez-Rada, Carlos A. Iglesias, Ignacio Corcuera-Platas &amp; Oscar Araque (2016). Senpy: A Pragmatic Linked Sentiment Analysis Framework. In Proceedings DSAA 2016 Special Track on Emotion and Sentiment in Intelligent Systems and Big Social Data Analysis (SentISData).</li>
-</ol>
-</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[3]</td><td><a class="reference external" href="http://elastic.co">http://elastic.co</a>.</td></tr>
-</tbody>
-</table>
 </div>
 
 
@@ -233,17 +76,8 @@ $ cd gsicrawler
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">What is GSI Crawler?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#architecture">Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#modules">Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tasks-server">Tasks Server</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#web-app-polymer-web-components">Web App - Polymer Web Components</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#install">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#tutorial">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Getting started</a></li>
 </ul>
 
 

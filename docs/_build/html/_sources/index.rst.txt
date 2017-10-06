@@ -4,12 +4,14 @@
    contain the root `toctree` directive.
 
 Welcome to GSI Crawler's documentation!
-===================================
+=======================================
 
 Contents:
 
 .. toctree::
    gsicrawler
+   architecture
+   tutorials
    :maxdepth: 4
 
 ..   api
