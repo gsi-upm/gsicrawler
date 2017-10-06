@@ -2,7 +2,10 @@ Getting started
 ---------------
 First glance into GSI Crawler 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The quickest way of exploring the possibilities offered by GSI Crawler is accessing this `demo <https://docs.docker.com/compose/install/>`_. There we can find a dashboard to visualize data collected from different News sources and Twitter. Some examples of added value offered by this tool are topic and sentiment extraction, identification of people appearing on the scraped data and geolocation of sources.
+The quickest way of exploring the possibilities offered by GSI Crawler is accessing this `demo <https://docs.docker.com/compose/install/>`_. There you can find a dashboard to visualize data collected from different News sources and Twitter. Some examples of added value offered by this tool are topic and sentiment extraction, identification of people appearing on the scraped data and geolocation of sources.
+
+.. image:: images/map.jpg
+  :align: center
 
 
 
