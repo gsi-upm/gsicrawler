@@ -4,9 +4,9 @@ kind: ConfigMap
 metadata:
   name: gsicrawler-config
 data:
-    ES_ENDPOINT_EXTERNAL: "$ES_ENDPOINT_EXTERNAL"
+    ES_ENDPOINT_EXTERNAL: $ES_ENDPOINT_EXTERNAL
     ES_ENDPOINT: $ES_ENDPOINT
-    ES_PORT: "$ES_PORT"
+    ES_PORT: $ES_PORT
     LUIGI_ENDPOINT: $LUIGI_ENDPOINT
     LUIGI_ENDPOINT_EXTERNAL: $LUIGI_ENDPOINT_EXTERNAL
     TWITTER_CONSUMER_KEY: $TWITTER_CONSUMER_KEY
@@ -30,7 +30,7 @@ spec:
         app: ${NAME}
     spec:
       containers:
-      - name: gsicrawler-luigi
+      - name: gsicrawler
         image: ${CI_REGISTRY_IMAGE}:${VERSION}
         imagePullPolicy: Always
         resources:
