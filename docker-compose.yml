@@ -1,19 +1,6 @@
 version: '2'
 
 services:
-  sefarad:
-    build: .
-    image: registry.cluster.gsi.dit.upm.es/sefarad/dashboard-reddit
-    ports:
-     - "8080:8080"
-    volumes:
-     - .:/usr/src/app
-    environment:
-     - ES_ENDPOINT_EXTERNAL=${ES_ENDPOINT_EXTERNAL}
-     - FUSEKI_ENDPOINT_DASHBOARD=${FUSEKI_ENDPOINT_DASHBOARD}
-    networks:
-      - sefarad-network
-
   elasticsearch:
     image: "docker.elastic.co/elasticsearch/elasticsearch:5.5.2"
     ulimits:

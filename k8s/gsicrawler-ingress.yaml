@@ -2,33 +2,15 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: gsicrawler-ingress
+  name: ${NAME}
   annotations:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: $CRAWLER_ENDPOINT_EXTERNAL
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: $CRAWLER_ENDPOINT
-          servicePort: 8080
   - host: $LUIGI_ENDPOINT_EXTERNAL
     http:
       paths:
-      - path: /
-        backend:
-          serviceName: $LUIGI_ENDPOINT
-          servicePort: 8000
       - path: /tasks/
         backend:
           serviceName: $LUIGI_ENDPOINT
           servicePort: 8082
-  - host: $FUSEKI_ENDPOINT_EXTERNAL
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: $FUSEKI_ENDPOINT
-          servicePort: 3030

@@ -4,17 +4,11 @@ kind: ConfigMap
 metadata:
   name: gsicrawler-config
 data:
-    REDDIT_USER: $REDDIT_USER
-    REDDIT_CLIENT: $REDDIT_CLIENT
-    REDDIT_TOKEN: $REDDIT_TOKEN
-    REDDIT_PASS: $REDDIT_PASS
     ES_ENDPOINT_EXTERNAL: "$ES_ENDPOINT_EXTERNAL"
     ES_ENDPOINT: $ES_ENDPOINT
     ES_PORT: "$ES_PORT"
     LUIGI_ENDPOINT: $LUIGI_ENDPOINT
     LUIGI_ENDPOINT_EXTERNAL: $LUIGI_ENDPOINT_EXTERNAL
-    CRAWLER_ENDPOINT: $CRAWLER_ENDPOINT
-    CRAWLER_ENDPOINT_EXTERNAL: $CRAWLER_ENDPOINT_EXTERNAL
     TWITTER_CONSUMER_KEY: $TWITTER_CONSUMER_KEY
     TWITTER_CONSUMER_SECRET: $TWITTER_CONSUMER_SECRET
     TWITTER_ACCESS_TOKEN: $TWITTER_ACCESS_TOKEN
@@ -26,83 +20,26 @@ data:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: gsicrawler-web
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        role: gsicrawler-web
-        app: gsicrawler
-    spec:
-      containers:
-      - name: gsicrawler-web
-        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/web:latest
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        ports:
-          - name: web
-            containerPort: 8080
-        envFrom:
-        - configMapRef:
-            name: gsicrawler-config
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: gsicrawler-luigi
+  name: ${NAME}
 spec:
   replicas: 1
   template:
     metadata:
       labels:
         role: gsicrawler-luigi
-        app: gsicrawler
+        app: ${NAME}
     spec:
       containers:
       - name: gsicrawler-luigi
-        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/luigi:latest
+        image: ${CI_REGISTRY_IMAGE}:${VERSION}
         imagePullPolicy: Always
         resources:
           limits:
             memory: "512Mi"
             cpu: "1000m"
         ports:
-          - name: luigiproxy
-            containerPort: 8000
           - name: luigiweb
             containerPort: 8082
-        envFrom:
-        - configMapRef:
-            name: gsicrawler-config
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: gsicrawler-fuseki
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        role: gsicrawler-fuseki
-        app: gsicrawler
-    spec:
-      containers:
-      - name: gsicrawler-fuseki
-        image: stain/jena-fuseki
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "1000m"
-        ports:
-          - name: fuseki
-            containerPort: 3030
-
         envFrom:
         - configMapRef:
             name: gsicrawler-config

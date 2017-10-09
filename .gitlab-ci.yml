@@ -1,39 +1,42 @@
-variables:
-  LUIGI_IMAGE: $CI_REGISTRY_IMAGE/luigi
-  WEB_IMAGE: $CI_REGISTRY_IMAGE/web
+stages:
+  - push
+  - deploy
+  - clean
 
 before_script:
   - make -e login
 
 stages:
-  - build
   - push
   - deploy
+  - clean
 
-build-luigi:
-  stage: build
-  script:
-    - make -e build-luigi
-
-build-web:
-  stage: build
-  script:
-    - make -e build-web
-
-push-web:
+.image: &image_definition
   stage: push
   script:
-    - make -e push-web
+    - make -e push
+  only:
+    - tags
+    - triggers
 
-push-luigi:
-  stage: push
-  script:
-    - make -e push-luigi
-  
+push:
+  <<: *image_definition
+  variables:
+    PYTHON_VERSION: latest
+  only:
+    - tags
+    - triggers
+
 deploy:
   stage: deploy
-  environment: test
+  environment: production
   script:
     - make -e deploy
   only:
-    - master
+    - tags
+    - triggers
+clean :
+  stage: clean
+  script:
+    - make -e clean
+  when: manual

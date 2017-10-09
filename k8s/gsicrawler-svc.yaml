@@ -2,39 +2,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: $CRAWLER_ENDPOINT
-spec:
-  type: ClusterIP
-  ports:
-    - port: 8080
-      protocol: TCP
-  selector:
-    role: gsicrawler-web
----
-apiVersion: v1
-kind: Service
-metadata:
   name: $LUIGI_ENDPOINT
 spec:
   type: ClusterIP
   ports:
-    - name: luigiproxy
-      port: 8000
-      protocol: TCP
     - name: luigiweb
       port: 8082
       protocol: TCP
   selector:
     role: gsicrawler-luigi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: $FUSEKI_ENDPOINT
-spec:
-  type: ClusterIP
-  ports:
-      port: 3030
-      protocol: TCP
-  selector:
-    role: gsicrawler-fuseki
