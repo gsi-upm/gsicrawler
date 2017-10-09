@@ -14,7 +14,7 @@ stages:
 .image: &image_definition
   stage: push
   script:
-    - make -e push-latest
+    - make -e push-$PYTHON_VERSION
   only:
     - tags
     - triggers
