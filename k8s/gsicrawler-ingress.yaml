@@ -12,5 +12,5 @@ spec:
       paths:
       - path: /tasks/
         backend:
-          serviceName: $LUIGI_ENDPOINT
+          serviceName: ${NAME}
           servicePort: 8082
