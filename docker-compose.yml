@@ -50,7 +50,7 @@ services:
 
   luigi:
     build: ./luigi/
-    image: registry.cluster.gsi.dit.upm.es/sefarad/dashboard-reddit/luigi
+    image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/
     volumes:
       - ./luigi:/usr/src/app
     ports:
