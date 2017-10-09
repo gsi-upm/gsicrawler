@@ -5,3 +5,4 @@
 /elasticsearch/nodes/0/
 *.db
 .*
+/fuseki/*

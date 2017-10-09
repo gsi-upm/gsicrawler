@@ -2,14 +2,8 @@ import tweepy
 import json
 import os
 import argparse
+import time
 
-def filter_tweet(tweet):
-    result = {}
-    result['@type'] = 'Review'
-    result['reviewBody'] = tweet['text']
-    result['author'] = {'@type':'Person', 'name':tweet['user']['name']}
-    result['datePublished'] = tweet['created_at']
-    return result
 
 def retrieve_tweets(query, filePath, count=200):
 
@@ -39,7 +33,7 @@ def retrieve_tweets(query, filePath, count=200):
             # depending on TweepError.code, one may want to retry or wait
             # to keep things simple, we will give up on an error
             break
-    with open(filePath, 'w') as output:        
+    with open(filePath, 'a') as output:        
         for item in searched_tweets:
             jsontweet = json.dumps(item._json)
             tweet = json.loads(jsontweet)
@@ -48,37 +42,27 @@ def retrieve_tweets(query, filePath, count=200):
         
             if tweet["in_reply_to_status_id"]:
                 mytweet["_id"] = tweet["id"]
-                mytweet["@context"] =  ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
-                mytweet["@type"] =  ["BlogPost","Comment"]
+                mytweet["@type"] =  ["schema:BlogPosting","schema:Comment"]
                 mytweet["@id"] = 'https://twitter.com/{screen_name}/status/{id}'.format(screen_name=tweet['user']['screen_name'], id=tweet["id"])
-                mytweet["about"] = query
-                mytweet["text"] = tweet["text"]
-                mytweet["creator"] = tweet['user']['name']
-                mytweet["datePublished"] = tweet["created_at"]
-                mytweet["parentItem"] = 'https://twitter.com/{screen_name}/status/{id}'.format(screen_name=tweet["in_reply_to_screen_name"], id=tweet["in_reply_to_status_id"])
+                mytweet["schema:about"] = query
+                mytweet["schema:articleBody"] = tweet["text"]
+                mytweet["schema:headline"] = tweet["text"]
+                mytweet["schema:creator"] = tweet['user']['screen_name']
+                mytweet["schema:author"] = 'twitter'
+                mytweet["schema_datePublished"] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y'))
+                mytweet["schema:parentItem"] = 'https://twitter.com/{screen_name}/status/{id}'.format(screen_name=tweet["in_reply_to_screen_name"], id=tweet["in_reply_to_status_id"])
                 json.dump(mytweet, output)
                 output.write('\n')
             else:
                 mytweet["_id"] = tweet["id"]
-                mytweet["@context"] =  ["http://schema.org","http://latest.senpy.cluster.gsi.dit.upm.es/api/contexts/Context.jsonld"]
-                mytweet["@type"] =  "BlogPost"
+                mytweet["@type"] =  "schema:BlogPosting"
                 mytweet["@id"] = 'https://twitter.com/{screen_name}/status/{id}'.format(screen_name=tweet['user']['screen_name'], id=tweet["id"])
-                mytweet["about"] = query
-                mytweet["text"] = tweet["text"]
-                mytweet["creator"] = tweet['user']['name']
-                mytweet["datePublished"] = tweet["created_at"]
+                mytweet["schema:about"] = query
+                mytweet["schema:headline"] = tweet["text"]
+                mytweet["schema:articleBody"] = tweet["text"]
+                mytweet["schema:creator"] = tweet['user']['screen_name']
+                mytweet["schema:author"] = 'twitter'
+                mytweet["schema:datePublished"] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y'))
+
                 json.dump(mytweet, output)
                 output.write('\n')
-
-def start():
-    parser = argparse.ArgumentParser(description='Retrieve tweets by hashtag.')
-    parser.add_argument('--hashtag', metavar='N', type=str, nargs='+',
-                   help='Hashtag to retrieve tweets')
-    args = parser.parse_args()
-
-    retrieve_tweets(args.hashtag)
-
-def startScraping(hashtag, resultPath):
-    scrapy_result = retrieve_tweets(hashtag)
-    with open(resultPath, 'w') as file:
-        file.write(json.dumps(scrapy_result))

@@ -1,0 +1,10 @@
+luigi
+elasticsearch
+rdflib
+requests 
+sqlalchemy 
+ftfy 
+scrapy 
+rdflib-jsonld 
+newspaper3k
+tweepy
