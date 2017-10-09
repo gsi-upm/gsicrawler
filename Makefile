@@ -1,4 +1,4 @@
-NAME:=gsicrawler
+NAME:=gsicrawler-luigi
 IMAGENAME:=registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler
 
 

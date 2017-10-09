@@ -7,7 +7,7 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: $LUIGI_ENDPOINT_EXTERNAL
+  - host: ${NAME}.senpy.cluster.gsi.dit.upm.es
     http:
       paths:
       - path: /tasks/
