@@ -14,12 +14,12 @@ stages:
 .image: &image_definition
   stage: push
   script:
-    - make -e push
+    - make -e push-luigi
   only:
     - tags
     - triggers
 
-push:
+push-luigi:
   <<: *image_definition
   variables:
     PYTHON_VERSION: latest
