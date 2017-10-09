@@ -52,7 +52,6 @@ def semanticAnalysis(i):
         
         if not 'entries' in r:
             continue
-        
         if type(r["entries"][0]["entities"]) is dict:
             r["entries"][0]["entities"] = [r["entries"][0]["entities"]]
         for x, index in enumerate(r["entries"][0]["entities"]):

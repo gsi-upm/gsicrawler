@@ -19,7 +19,8 @@ from analyzers.analysis import semanticAnalysis
 
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 ES_PORT = os.environ.get('ES_PORT')
-
+FUSEKI_PORT = os.environ.get('FUSEKI_PORT')
+FUSEKI_ENDPOINT = os.environ.get('FUSEKI_ENDPOINT')
 print('ES connection: {} : {}'.format(ES_ENDPOINT, ES_PORT))
 
 class ScrapyTask(luigi.Task):
@@ -159,7 +160,8 @@ class FusekiTask(luigi.Task):
                 self.set_status_message("JSON created")
                 #print(f)
                 #g = Graph().parse(data=f, format='json-ld')
-                r = requests.put('http://{fuseki}/gsicrawler/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT_EXTERNAL')),
+                r = requests.put('http://{fuseki}:{port}/gsicrawler/data'.format(fuseki=FUSEKI_ENDPOINT,
+                                                                                port=FUSEKI_PORT),
                     headers={'Content-Type':'application/ld+json'},
                     data=f)
                 self.set_status_message("Data sent to fuseki")
