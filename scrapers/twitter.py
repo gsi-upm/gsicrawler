@@ -18,6 +18,7 @@ def retrieve_tweets(query, filePath, count=200):
     api = tweepy.API(auth)
 
     max_tweets = count
+    max_tweets = int(max_tweets)
     print(max_tweets)
     searched_tweets = []
     last_id = -1

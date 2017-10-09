@@ -39,6 +39,8 @@ class ScrapyTask(luigi.Task):
 
     analysisType = luigi.Parameter()
 
+    num = luigi.Parameter()
+
 
     def run(self):
         """
@@ -54,9 +56,9 @@ class ScrapyTask(luigi.Task):
         #scraperImported = imp.load_source(self.website, 'scrapers/%s.py' % (self.website))
         #scraperImported.startScraping(self.url, filePath)
         print(self.url, filePath)
-        retrieveCnnNews(self.url, 10, filePath)
-        retrieveNytimesNews(self.url, 10, filePath)
-        retrieve_tweets(self.url, filePath, 10)
+        retrieveCnnNews(self.url, self.num, filePath)
+        retrieveNytimesNews(self.url, self.num, filePath)
+        retrieve_tweets(self.url, filePath, self.num)
 
     def output(self):
         """
@@ -86,13 +88,15 @@ class AnalysisTask(luigi.Task):
 
     analysisType = luigi.Parameter()
 
+    num = luigi.Parameter()
+
     def requires(self):
         """
         This task's dependencies:
         * :py:class:`~.SenpyTask`
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return ScrapyTask(self.url, self.id, self.analysisType)
+        return ScrapyTask(self.url, self.id, self.analysisType, self.num)
 
 
     def run(self):
@@ -133,6 +137,8 @@ class FusekiTask(luigi.Task):
     id = luigi.Parameter()
 
     analysisType = luigi.Parameter()
+
+    num = luigi.Parameter()
     #file = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     def requires(self):
@@ -141,7 +147,7 @@ class FusekiTask(luigi.Task):
         * :py:class:`~.SenpyTask` 
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTask(self.url, self.id, self.analysisType)
+        return AnalysisTask(self.url, self.id, self.analysisType, self.num)
 
     def run(self):
         """
@@ -202,6 +208,8 @@ class Elasticsearch(CopyToIndex):
 
     analysisType = luigi.Parameter()
 
+    num = luigi.Parameter()
+
     #: the name of the index in ElasticSearch to be updated.
     index = luigi.Parameter()
     #: the name of the document type.
@@ -219,7 +227,7 @@ class Elasticsearch(CopyToIndex):
         * :py:class:`~.SenpyTask`
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTask(self.url, self.id, self.analysisType)
+        return AnalysisTask(self.url, self.id, self.analysisType, self.num)
 
 
 class PipelineTask(luigi.Task):
@@ -230,6 +238,8 @@ class PipelineTask(luigi.Task):
     id = luigi.Parameter()
 
     analysisType = luigi.Parameter()
+
+    num = luigi.Parameter()
 
     #: the name of the index in ElasticSearch to be updated.
     index = luigi.Parameter()
@@ -247,12 +257,12 @@ class PipelineTask(luigi.Task):
         :return: object (:py:class:`luigi.task.Task`)
         """
 
-        yield FusekiTask(self.url, self.id, self.analysisType)
+        yield FusekiTask(self.url, self.id, self.analysisType, self.num)
         
         index=self.index
         doc_type=self.doc_type
 
-        yield Elasticsearch(self.url, self.id, self.analysisType, index, doc_type)
+        yield Elasticsearch(self.url, self.id, self.analysisType, self.num, index, doc_type)
 
 if __name__ == "__main__":
     #luigi.run(['--task', 'Elasticsearch'])
