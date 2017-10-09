@@ -12,17 +12,14 @@ from rdflib.serializer import Serializer
 import luigi
 from luigi.contrib.esindex import CopyToIndex
 import subprocess
-from scrapers.cnnScraper import retrieveCnnNews
-from scrapers.nytimesScraper import retrieveNytimesNews
-from scrapers.twitter import retrieve_tweets
-from analyzers.analysis import semanticAnalysis
+from scrapers.tutorial2 import retrieveCnnNews
+from scrapers.tutorial3 import retrieveCnnNews as retrieveCnnNewsT3
+
 
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 ES_PORT = os.environ.get('ES_PORT')
 
-print('ES connection: {} : {}'.format(ES_ENDPOINT, ES_PORT))
-
-class ScrapyTask(luigi.Task):
+class CrawlerTask(luigi.Task):
     """
     Generates a local file containing 5 elements of data in JSON format.
     """
@@ -35,9 +32,6 @@ class ScrapyTask(luigi.Task):
     url = luigi.Parameter()
 
     id = luigi.Parameter()
-
-    analysisType = luigi.Parameter()
-
 
     def run(self):
         """
@@ -48,14 +42,12 @@ class ScrapyTask(luigi.Task):
         * `date`: the day when the data was created.
         """
         #today = datetime.date.today()
-        print(self.analysisType)
         filePath = '/tmp/_scrapy-%s.json' % self.id
         #scraperImported = imp.load_source(self.website, 'scrapers/%s.py' % (self.website))
         #scraperImported.startScraping(self.url, filePath)
         print(self.url, filePath)
         retrieveCnnNews(self.url, 10, filePath)
-        retrieveNytimesNews(self.url, 10, filePath)
-        retrieve_tweets(self.url, filePath, 10)
+        #retrieve_tweets(self.url, filePath, 10)
 
     def output(self):
         """
@@ -66,10 +58,7 @@ class ScrapyTask(luigi.Task):
         """
         return luigi.LocalTarget(path='/tmp/_scrapy-%s.json' % self.id)
 
-
-
-
-class AnalysisTask(luigi.Task):
+class CrawlerTaskT3(luigi.Task):
     """
     Generates a local file containing 5 elements of data in JSON format.
     """
@@ -83,17 +72,6 @@ class AnalysisTask(luigi.Task):
 
     id = luigi.Parameter()
 
-    analysisType = luigi.Parameter()
-
-    def requires(self):
-        """
-        This task's dependencies:
-        * :py:class:`~.SenpyTask`
-        :return: object (:py:class:`luigi.task.Task`)
-        """
-        return ScrapyTask(self.url, self.id, self.analysisType)
-
-
     def run(self):
         """
         Writes data in JSON format into the task's output target.
@@ -102,15 +80,13 @@ class AnalysisTask(luigi.Task):
         * `text`: the text,
         * `date`: the day when the data was created.
         """
-
-            
-        with self.output().open('w') as output:
-            with self.input().open('r') as infile:
-                for line in infile:
-                    i = json.loads(line)
-                    i = semanticAnalysis(i)
-                    output.write(json.dumps(i))
-                    output.write('\n')
+        #today = datetime.date.today()
+        filePath = '/tmp/_scrapy-%s.json' % self.id
+        #scraperImported = imp.load_source(self.website, 'scrapers/%s.py' % (self.website))
+        #scraperImported.startScraping(self.url, filePath)
+        print(self.url, filePath)
+        retrieveCnnNewsT3(self.url, 10, filePath)
+        #retrieve_tweets(self.url, filePath, 10)
 
     def output(self):
         """
@@ -119,8 +95,7 @@ class AnalysisTask(luigi.Task):
         :return: the target output for this task.
         :rtype: object (:py:class:`luigi.target.Target`)
         """
-        return luigi.LocalTarget(path='/tmp/_analyzed-%s.json' % self.id)
-
+        return luigi.LocalTarget(path='/tmp/_scrapy-%s.json' % self.id)
 
 class FusekiTask(luigi.Task):
     """
@@ -131,7 +106,6 @@ class FusekiTask(luigi.Task):
 
     id = luigi.Parameter()
 
-    analysisType = luigi.Parameter()
     #file = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     def requires(self):
@@ -140,7 +114,7 @@ class FusekiTask(luigi.Task):
         * :py:class:`~.SenpyTask` 
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTask(self.url, self.id, self.analysisType)
+        return CrawlerTaskT3(self.url, self.id)
 
     def run(self):
         """
@@ -159,7 +133,7 @@ class FusekiTask(luigi.Task):
                 self.set_status_message("JSON created")
                 #print(f)
                 #g = Graph().parse(data=f, format='json-ld')
-                r = requests.put('http://{fuseki}/gsicrawler/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT_EXTERNAL')),
+                r = requests.put('http://{fuseki}/tutorial/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT_EXTERNAL')),
                     headers={'Content-Type':'application/ld+json'},
                     data=f)
                 self.set_status_message("Data sent to fuseki")
@@ -198,8 +172,6 @@ class Elasticsearch(CopyToIndex):
 
     id = luigi.Parameter()
 
-    analysisType = luigi.Parameter()
-
     #: the name of the index in ElasticSearch to be updated.
     index = luigi.Parameter()
     #: the name of the document type.
@@ -208,16 +180,14 @@ class Elasticsearch(CopyToIndex):
     host = ES_ENDPOINT
     #: the port used by the ElasticSearch service.
     port = ES_PORT
-
-    print(host,port)
-    
+  
     def requires(self):
         """
         This task's dependencies:
         * :py:class:`~.SenpyTask`
         :return: object (:py:class:`luigi.task.Task`)
         """
-        return AnalysisTask(self.url, self.id, self.analysisType)
+        return CrawlerTaskT3(self.url, self.id)
 
 
 class PipelineTask(luigi.Task):
@@ -226,8 +196,6 @@ class PipelineTask(luigi.Task):
     url = luigi.Parameter()
 
     id = luigi.Parameter()
-
-    analysisType = luigi.Parameter()
 
     #: the name of the index in ElasticSearch to be updated.
     index = luigi.Parameter()
@@ -245,12 +213,12 @@ class PipelineTask(luigi.Task):
         :return: object (:py:class:`luigi.task.Task`)
         """
 
-        yield FusekiTask(self.url, self.id, self.analysisType)
+        yield FusekiTask(self.url, self.id)
         
         index=self.index
         doc_type=self.doc_type
 
-        yield Elasticsearch(self.url, self.id, self.analysisType, index, doc_type)
+        yield Elasticsearch(self.url, self.id, index, doc_type)
 
 if __name__ == "__main__":
     #luigi.run(['--task', 'Elasticsearch'])
