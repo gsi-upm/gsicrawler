@@ -1,5 +1,4 @@
 version: '2'
-
 services:
   elasticsearch:
     image: "docker.elastic.co/elasticsearch/elasticsearch:5.5.2"
@@ -36,10 +35,10 @@ services:
       - sefarad-network
 
   luigi:
-    build: ./luigi/
-    image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/
+    build: .
+    image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler
     volumes:
-      - ./luigi:/usr/src/app
+      - .:/usr/src/app
     ports:
       - "8082:8082"
     networks:

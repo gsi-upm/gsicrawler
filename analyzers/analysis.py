@@ -49,6 +49,10 @@ def semanticAnalysis(i):
             r = requests.post('http://meaningcloud.senpy.cluster.gsi.dit.upm.es/api/', data={'algo':'sentiment-meaningCloud', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["schema:articleBody"][REQUEST_LONG*k:-1]})
         time.sleep(1)
         r = r.json()
+        
+        if not 'entries' in r:
+            continue
+        
         if type(r["entries"][0]["entities"]) is dict:
             r["entries"][0]["entities"] = [r["entries"][0]["entities"]]
         for x, index in enumerate(r["entries"][0]["entities"]):
