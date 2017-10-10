@@ -24,6 +24,8 @@ The following figure describes the architecture from a modular point of view, be
 .. image:: images/arch.png
   :align: center
 
+
+
 Tasks Server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -54,4 +56,4 @@ Once the Luigi orchestator has been explained, we will conclude this section det
 
 Web App - Polymer Web Components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. 
+GSI Crawler framework uses a webpage based on Polymer web components to interact with all the functionalities offered by the tool. These Polymer Web Components are simply independent submodules that can be grouped each other to build the general dashboard interface. For more information please visit `Sefarad documentation <http://sefarad.readthedocs.io/en/latest/widgets.html>`_ on web components.

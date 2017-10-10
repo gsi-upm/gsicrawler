@@ -43,7 +43,11 @@
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="first-glance-into-gsi-crawler">
 <h2>First glance into GSI Crawler<a class="headerlink" href="#first-glance-into-gsi-crawler" title="Permalink to this headline">¶</a></h2>
-<p>The quickest way of exploring the possibilities offered by GSI Crawler is accessing this <a class="reference external" href="https://docs.docker.com/compose/install/">demo</a>. There you can find a dashboard to visualize data collected from different News sources and Twitter. Some examples of added value offered by this tool are topic and sentiment extraction, identification of people appearing on the scraped data and geolocation of sources.</p>
+<p>The quickest way of exploring the possibilities offered by GSI Crawler is accessing this <a class="reference external" href="http://dashboard-gsicrawler.cluster.gsi.dit.upm.es//">demo</a>. There you can find a dashboard to visualize data collected from different News sources and Twitter. Some examples of added value offered by this tool are topic and sentiment extraction, identification of people appearing on the scraped data and geolocation of sources.</p>
+<img alt="_images/crawler2.png" class="align-center" src="_images/crawler2.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <img alt="_images/map.jpg" class="align-center" src="_images/map.jpg" />
 </div>
 <div class="section" id="tutorial-i-install">
@@ -56,22 +60,18 @@
 $ cd gsicrawler
 </pre></div>
 </div>
-<p>Then, it is needed to set up the environment variables. For this task, first create a file named <code class="docutils literal"><span class="pre">.env</span></code> in the root directory of the project.</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">LUIGI_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;gsicrawler-luigi&quot;</span>
-<span class="n">LUIGI_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="s2">&quot;gsicrawler-luigi.cluster.gsi.dit.upm.es&quot;</span>
-<span class="n">CRAWLER_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;gsicrawler&quot;</span>
-<span class="n">CRAWLER_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="s2">&quot;gsicrawler.cluster.gsi.dit.upm.es&quot;</span>
-<span class="n">TWITTER_CONSUMER_KEY</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerKey</span><span class="p">}</span>
+<p>Then, it is needed to set up the environment variables. For this task, first create a file named <code class="docutils literal"><span class="pre">.env</span></code> in the root directory of the project. As you can see, Twitter and MeaningCloud credentials are needed if you wish to use those services.</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">TWITTER_CONSUMER_KEY</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerKey</span><span class="p">}</span>
 <span class="n">TWITTER_CONSUMER_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerSecret</span><span class="p">}</span>
 <span class="n">TWITTER_ACCESS_TOKEN</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessToken</span><span class="p">}</span>
 <span class="n">TWITTER_ACCESS_TOKEN_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessTokenSecret</span><span class="p">}</span>
 <span class="n">ES_ENDPOINT</span><span class="o">=</span><span class="n">elasticsearch</span>
 <span class="n">ES_PORT</span><span class="o">=</span><span class="mi">9200</span>
-<span class="n">FUSEKI_PASSWORD</span><span class="o">=</span><span class="n">gsi2017fuseki</span>
+<span class="n">FUSEKI_PASSWORD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiPass</span><span class="p">}</span>
 <span class="n">FUSEKI_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">fuseki</span><span class="p">:</span><span class="mi">3030</span>
-<span class="n">FUSEKI_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;gsicrawler-fuseki&quot;</span>
+<span class="n">FUSEKI_ENDPOINT</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndPoint</span><span class="p">}</span>
 <span class="n">API_KEY_MEANING_CLOUD</span><span class="o">=</span><span class="p">{</span><span class="n">YourMeaningCloudApiKey</span><span class="p">}</span>
-<span class="n">FUSEKI_ENDPOINT_DASHBOARD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndpoint</span><span class="p">}</span>
+<span class="n">FUSEKI_ENDPOINT_DASHBOARD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndpoint</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">localhost</span><span class="p">:</span><span class="mi">13030</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>Once you have created the file, you should add a new attribute for the <strong>luigi</strong> service in the file called <code class="docutils literal"><span class="pre">docker-compose.yml</span></code>, being <code class="docutils literal"><span class="pre">.env</span></code> its value.</p>
@@ -83,7 +83,8 @@ $ cd gsicrawler
 <div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ sudo docker-compose up
 </pre></div>
 </div>
-<p>The information related to the initialization can be found in the console, and when the process finishes it is possible to access the Demo dashboard by accesing <code class="docutils literal"><span class="pre">localhost:8080</span></code> from your web browser.</p>
+<p>The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in <code class="docutils literal"><span class="pre">localhost:8082</span></code>. In the next steps you will discover more about Luigi.</p>
+<p>When the process finishes it is possible to access the Demo dashboard by accesing <code class="docutils literal"><span class="pre">localhost:8080</span></code> from your web browser.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -93,9 +94,6 @@ $ cd gsicrawler
 <p>This second tutorial will show how to build a crawler to gather news from the CNN extracting data from the CNN News API, but in a general case we could use <a class="reference external" href="https://docs.scrapy.org/en/latest/">Scrapy</a> library, which allows to extract data from web pages.</p>
 <p>We will only obtain the headline and url of each piece of news appearing on the CNN related to one topic, storing those fields into a JSON file.</p>
 <img alt="_images/cnnsearch.png" class="align-center" src="_images/cnnsearch.png" />
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
 <p>The code of this example can be found in <code class="docutils literal"><span class="pre">luigi/scrapers/tutorial2.py</span></code>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">json</span>

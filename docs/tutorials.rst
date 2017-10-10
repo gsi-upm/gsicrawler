@@ -2,7 +2,13 @@ Getting started
 ---------------
 First glance into GSI Crawler 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The quickest way of exploring the possibilities offered by GSI Crawler is accessing this `demo <https://docs.docker.com/compose/install/>`_. There you can find a dashboard to visualize data collected from different News sources and Twitter. Some examples of added value offered by this tool are topic and sentiment extraction, identification of people appearing on the scraped data and geolocation of sources.
+The quickest way of exploring the possibilities offered by GSI Crawler is accessing this `demo <http://dashboard-gsicrawler.cluster.gsi.dit.upm.es//>`_. There you can find a dashboard to visualize data collected from different News sources and Twitter. Some examples of added value offered by this tool are topic and sentiment extraction, identification of people appearing on the scraped data and geolocation of sources.
+
+
+.. image:: images/crawler2.png
+  :align: center
+
+|
 
 .. image:: images/map.jpg
   :align: center
@@ -18,50 +24,44 @@ For docker installation in Ubuntu, visit this `link <https://store.docker.com/ed
 
 Docker-compose installation detailed instructions are available `here <https://docs.docker.com/compose/install/>`_.
 
-First of all, you need to clone the repository:
+First of all, you need to clone the repositories:
 
 .. code:: bash
 
    $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
+   $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
    $ cd gsicrawler
 
-Then, it is needed to set up the environment variables. For this task, first create a file named ``.env`` in the root directory of the project. 
+Then, it is needed to set up the environment variables. For this task, first create a file named ``.env`` in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, Twitter and MeaningCloud credentials are needed if you wish to use those services.
 
 .. code::
 
-  LUIGI_ENDPOINT="gsicrawler-luigi"
-  LUIGI_ENDPOINT_EXTERNAL="gsicrawler-luigi.cluster.gsi.dit.upm.es"
-  CRAWLER_ENDPOINT="gsicrawler"
-  CRAWLER_ENDPOINT_EXTERNAL="gsicrawler.cluster.gsi.dit.upm.es"
   TWITTER_CONSUMER_KEY={YourConsumerKey}
   TWITTER_CONSUMER_SECRET={YourConsumerSecret}
   TWITTER_ACCESS_TOKEN={YourAccessToken}
   TWITTER_ACCESS_TOKEN_SECRET={YourAccessTokenSecret}
   ES_ENDPOINT=elasticsearch
   ES_PORT=9200
-  FUSEKI_PASSWORD=gsi2017fuseki
+  ES_ENDPOINT_EXTERNAL=localhost:19200
+  FUSEKI_PASSWORD={YourFusekiPass}
   FUSEKI_ENDPOINT_EXTERNAL=fuseki:3030
-  FUSEKI_ENDPOINT="gsicrawler-fuseki"
+  FUSEKI_ENDPOINT={YourFusekiEndPoint}
   API_KEY_MEANING_CLOUD={YourMeaningCloudApiKey}
-  FUSEKI_ENDPOINT_DASHBOARD={YourFusekiEndpoint}
-
-
-Once you have created the file, you should add a new attribute for the **luigi** service in the file called ``docker-compose.yml``, being ``.env`` its value.
-
-.. code:: 
-  
-  env_file:
-    - .env
+  FUSEKI_ENDPOINT_DASHBOARD={YourFusekiEndpoint, e.g. localhost:13030}
+  FUSEKI_ENDPOINT = localhost
+  FUSEKI_PORT = 3030
 
 
 
-Finally, to run the image:
+Finally, in both repositories execute the following line:
 
 .. code:: bash
 
     $ sudo docker-compose up  
 
-The information related to the initialization can be found in the console, and when the process finishes it is possible to access the Demo dashboard by accesing ``localhost:8080`` from your web browser.
+The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in ``localhost:8082``. In the next steps you will discover more about Luigi.
+
+When the process finishes it is possible to access the Demo dashboard by accesing ``localhost:8080`` from your web browser.
 
 |
 
@@ -75,7 +75,7 @@ We will only obtain the headline and url of each piece of news appearing on the 
 .. image:: images/cnnsearch.png
   :align: center
 
-|
+
 
 The code of this example can be found in ``luigi/scrapers/tutorial2.py``:
 

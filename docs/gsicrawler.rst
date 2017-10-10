@@ -6,7 +6,8 @@ GSI Crawler is an innovative and useful framework which aims to extract informat
 In this documentation we are going to introduce this framework, detailing the global architecture of the project and explaining each module functionality. Finally we will expose most a case study in order to better understand the system itself. 
 
 
-
+.. image:: images/crawler1.png
+  :align: center
 
 
 
