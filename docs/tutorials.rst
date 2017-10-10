@@ -31,7 +31,7 @@ First of all, you need to clone the repositories:
    $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
    $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
 
-Then, it is needed to set up the environment variables. For this task, first create a file named ``.env`` in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, Twitter and MeaningCloud credentials are needed if you wish to use those services.
+Then, it is needed to set up the environment variables. For this task, first create a file named ``.env`` in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, `Twitter <https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens>`_ and `Meaningcloud <https://www.meaningcloud.com/developer/apis>`_ credentials are needed if you wish to use those services.
 
 .. code::
 
