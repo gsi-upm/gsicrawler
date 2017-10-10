@@ -10,8 +10,8 @@ Contents:
 
 .. toctree::
    gsicrawler
-   architecture
    tutorials
+   architecture
    :maxdepth: 4
 
 ..   api

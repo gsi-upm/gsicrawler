@@ -23,7 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Architecture" href="architecture.html" />
+    <link rel="next" title="Architecture" href="architecture.html" />
+    <link rel="prev" title="What is GSI Crawler?" href="gsicrawler.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -55,32 +56,33 @@
 <p>GSI Crawler installation is based in docker containers, so it is required to have both docker and docker-compose installed.</p>
 <p>For docker installation in Ubuntu, visit this <a class="reference external" href="https://store.docker.com/editions/community/docker-ce-server-ubuntu?tab=description">link</a>.</p>
 <p>Docker-compose installation detailed instructions are available <a class="reference external" href="https://docs.docker.com/compose/install/">here</a>.</p>
-<p>First of all, you need to clone the repository:</p>
+<p>First of all, you need to clone the repositories:</p>
 <div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
-$ cd gsicrawler
+$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
 </pre></div>
 </div>
-<p>Then, it is needed to set up the environment variables. For this task, first create a file named <code class="docutils literal"><span class="pre">.env</span></code> in the root directory of the project. As you can see, Twitter and MeaningCloud credentials are needed if you wish to use those services.</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">TWITTER_CONSUMER_KEY</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerKey</span><span class="p">}</span>
-<span class="n">TWITTER_CONSUMER_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerSecret</span><span class="p">}</span>
-<span class="n">TWITTER_ACCESS_TOKEN</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessToken</span><span class="p">}</span>
-<span class="n">TWITTER_ACCESS_TOKEN_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessTokenSecret</span><span class="p">}</span>
+<p>Then, it is needed to set up the environment variables. For this task, first create a file named <code class="docutils literal"><span class="pre">.env</span></code> in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, Twitter and MeaningCloud credentials are needed if you wish to use those services.</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">TWITTER_CONSUMER_KEY</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerKey</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
+<span class="n">TWITTER_CONSUMER_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerSecret</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
+<span class="n">TWITTER_ACCESS_TOKEN</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessToken</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
+<span class="n">TWITTER_ACCESS_TOKEN_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessTokenSecret</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
 <span class="n">ES_ENDPOINT</span><span class="o">=</span><span class="n">elasticsearch</span>
 <span class="n">ES_PORT</span><span class="o">=</span><span class="mi">9200</span>
+<span class="n">ES_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">localhost</span><span class="p">:</span><span class="mi">19200</span>
 <span class="n">FUSEKI_PASSWORD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiPass</span><span class="p">}</span>
 <span class="n">FUSEKI_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">fuseki</span><span class="p">:</span><span class="mi">3030</span>
 <span class="n">FUSEKI_ENDPOINT</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndPoint</span><span class="p">}</span>
-<span class="n">API_KEY_MEANING_CLOUD</span><span class="o">=</span><span class="p">{</span><span class="n">YourMeaningCloudApiKey</span><span class="p">}</span>
+<span class="n">API_KEY_MEANING_CLOUD</span><span class="o">=</span><span class="p">{</span><span class="n">YourMeaningCloudApiKey</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Meaningcloud</span><span class="p">}</span>
 <span class="n">FUSEKI_ENDPOINT_DASHBOARD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndpoint</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">localhost</span><span class="p">:</span><span class="mi">13030</span><span class="p">}</span>
+<span class="n">FUSEKI_ENDPOINT</span> <span class="o">=</span> <span class="n">fuseki</span>
+<span class="n">FUSEKI_PORT</span> <span class="o">=</span> <span class="mi">3030</span>
 </pre></div>
 </div>
-<p>Once you have created the file, you should add a new attribute for the <strong>luigi</strong> service in the file called <code class="docutils literal"><span class="pre">docker-compose.yml</span></code>, being <code class="docutils literal"><span class="pre">.env</span></code> its value.</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">env_file</span><span class="p">:</span>
-  <span class="o">-</span> <span class="o">.</span><span class="n">env</span>
-</pre></div>
-</div>
-<p>Finally, to run the image:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ sudo docker-compose up
+<p>Finally, in both repositories execute the following line:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ cd gsicrawler
+$ sudo docker-compose up
+$ cd ../dashboard-gsicrawler
+$ sudo docker/compose up
 </pre></div>
 </div>
 <p>The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in <code class="docutils literal"><span class="pre">localhost:8082</span></code>. In the next steps you will discover more about Luigi.</p>
@@ -258,7 +260,6 @@ $ cd gsicrawler
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="gsicrawler.html">What is GSI Crawler?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#first-glance-into-gsi-crawler">First glance into GSI Crawler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-i-install">Tutorial I: Install</a></li>
@@ -266,6 +267,7 @@ $ cd gsicrawler
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-iii-semantic-enrichment-and-data-storage">Tutorial III: Semantic enrichment and data storage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 </ul>
 
 

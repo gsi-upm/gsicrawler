@@ -30,25 +30,24 @@ First of all, you need to clone the repositories:
 
    $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
    $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
-   $ cd gsicrawler
 
 Then, it is needed to set up the environment variables. For this task, first create a file named ``.env`` in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, Twitter and MeaningCloud credentials are needed if you wish to use those services.
 
 .. code::
 
-  TWITTER_CONSUMER_KEY={YourConsumerKey}
-  TWITTER_CONSUMER_SECRET={YourConsumerSecret}
-  TWITTER_ACCESS_TOKEN={YourAccessToken}
-  TWITTER_ACCESS_TOKEN_SECRET={YourAccessTokenSecret}
+  TWITTER_CONSUMER_KEY={YourConsumerKey, get it on Twitter}
+  TWITTER_CONSUMER_SECRET={YourConsumerSecret, get it on Twitter}
+  TWITTER_ACCESS_TOKEN={YourAccessToken, get it on Twitter}
+  TWITTER_ACCESS_TOKEN_SECRET={YourAccessTokenSecret, get it on Twitter}
   ES_ENDPOINT=elasticsearch
   ES_PORT=9200
   ES_ENDPOINT_EXTERNAL=localhost:19200
   FUSEKI_PASSWORD={YourFusekiPass}
   FUSEKI_ENDPOINT_EXTERNAL=fuseki:3030
   FUSEKI_ENDPOINT={YourFusekiEndPoint}
-  API_KEY_MEANING_CLOUD={YourMeaningCloudApiKey}
+  API_KEY_MEANING_CLOUD={YourMeaningCloudApiKey, get it on Meaningcloud}
   FUSEKI_ENDPOINT_DASHBOARD={YourFusekiEndpoint, e.g. localhost:13030}
-  FUSEKI_ENDPOINT = localhost
+  FUSEKI_ENDPOINT = fuseki
   FUSEKI_PORT = 3030
 
 
@@ -57,7 +56,10 @@ Finally, in both repositories execute the following line:
 
 .. code:: bash
 
-    $ sudo docker-compose up  
+    $ cd gsicrawler
+    $ sudo docker-compose up
+    $ cd ../dashboard-gsicrawler  
+    $ sudo docker/compose up
 
 The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in ``localhost:8082``. In the next steps you will discover more about Luigi.
 
