@@ -1,4 +1,4 @@
-![GSICrawler Logo](./front-end/app/images/logo-gsi-crawler.png)
+![GSICrawler Logo](./docs/_static/logo-gsi-crawler.png)
 
 GSI Crawler is an innovative and useful framework which aims to extract information from web pages enriching following semantic approaches.
 At the moment, there are three available platforms: Twitter, Reddit and News.
@@ -20,7 +20,3 @@ Read the documentation at [ReadTheDocs](http://gsicrawler.readthedocs.io/en/late
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-
-#References
-
-<a href="https://github.com/gsi-upm/senpy">[2]</a>*"Senpy Documentation"*
