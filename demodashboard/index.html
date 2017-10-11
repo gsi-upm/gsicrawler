@@ -1,0 +1,66 @@
+<html>
+  <head>
+
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="imports.html"></link>
+    <link href='//cdn.jsdelivr.net/yasqe/2.6.2/yasqe.min.css' rel='stylesheet' type='text/css'/>
+    <link href='//cdn.jsdelivr.net/yasr/2.6.1/yasr.min.css' rel='stylesheet' type='text/css'/>
+    <script src='//cdn.jsdelivr.net/yasqe/2.6.2/yasqe.bundled.min.js'></script>
+    <script src='//cdn.jsdelivr.net/yasr/2.6.1/yasr.bundled.min.js'></script>
+    <style>
+    .info-box-icon.number-chart iron-icon.number-chart {
+        top: 26%;
+    }
+    </style>
+  </head>
+  
+  <body>
+    <template is="dom-bind">
+
+    <elastic-client 
+      config='{"host": ""}' 
+      client="{{client}}"
+      cluster-status="{{myStatus}}">
+    </elastic-client>
+
+    <dashboard-gsicrawler
+      client="{{client}}"></dashboard-gsicrawler>
+    <!-- <button id="databutton" onclick="changedata()">Click to change data</button> -->
+    <script>
+      var datas =[
+        {"hits": {
+                "total": 20000
+            },
+            "aggregations": {
+                "category": {
+                    "buckets": [
+                        {"key": "myObject", "doc_count": 3000},
+                        {"key": "otherObject", "doc_count": 1000}
+                    ]
+                }
+            }
+        },
+        {"hits": {
+                "total": 30000
+            },
+            "aggregations": {
+                "category": {
+                    "buckets": [
+                        {"key": "myObject", "doc_count": 1000},
+                        {"key": "otherObject", "doc_count": 4000}
+                    ]
+                }
+            }
+        }];
+      var numdata = 0;
+      <!-- var nc1 = document.getElementById('demo-chart1'); -->
+      <!-- var nc2 = document.getElementById('demo-chart2'); -->
+      <!-- nc1.data = nc2.data = datas[0]; -->
+      <!-- function changedata(){ -->
+      <!--   numdata += 1; -->
+      <!-- nc1.data = nc2.data = datas[numdata%2]; -->
+      <!-- } -->
+    </script>
+    </template>
+  </body>
+</html>

@@ -1,0 +1,170 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/material-search/material-search.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="/elements/number-chart/number-chart.html">
+<link rel="import" href="/elements/google-chart-elasticsearch/google-chart.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/comment-chart/comment-chart.html">
+<link rel="import" href="/bower_components/yasgui-polymer/yasgui.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="/bower_components/leaflet-maps/leaflet-map.html">
+
+<dom-module id="dashboard-gsicrawler">
+
+
+  <link rel="import" type="css" href="dashboard-gsicrawler.css" type="css">
+  <link rel="import" href="/styles/app-theme.html" type="css">
+
+  <template>
+    <iron-ajax auto
+        url="queries.json"
+        handle-as="json"
+        last-response="{{queries}}"></iron-ajax>
+
+    <div style="width:10%; padding: 1em; display:inline-block">
+      <img style="width: 100%;"src="/images/trivalent.jpg">
+    </div>
+    <div style="width:80%;     padding-bottom: 12px; text-align:center; display:inline-block">
+      <img style="width: 30%;  margin:0 auto;"src="/images/logo-gsi-crawler.png">
+    </div>
+
+    <paper-tabs selected="{{selected}}">
+      <paper-tab>Dashboard</paper-tab>
+    </paper-tabs>
+
+    <iron-pages selected="{{selected}}">
+      <div>
+        
+      <div class="row">
+        <div class="col-md-12">
+        <google-chart
+          field="schema:datePublished"
+          data="{{data}}"             
+          id='line-chart'
+          extra-id='line-chart'
+          type='area'
+          filters="{{filters}}"
+          icon='icons:trending-up'
+          options='{"title": "Temporal Trends"}'
+          cols='[{"label": "Date", "type": "string"},{"label": "Count", "type": "number"}]'
+        </google-chart>
+      </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-md-12">
+          <!-- YOUR NEW COMPONENTS GOES HERE -->
+
+        </div>
+      </div>
+    </div>
+    </iron-pages>
+         <div style="background-color:#ccc; padding: 1%;">
+        <div style="width:32%; margin: 0 auto">
+       <img height="60px" src="/images/gsi.png">   © 2017 Grupo de Sistemas Inteligentes GSI-UPM 
+        </div>
+       </div>
+  </template>
+   
+
+  <script>
+  var ready = false;
+    Polymer({
+      is: 'dashboard-gsicrawler',
+      properties: {
+        selected: {
+          type: Number,
+          value: 0
+        }, 
+        selectedpage: {
+          type: Number,
+          value: 0
+        }, 
+        query: {
+          type: String,
+        },
+        ids:{
+          type: Array
+           
+        },
+        data:{
+          type: Object
+        },
+        client: {
+          type: Object,
+          notify: true,
+          observer: '_clientChanged'              
+        },
+        fields: {
+          type: Array,
+          value: function() { return []; }
+        },
+
+        filters: {
+          type: Array,
+          notify: true,
+          value: function() { return []; }
+        }
+      },
+    
+      observers: [
+      '_filtersChange(filters.*)'
+      ],
+      behaviors: [
+        Polymer.IronA11yKeysBehavior
+      ],
+      keyBindings: {
+        'enter': '_search'
+      },
+
+      ready: function(){
+        //console.log("ready");
+      },
+
+      _clientChanged: function() {
+        //console.log("ClientChanged");
+        ready = true;
+        this._query();
+      },
+      _filtersChange: function() {
+        this._query();
+       },
+       _query: function() {
+        //console.log("_query")
+        var that = this;
+        //console.log("Ready?: ", ready);
+        if(ready){
+          this.client.search({
+          // undocumented params are appended to the query string
+          index: "tutorial",
+          body: {
+            size: 200,
+            query: {
+              bool: {
+                must: this.filters,
+              }
+            },
+            sort:{'schema:datePublished':{order: "desc"}},
+            aggs: {
+              'schema:datePublished': {
+                date_histogram : {
+                  field : "schema:datePublished",
+                  format: "dd-MM-yyyy",
+                  interval : "day"
+                }
+              }
+            }
+          } 
+          }).then(function (resp) {
+            that.data = resp;
+            console.log(that.data);
+          });
+        }
+      }
+    });
+  </script>
+
+</dom-module>

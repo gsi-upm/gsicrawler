@@ -18,6 +18,8 @@ from scrapers.tutorial3 import retrieveCnnNews as retrieveCnnNewsT3
 
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 ES_PORT = os.environ.get('ES_PORT')
+FUSEKI_PORT = os.environ.get('FUSEKI_PORT')
+FUSEKI_ENDPOINT = os.environ.get('FUSEKI_ENDPOINT')
 
 class CrawlerTask(luigi.Task):
     """
@@ -133,7 +135,7 @@ class FusekiTask(luigi.Task):
                 self.set_status_message("JSON created")
                 #print(f)
                 #g = Graph().parse(data=f, format='json-ld')
-                r = requests.put('http://{fuseki}/tutorial/data'.format(fuseki=os.environ.get('FUSEKI_ENDPOINT_EXTERNAL')),
+                r = requests.put('http://{fusekiend}:{fusekiport}/tutorial/data'.format(fusekiend=FUSEKI_ENDPOINT,fusekiport=FUSEKI_PORT),
                     headers={'Content-Type':'application/ld+json'},
                     data=f)
                 self.set_status_message("Data sent to fuseki")

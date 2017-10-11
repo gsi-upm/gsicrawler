@@ -1,0 +1,49 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml:   <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix marl:  <http://www.gsi.dit.upm.es/ontologies/marl/ns#> .
+@prefix sioct: <http://rdfs.org/sioc/types/> .
+@prefix sioc:  <http://rdfs.org/sioc/ns#> .
+
+<http://www.gsi.dit.upm.es/ontologies/twitter/tweet/1>
+        a                      sioct:MicroblogPost , marl:Opinion ;
+        rdfs:label             "Vodafone" ;
+        sioc:content           "Great gig in the capital last night, and great to see some of the gang from Vodafone. Happy Christmas all... http://t.co/k8H1s9aazg" ;
+        marl:describesObject   <http://dbpedia.org/resource/Vodafone> ;
+        marl:hasPolarityValue  marl:Neutral .
+
+<http://dbpedia.org/resource/Vodafone>
+        a       <http://www.omg.org/spec/EDMC-FIBO/FBC/1.0/alpha/IncorporatedCompany> .
+
+<http://www.gsi.dit.upm.es/ontologies/twitter/tweet/10>
+        a                      sioct:MicroblogPost , marl:Opinion ;
+        rdfs:label             "Vodafone" ;
+        sioc:content           "Vodafone dodges UK corporation tax bill - AGAIN: World's smallest violin plays background music to carrier's d... http://t.co/4FLmamqMnz" ;
+        marl:describesObject   <http://dbpedia.org/resource/Vodafone> ;
+        marl:hasPolarityValue  marl:Neutral .
+
+<http://www.gsi.dit.upm.es/ontologies/twitter/tweet/100>
+        a                      sioct:MicroblogPost , marl:Opinion ;
+        rdfs:label             "Vodafone" ;
+        sioc:content           "vodafone voice response system at the 7542 you identified itself with the password even though you made an incorrect entry, ." ;
+        marl:describesObject   <http://dbpedia.org/resource/Vodafone> ;
+        marl:hasPolarityValue  marl:Neutral .
+
+<http://www.gsi.dit.upm.es/ontologies/twitter/tweet/1000>
+        a                      sioct:MicroblogPost , marl:Opinion ;
+        rdfs:label             "@Bizarro_Chile" ;
+        sioc:content           "Yo quiero ganar Meet & Greet con CNBLUE junto a @Bizarro_Chile para vivir el #BlueMoonTourenChile.Imperdible! 31 de Enero Movistar Arena u" ;
+        marl:hasPolarityValue  marl:Neutral .
+
+<http://www.gsi.dit.upm.es/ontologies/twitter/tweet/1001>
+        a                      sioct:MicroblogPost , marl:Opinion ;
+        rdfs:label             "@Bizarro_Chile" ;
+        sioc:content           "Yo quiero ganar Meet & Greet con CNBLUE junto a @Bizarro_Chile para vivir el #BlueMoonTourenChile Imperdible! 31 de Enero Movistar Arena4054" ;
+        marl:hasPolarityValue  marl:Neutral .
+
+<http://www.gsi.dit.upm.es/ontologies/twitter/tweet/1002>
+        a                      sioct:MicroblogPost , marl:Opinion ;
+        rdfs:label             "@Bizarro_Chile" ;
+        sioc:content           "#HardWork quiero ganar Meet & Greet con CNBLUE junto a @Bizarro_Chile para vivir el #BlueMoonTourenChile 31 de Enero Movistar Arena!âœ”â¤âœŒ1504" ;
+        marl:hasPolarityValue  marl:Neutral .

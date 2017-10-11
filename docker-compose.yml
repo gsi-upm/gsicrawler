@@ -34,7 +34,7 @@ services:
     networks:
       - sefarad-network
 
-  luigi:
+  gsicrawler:
     build: .
     image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler
     volumes:
@@ -46,6 +46,8 @@ services:
     environment:
       - ES_ENDPOINT=${ES_ENDPOINT}
       - ES_PORT=${ES_PORT}
+      - FUSEKI_ENDPOINT=${FUSEKI_ENDPOINT}
+      - FUSEKI_PORT=${FUSEKI_PORT}
       - FUSEKI_ENDPOINT_EXTERNAL=${FUSEKI_ENDPOINT_EXTERNAL}
       - API_KEY_MEANING_CLOUD=${API_KEY_MEANING_CLOUD}
       - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
@@ -54,6 +56,20 @@ services:
       - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
 
     depends_on:
+      - elasticsearch
+      - fuseki
+
+  dashboard:
+    build: ./demodashboard/
+    volumes: 
+      - ./demodashboard:/usr/src/app
+    ports:
+      - "8080:8080"
+    environment:
+      - FUSEKI_ENDPOINT_EXTERNAL=${FUSEKI_ENDPOINT_EXTERNAL}
+      - ES_ENDPOINT_EXTERNAL=${ES_ENDPOINT_EXTERNAL}
+    depends_on:
+      - fuseki
       - elasticsearch
 
 networks:
