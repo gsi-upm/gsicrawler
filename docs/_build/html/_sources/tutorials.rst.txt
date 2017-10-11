@@ -230,3 +230,39 @@ In the case of seeing it on Fuseki, the address would be ``localhost:13030/tutor
 Tutorial IV: Developing your first dashboard
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+In this section we will explain how to create a new dashboard for GSICrawler. 
+We have create the main structure inside demodashboard folder. Open a web browser and visit ``localhost:8090`` to explore this new dashboard.
+
+As you can see there is a google-chart displaying how many news are created each day. To add new web components to your dashboard you have to edit dashboard-gsicrawler.html file inside demodashboard folder.
+
+Search the line that says  
+
+.. sourcecode:: html
+  
+  <!— YOUR NEW COMPONENTS GOES HERE —>
+ 
+Below this line we are going to add a new web component, in this tutorial we are going to add a number-chart adding:
+
+ .. sourcecode:: html
+
+    <number-chart></number-chart>
+
+Refresh your web browser and you will see your new number-chart component, but with no data. To add your data change the line added before:
+
+.. sourcecode:: html
+
+   <number-chart data="{{data}}"></number-chart>
+
+Refresh your web browser again to see your data. As you can see it has a place for an icon, we can add it typing:
+
+.. sourcecode:: html
+
+   <number-chart data="{{data}}" icon="/images/news.ico"></nomber-chart>
+
+This icon must be stored inside images folder. Refresh your web browser to see your changes.
+
+This web components has many more options like changing the background color, the title... For more information visit https://lab.cluster.gsi.dit.upm.es/sefarad/number-chart.
+
+You can add as Web Components as you want, there are some examples in https://github.com/PolymerElements/
+
+If you wish to discover more about how to create dashboards, please visit `Sefarad documentation <http://sefarad.readthedocs.io/en/latest/>`_.
