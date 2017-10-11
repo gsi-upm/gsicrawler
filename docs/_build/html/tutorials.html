@@ -57,8 +57,7 @@
 <p>For docker installation in Ubuntu, visit this <a class="reference external" href="https://store.docker.com/editions/community/docker-ce-server-ubuntu?tab=description">link</a>.</p>
 <p>Docker-compose installation detailed instructions are available <a class="reference external" href="https://docs.docker.com/compose/install/">here</a>.</p>
 <p>First of all, you need to clone the repositories:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
-$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ git clone http://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
 </pre></div>
 </div>
 <p>Then, it is needed to set up the environment variables. For this task, first create a file named <code class="docutils literal"><span class="pre">.env</span></code> in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, <a class="reference external" href="https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens">Twitter</a> and <a class="reference external" href="https://www.meaningcloud.com/developer/apis">Meaningcloud</a> credentials are needed if you wish to use those services.</p>
@@ -70,19 +69,16 @@ $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
 <span class="n">ES_PORT</span><span class="o">=</span><span class="mi">9200</span>
 <span class="n">ES_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">localhost</span><span class="p">:</span><span class="mi">19200</span>
 <span class="n">FUSEKI_PASSWORD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiPass</span><span class="p">}</span>
-<span class="n">FUSEKI_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">fuseki</span><span class="p">:</span><span class="mi">3030</span>
+<span class="n">FUSEKI_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">localhost</span><span class="p">:</span><span class="mi">13030</span>
 <span class="n">FUSEKI_ENDPOINT</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndPoint</span><span class="p">}</span>
 <span class="n">API_KEY_MEANING_CLOUD</span><span class="o">=</span><span class="p">{</span><span class="n">YourMeaningCloudApiKey</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Meaningcloud</span><span class="p">}</span>
-<span class="n">FUSEKI_ENDPOINT_DASHBOARD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndpoint</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">localhost</span><span class="p">:</span><span class="mi">13030</span><span class="p">}</span>
 <span class="n">FUSEKI_ENDPOINT</span> <span class="o">=</span> <span class="n">fuseki</span>
 <span class="n">FUSEKI_PORT</span> <span class="o">=</span> <span class="mi">3030</span>
 </pre></div>
 </div>
-<p>Finally, in both repositories execute the following line:</p>
+<p>Finally, execute the following lines:</p>
 <div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ cd gsicrawler
 $ sudo docker-compose up
-$ cd ../dashboard-gsicrawler
-$ sudo docker/compose up
 </pre></div>
 </div>
 <p>The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in <code class="docutils literal"><span class="pre">localhost:8082</span></code>. In the next steps you will discover more about Luigi.</p>
@@ -141,7 +137,7 @@ $ sudo docker/compose up
 </pre></div>
 </div>
 <p>Finally, for running the tutorial execute the following line from your repository path.</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ docker-compose exec luigi python -m crontasks tutorial2
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ sudo docker-compose run gsicrawler tutorial2
 </pre></div>
 </div>
 <div class="line-block">
@@ -183,7 +179,7 @@ $ sudo docker/compose up
 </div>
 <p>The Luigi pipeline has more complexity as now data has to be stored in Elastic Search and Fuseki. The code of the pipeline can also be found in <code class="docutils literal"><span class="pre">luigi/scrapers/tutorial3.py</span></code>, being the task execution workflow initiated by <code class="docutils literal"><span class="pre">PipelineTask</span></code>, which is in charge of calling its dependent tasks.</p>
 <p>For executing this tutorial you should execute the following line:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ docker-compose exec luigi python -m crontasks tutorial3
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ sudo docker-compose run gsicrawler tutorial3
 </pre></div>
 </div>
 <p>In order to access the stored data in Elastic Search, access <code class="docutils literal"><span class="pre">localhost:19200/tutorial/_search?pretty</span></code> from your web browser.</p>
@@ -226,7 +222,34 @@ $ sudo docker/compose up
         <span class="n">schema</span><span class="p">:</span><span class="n">thumbnailUrl</span>   <span class="s2">&quot;http://i2.cdn.turner.com/cnnnext/dam/assets/171002123455-31-las-vegas-incident-1002-story-body.jpg&quot;</span> <span class="o">.</span>
 </pre></div>
 </div>
-<p>For developing visual analysis tools, we suggest to build a dashboard following this <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/dashboards-dev.html">documentation</a>.</p>
+</div>
+<div class="section" id="tutorial-iv-developing-your-first-dashboard">
+<h2>Tutorial IV: Developing your first dashboard<a class="headerlink" href="#tutorial-iv-developing-your-first-dashboard" title="Permalink to this headline">¶</a></h2>
+<p>In this section we will explain how to create a new dashboard for GSICrawler.
+We have create the main structure inside demodashboard folder. Open a web browser and visit <code class="docutils literal"><span class="pre">localhost:8090</span></code> to explore this new dashboard.</p>
+<p>As you can see there is a google-chart displaying how many news are created each day. To add new web components to your dashboard you have to edit dashboard-gsicrawler.html file inside demodashboard folder.</p>
+<p>Search the line that says</p>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="cp">&lt;!— YOUR NEW COMPONENTS GOES HERE —&gt;</span>
+</pre></div>
+</div>
+<p>Below this line we are going to add a new web component, in this tutorial we are going to add a number-chart adding:</p>
+<blockquote>
+<div><div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">number-chart</span><span class="p">&gt;&lt;/</span><span class="nt">number-chart</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Refresh your web browser and you will see your new number-chart component, but with no data. To add your data change the line added before:</p>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">number-chart</span> <span class="na">data</span><span class="o">=</span><span class="s">&quot;{{data}}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">number-chart</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>Refresh your web browser again to see your data. As you can see it has a place for an icon, we can add it typing:</p>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">number-chart</span> <span class="na">data</span><span class="o">=</span><span class="s">&quot;{{data}}&quot;</span> <span class="na">icon</span><span class="o">=</span><span class="s">&quot;/images/news.ico&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">nomber-chart</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>This icon must be stored inside images folder. Refresh your web browser to see your changes.</p>
+<p>This web components has many more options like changing the background color, the title… For more information visit <a class="reference external" href="https://lab.cluster.gsi.dit.upm.es/sefarad/number-chart">https://lab.cluster.gsi.dit.upm.es/sefarad/number-chart</a>.</p>
+<p>You can add as Web Components as you want, there are some examples in <a class="reference external" href="https://github.com/PolymerElements/">https://github.com/PolymerElements/</a></p>
+<p>If you wish to discover more about how to create dashboards, please visit <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/">Sefarad documentation</a>.</p>
 </div>
 </div>
 
@@ -265,6 +288,7 @@ $ sudo docker/compose up
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-i-install">Tutorial I: Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-ii-crawling-news">Tutorial II: Crawling news</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-iii-semantic-enrichment-and-data-storage">Tutorial III: Semantic enrichment and data storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-iv-developing-your-first-dashboard">Tutorial IV: Developing your first dashboard</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>

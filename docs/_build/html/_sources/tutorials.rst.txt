@@ -28,8 +28,7 @@ First of all, you need to clone the repositories:
 
 .. code:: bash
 
-   $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
-   $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
+   $ git clone http://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
 
 Then, it is needed to set up the environment variables. For this task, first create a file named ``.env`` in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, `Twitter <https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens>`_ and `Meaningcloud <https://www.meaningcloud.com/developer/apis>`_ credentials are needed if you wish to use those services.
 
@@ -43,23 +42,20 @@ Then, it is needed to set up the environment variables. For this task, first cre
   ES_PORT=9200
   ES_ENDPOINT_EXTERNAL=localhost:19200
   FUSEKI_PASSWORD={YourFusekiPass}
-  FUSEKI_ENDPOINT_EXTERNAL=fuseki:3030
+  FUSEKI_ENDPOINT_EXTERNAL=localhost:13030
   FUSEKI_ENDPOINT={YourFusekiEndPoint}
   API_KEY_MEANING_CLOUD={YourMeaningCloudApiKey, get it on Meaningcloud}
-  FUSEKI_ENDPOINT_DASHBOARD={YourFusekiEndpoint, e.g. localhost:13030}
   FUSEKI_ENDPOINT = fuseki
   FUSEKI_PORT = 3030
 
 
 
-Finally, in both repositories execute the following line:
+Finally, execute the following lines:
 
 .. code:: bash
 
     $ cd gsicrawler
     $ sudo docker-compose up
-    $ cd ../dashboard-gsicrawler  
-    $ sudo docker/compose up
 
 The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in ``localhost:8082``. In the next steps you will discover more about Luigi.
 
@@ -133,7 +129,7 @@ Finally, for running the tutorial execute the following line from your repositor
 
 .. code:: bash
 
-  $ docker-compose exec luigi python -m crontasks tutorial2
+  $ sudo docker-compose run gsicrawler tutorial2
 
 |
 
@@ -181,7 +177,7 @@ For executing this tutorial you should execute the following line:
 
 .. code:: bash
 
-  $ docker-compose exec luigi python -m crontasks tutorial3
+  $ sudo docker-compose run gsicrawler tutorial3
 
 In order to access the stored data in Elastic Search, access ``localhost:19200/tutorial/_search?pretty`` from your web browser. 
 
@@ -230,4 +226,43 @@ In the case of seeing it on Fuseki, the address would be ``localhost:13030/tutor
           schema:search         "\"isis\"" ;
           schema:thumbnailUrl   "http://i2.cdn.turner.com/cnnnext/dam/assets/171002123455-31-las-vegas-incident-1002-story-body.jpg" .
 
-For developing visual analysis tools, we suggest to build a dashboard following this `documentation <http://sefarad.readthedocs.io/en/latest/dashboards-dev.html>`_.
+
+Tutorial IV: Developing your first dashboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this section we will explain how to create a new dashboard for GSICrawler. 
+We have create the main structure inside demodashboard folder. Open a web browser and visit ``localhost:8090`` to explore this new dashboard.
+
+As you can see there is a google-chart displaying how many news are created each day. To add new web components to your dashboard you have to edit dashboard-gsicrawler.html file inside demodashboard folder.
+
+Search the line that says  
+
+.. sourcecode:: html
+  
+  <!— YOUR NEW COMPONENTS GOES HERE —>
+ 
+Below this line we are going to add a new web component, in this tutorial we are going to add a number-chart adding:
+
+ .. sourcecode:: html
+
+    <number-chart></number-chart>
+
+Refresh your web browser and you will see your new number-chart component, but with no data. To add your data change the line added before:
+
+.. sourcecode:: html
+
+   <number-chart data="{{data}}"></number-chart>
+
+Refresh your web browser again to see your data. As you can see it has a place for an icon, we can add it typing:
+
+.. sourcecode:: html
+
+   <number-chart data="{{data}}" icon="/images/news.ico"></nomber-chart>
+
+This icon must be stored inside images folder. Refresh your web browser to see your changes.
+
+This web components has many more options like changing the background color, the title... For more information visit https://lab.cluster.gsi.dit.upm.es/sefarad/number-chart.
+
+You can add as Web Components as you want, there are some examples in https://github.com/PolymerElements/
+
+If you wish to discover more about how to create dashboards, please visit `Sefarad documentation <http://sefarad.readthedocs.io/en/latest/>`_.
