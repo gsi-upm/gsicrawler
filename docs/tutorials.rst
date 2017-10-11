@@ -28,8 +28,7 @@ First of all, you need to clone the repositories:
 
 .. code:: bash
 
-   $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
-   $ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
+   $ git clone http://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
 
 Then, it is needed to set up the environment variables. For this task, first create a file named ``.env`` in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, `Twitter <https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens>`_ and `Meaningcloud <https://www.meaningcloud.com/developer/apis>`_ credentials are needed if you wish to use those services.
 
@@ -43,23 +42,20 @@ Then, it is needed to set up the environment variables. For this task, first cre
   ES_PORT=9200
   ES_ENDPOINT_EXTERNAL=localhost:19200
   FUSEKI_PASSWORD={YourFusekiPass}
-  FUSEKI_ENDPOINT_EXTERNAL=fuseki:3030
+  FUSEKI_ENDPOINT_EXTERNAL=localhost:13030
   FUSEKI_ENDPOINT={YourFusekiEndPoint}
   API_KEY_MEANING_CLOUD={YourMeaningCloudApiKey, get it on Meaningcloud}
-  FUSEKI_ENDPOINT_DASHBOARD={YourFusekiEndpoint, e.g. localhost:13030}
   FUSEKI_ENDPOINT = fuseki
   FUSEKI_PORT = 3030
 
 
 
-Finally, in both repositories execute the following line:
+Finally, execute the following lines:
 
 .. code:: bash
 
     $ cd gsicrawler
     $ sudo docker-compose up
-    $ cd ../dashboard-gsicrawler  
-    $ sudo docker/compose up
 
 The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in ``localhost:8082``. In the next steps you will discover more about Luigi.
 
@@ -133,7 +129,7 @@ Finally, for running the tutorial execute the following line from your repositor
 
 .. code:: bash
 
-  $ docker-compose exec luigi python -m crontasks tutorial2
+  $ sudo docker-compose run gsicrawler tutorial2
 
 |
 
@@ -181,7 +177,7 @@ For executing this tutorial you should execute the following line:
 
 .. code:: bash
 
-  $ docker-compose exec luigi python -m crontasks tutorial3
+  $ sudo docker-compose run gsicrawler tutorial3
 
 In order to access the stored data in Elastic Search, access ``localhost:19200/tutorial/_search?pretty`` from your web browser. 
 
@@ -230,4 +226,7 @@ In the case of seeing it on Fuseki, the address would be ``localhost:13030/tutor
           schema:search         "\"isis\"" ;
           schema:thumbnailUrl   "http://i2.cdn.turner.com/cnnnext/dam/assets/171002123455-31-las-vegas-incident-1002-story-body.jpg" .
 
-For developing visual analysis tools, we suggest to build a dashboard following this `documentation <http://sefarad.readthedocs.io/en/latest/dashboards-dev.html>`_.
+
+Tutorial IV: Developing your first dashboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
