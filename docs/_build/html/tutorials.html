@@ -1,0 +1,308 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Getting started &#8212; GSI Crawler 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture" href="architecture.html" />
+    <link rel="prev" title="What is GSI Crawler?" href="gsicrawler.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="first-glance-into-gsi-crawler">
+<h2>First glance into GSI Crawler<a class="headerlink" href="#first-glance-into-gsi-crawler" title="Permalink to this headline">¶</a></h2>
+<p>The quickest way of exploring the possibilities offered by GSI Crawler is accessing this <a class="reference external" href="http://dashboard-gsicrawler.cluster.gsi.dit.upm.es//">demo</a>. There you can find a dashboard to visualize data collected from different News sources and Twitter. Some examples of added value offered by this tool are topic and sentiment extraction, identification of people appearing on the scraped data and geolocation of sources.</p>
+<img alt="_images/crawler2.png" class="align-center" src="_images/crawler2.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<img alt="_images/map.jpg" class="align-center" src="_images/map.jpg" />
+</div>
+<div class="section" id="tutorial-i-install">
+<h2>Tutorial I: Install<a class="headerlink" href="#tutorial-i-install" title="Permalink to this headline">¶</a></h2>
+<p>GSI Crawler installation is based in docker containers, so it is required to have both docker and docker-compose installed.</p>
+<p>For docker installation in Ubuntu, visit this <a class="reference external" href="https://store.docker.com/editions/community/docker-ce-server-ubuntu?tab=description">link</a>.</p>
+<p>Docker-compose installation detailed instructions are available <a class="reference external" href="https://docs.docker.com/compose/install/">here</a>.</p>
+<p>First of all, you need to clone the repositories:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/gsicrawler.git
+$ git clone https://lab.cluster.gsi.dit.upm.es/sefarad/dashboard-gsicrawler.git
+</pre></div>
+</div>
+<p>Then, it is needed to set up the environment variables. For this task, first create a file named <code class="docutils literal"><span class="pre">.env</span></code> in the root directory of each project (gsicrawler and dashboard-gsicrawler). As you can see, <a class="reference external" href="https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens">Twitter</a> and <a class="reference external" href="https://www.meaningcloud.com/developer/apis">Meaningcloud</a> credentials are needed if you wish to use those services.</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">TWITTER_CONSUMER_KEY</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerKey</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
+<span class="n">TWITTER_CONSUMER_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourConsumerSecret</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
+<span class="n">TWITTER_ACCESS_TOKEN</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessToken</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
+<span class="n">TWITTER_ACCESS_TOKEN_SECRET</span><span class="o">=</span><span class="p">{</span><span class="n">YourAccessTokenSecret</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Twitter</span><span class="p">}</span>
+<span class="n">ES_ENDPOINT</span><span class="o">=</span><span class="n">elasticsearch</span>
+<span class="n">ES_PORT</span><span class="o">=</span><span class="mi">9200</span>
+<span class="n">ES_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">localhost</span><span class="p">:</span><span class="mi">19200</span>
+<span class="n">FUSEKI_PASSWORD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiPass</span><span class="p">}</span>
+<span class="n">FUSEKI_ENDPOINT_EXTERNAL</span><span class="o">=</span><span class="n">fuseki</span><span class="p">:</span><span class="mi">3030</span>
+<span class="n">FUSEKI_ENDPOINT</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndPoint</span><span class="p">}</span>
+<span class="n">API_KEY_MEANING_CLOUD</span><span class="o">=</span><span class="p">{</span><span class="n">YourMeaningCloudApiKey</span><span class="p">,</span> <span class="n">get</span> <span class="n">it</span> <span class="n">on</span> <span class="n">Meaningcloud</span><span class="p">}</span>
+<span class="n">FUSEKI_ENDPOINT_DASHBOARD</span><span class="o">=</span><span class="p">{</span><span class="n">YourFusekiEndpoint</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">localhost</span><span class="p">:</span><span class="mi">13030</span><span class="p">}</span>
+<span class="n">FUSEKI_ENDPOINT</span> <span class="o">=</span> <span class="n">fuseki</span>
+<span class="n">FUSEKI_PORT</span> <span class="o">=</span> <span class="mi">3030</span>
+</pre></div>
+</div>
+<p>Finally, in both repositories execute the following line:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ cd gsicrawler
+$ sudo docker-compose up
+$ cd ../dashboard-gsicrawler
+$ sudo docker/compose up
+</pre></div>
+</div>
+<p>The information related to the initialization can be found in the console. If you wish to see how tasks are being executed, apart from seeing the logs you can access the Luigi task visualizer in <code class="docutils literal"><span class="pre">localhost:8082</span></code>. In the next steps you will discover more about Luigi.</p>
+<p>When the process finishes it is possible to access the Demo dashboard by accesing <code class="docutils literal"><span class="pre">localhost:8080</span></code> from your web browser.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="tutorial-ii-crawling-news">
+<h2>Tutorial II: Crawling news<a class="headerlink" href="#tutorial-ii-crawling-news" title="Permalink to this headline">¶</a></h2>
+<p>This second tutorial will show how to build a crawler to gather news from the CNN extracting data from the CNN News API, but in a general case we could use <a class="reference external" href="https://docs.scrapy.org/en/latest/">Scrapy</a> library, which allows to extract data from web pages.</p>
+<p>We will only obtain the headline and url of each piece of news appearing on the CNN related to one topic, storing those fields into a JSON file.</p>
+<img alt="_images/cnnsearch.png" class="align-center" src="_images/cnnsearch.png" />
+<p>The code of this example can be found in <code class="docutils literal"><span class="pre">luigi/scrapers/tutorial2.py</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="k">def</span> <span class="nf">retrieveCnnNews</span><span class="p">(</span><span class="n">search</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+  <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://search.api.cnn.io/content?q=&quot;</span> <span class="o">+</span> <span class="n">search</span> <span class="o">+</span> <span class="s2">&quot;&amp;size=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+  <span class="n">response</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;result&quot;</span><span class="p">]</span>
+
+  <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;CRAWLING RESULT&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">newsitem</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+      <span class="n">aux</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;headline&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;headline&quot;</span><span class="p">]</span>
+      <span class="k">print</span><span class="p">(</span><span class="n">aux</span><span class="p">)</span>
+      <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">aux</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+      <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, we have to program a Luigi task which orders to execute the code from above. For more information about Luigi pipelines of tasks, please visit this <a class="reference external" href="https://luigi.readthedocs.io/en/stable/">documentation</a>. This task will appear in <code class="docutils literal"><span class="pre">luigi/tutorialtask.py</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CrawlerTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a local file containing 5 elements of data in JSON format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes data in JSON format into the task&#39;s output target.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filePath</span> <span class="o">=</span> <span class="s1">&#39;/tmp/_scrapy-</span><span class="si">%s</span><span class="s1">.json&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+        <span class="n">retrieveCnnNews</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the target output for this task.</span>
+<span class="sd">        In this case, a successful execution of this task will create a file on the local filesystem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;/tmp/_scrapy-</span><span class="si">%s</span><span class="s1">.json&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, for running the tutorial execute the following line from your repository path.</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ docker-compose exec luigi python -m crontasks tutorial2
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>The resulting JSON will appear on the console.</p>
+<div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;headline&quot;</span><span class="p">:</span> <span class="s2">&quot;Iraqi forces say they&#39;ve recaptured Hawija city center from ISIS&quot;</span><span class="p">,</span> <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.cnn.com/2017/10/05/middleeast/iraq-isis-hawija/index.html&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;headline&quot;</span><span class="p">:</span> <span class="s2">&quot;3 US troops killed in ambush in Niger&quot;</span><span class="p">,</span> <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.cnn.com/2017/10/04/politics/us-forces-hostile-fire-niger/index.html&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tutorial-iii-semantic-enrichment-and-data-storage">
+<h2>Tutorial III: Semantic enrichment and data storage<a class="headerlink" href="#tutorial-iii-semantic-enrichment-and-data-storage" title="Permalink to this headline">¶</a></h2>
+<p>In this tutorial we are going to structure our data according to the <a class="reference external" href="http://schema.org/NewsArticle">NewsArticle</a> entity from Schema. The scraper code can be found in <code class="docutils literal"><span class="pre">luigi/scrapers/tutorial3.py</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="k">def</span> <span class="nf">retrieveCnnNews</span><span class="p">(</span><span class="n">search</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+  <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://search.api.cnn.io/content?q=&quot;</span> <span class="o">+</span> <span class="n">search</span> <span class="o">+</span> <span class="s2">&quot;&amp;size=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+  <span class="n">response</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;result&quot;</span><span class="p">]</span>
+
+  <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">newsitem</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+      <span class="n">aux</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;@type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;schema:NewsArticle&quot;</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;@id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:datePublished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;firstPublishDate&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:dateModified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;lastModifiedDate&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:articleBody&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:about&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:author&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:headline&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;headline&quot;</span><span class="p">]</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:search&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">search</span>
+      <span class="n">aux</span><span class="p">[</span><span class="s2">&quot;schema:thumbnailUrl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsitem</span><span class="p">[</span><span class="s2">&quot;thumbnail&quot;</span><span class="p">]</span>
+      <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">aux</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+      <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Luigi pipeline has more complexity as now data has to be stored in Elastic Search and Fuseki. The code of the pipeline can also be found in <code class="docutils literal"><span class="pre">luigi/scrapers/tutorial3.py</span></code>, being the task execution workflow initiated by <code class="docutils literal"><span class="pre">PipelineTask</span></code>, which is in charge of calling its dependent tasks.</p>
+<p>For executing this tutorial you should execute the following line:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ docker-compose exec luigi python -m crontasks tutorial3
+</pre></div>
+</div>
+<p>In order to access the stored data in Elastic Search, access <code class="docutils literal"><span class="pre">localhost:19200/tutorial/_search?pretty</span></code> from your web browser.</p>
+<div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;_index&quot;</span> <span class="p">:</span> <span class="s2">&quot;tutorial&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;_type&quot;</span> <span class="p">:</span> <span class="s2">&quot;news&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;_id&quot;</span> <span class="p">:</span> <span class="s2">&quot;http://www.cnn.com/2017/10/04/politics/syria-russia-us-assad-at-tanf/index.html&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;_score&quot;</span> <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+  <span class="s2">&quot;_source&quot;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;@type&quot;</span> <span class="p">:</span> <span class="s2">&quot;schema:NewsArticle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;@id&quot;</span> <span class="p">:</span> <span class="s2">&quot;http://www.cnn.com/2017/10/04/politics/syria-russia-us-assad-at-tanf/index.html&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;schema:datePublished&quot;</span> <span class="p">:</span> <span class="s2">&quot;2017-10-04T18:05:30Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;schema:dateModified&quot;</span> <span class="p">:</span> <span class="s2">&quot;2017-10-04T18:05:29Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;schema:articleBody&quot;</span> <span class="p">:</span> <span class="s2">&quot;Forces aligned with Syrian President Bashar al-Assad made an incursion Wednesday into the 55km </span><span class="se">\&quot;</span><span class="s2">de-confliction zone...&quot;</span> <span class="s2">&quot;,</span>
+    <span class="s2">&quot;schema:about&quot;</span> <span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;Syria conflict&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Armed forces&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;ISIS&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Military operations&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;schema:author&quot;</span> <span class="p">:</span> <span class="s2">&quot;cnn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;schema:headline&quot;</span> <span class="p">:</span> <span class="s2">&quot;Syrian regime forces enter buffer zone surrounding US base&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;schema:search&quot;</span> <span class="p">:</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">isis</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;schema:thumbnailUrl&quot;</span> <span class="p">:</span> <span class="s2">&quot;http://i2.cdn.turner.com/cnnnext/dam/assets/170616041647-baghdadi-file-story-body.jpg&quot;</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>In the case of seeing it on Fuseki, the address would be <code class="docutils literal"><span class="pre">localhost:13030/tutorial/data</span></code>.</p>
+<div class="code turtle highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">cnn</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="mi">2017</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">02</span><span class="o">/</span><span class="n">politics</span><span class="o">/</span><span class="n">las</span><span class="o">-</span><span class="n">vegas</span><span class="o">-</span><span class="n">domestic</span><span class="o">-</span><span class="n">terrorism</span><span class="o">/</span><span class="n">index</span><span class="o">.</span><span class="n">html</span><span class="o">&gt;</span>
+        <span class="n">a</span>                     <span class="n">schema</span><span class="p">:</span><span class="n">NewsArticle</span> <span class="p">;</span>
+        <span class="o">&lt;</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">latest</span><span class="o">.</span><span class="n">senpy</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">gsi</span><span class="o">.</span><span class="n">dit</span><span class="o">.</span><span class="n">upm</span><span class="o">.</span><span class="n">es</span><span class="o">/</span><span class="n">ns</span><span class="o">/</span><span class="n">_id</span><span class="o">&gt;</span>
+                <span class="s2">&quot;http://www.cnn.com/2017/10/02/politics/las-vegas-domestic-terrorism/index.html&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">about</span>          <span class="s2">&quot;Shootings&quot;</span> <span class="p">,</span> <span class="s2">&quot;Mass murder&quot;</span> <span class="p">,</span> <span class="s2">&quot;Las Vegas&quot;</span> <span class="p">,</span> <span class="s2">&quot;2017 Las Vegas concert shooting&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">articleBody</span>    <span class="s2">&quot;President Donald Trump on Tuesday did not say ...</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">author</span>         <span class="s2">&quot;cnn&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">dateModified</span>   <span class="s2">&quot;2017-10-03T14:13:36Z&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">datePublished</span>  <span class="s2">&quot;2017-10-02T21:26:26Z&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">headline</span>       <span class="s2">&quot;Trump mum on whether Las Vegas shooting was domestic terrorism&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">search</span>         <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">isis</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="p">;</span>
+        <span class="n">schema</span><span class="p">:</span><span class="n">thumbnailUrl</span>   <span class="s2">&quot;http://i2.cdn.turner.com/cnnnext/dam/assets/171002123455-31-las-vegas-incident-1002-story-body.jpg&quot;</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>For developing visual analysis tools, we suggest to build a dashboard following this <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/dashboards-dev.html">documentation</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-gsi-crawler.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gsicrawler.html">What is GSI Crawler?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#first-glance-into-gsi-crawler">First glance into GSI Crawler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-i-install">Tutorial I: Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-ii-crawling-news">Tutorial II: Crawling news</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-iii-semantic-enrichment-and-data-storage">Tutorial III: Semantic enrichment and data storage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Antonio F. Llamas and Rodrigo Barbado Esteban.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/tutorials.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/gsi-upm/gsicrawler" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

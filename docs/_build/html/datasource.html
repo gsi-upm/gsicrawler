@@ -1,44 +1,37 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Configure a custom data source &mdash; GSI Crawler 1.0 documentation</title>
-    
+    <title>Configure a custom data source &#8212; GSI Crawler 1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="GSI Crawler 1.0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">GSI Crawler 1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -64,7 +57,7 @@
 <div class="section" id="tweet-datasets">
 <h3>Tweet datasets<a class="headerlink" href="#tweet-datasets" title="Permalink to this headline">¶</a></h3>
 <p>These datasets must have the following JSON structure. The text, id and &#64;timestamp fields are mandatory,and the others are optional parameters:</p>
-<div class="highlight-json"><div class="highlight"><pre><span class="p">[</span>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
    <span class="p">{</span><span class="nt">&quot;user_location&quot;</span><span class="p">:</span><span class="s2">&quot;Spain&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="s2">&quot;Hello! This is the tweet that will be analyzed!&quot;</span><span class="p">,</span>
     <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1234567890</span><span class="p">,</span>
@@ -80,7 +73,7 @@
 <p>If you have used docker for installation:</p>
 <p>Firstly, you have to locate your elasticsearch installation folder. Inside this folder you find <code class="docutils literal"><span class="pre">data/nodes</span></code>, copy this folder into <code class="docutils literal"><span class="pre">&lt;sefarad-folder&gt;/elasticsearch/nodes</span></code></p>
 <p>Restart your sefarad instance:</p>
-<div class="code bash highlight-python"><div class="highlight"><pre>$ docker-compose build
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ docker-compose build
 $ docker-compose up
 </pre></div>
 </div>
@@ -111,33 +104,30 @@ $ docker-compose up
 
 
 
+
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large"
+<iframe src="https://ghbtns.com/github-btn.html?user=gsi-upm&repo=gsicrawler&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
 
+
+
+
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sefarad.html">What is Sefarad?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dashboards-dev.html">Developing your own dashboard</a></li>
-<li class="toctree-l1"><a class="reference internal" href="widgets.html">Web Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Luigi Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gsicrawler.html">What is GSI Crawler?</a></li>
 </ul>
 
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -148,17 +138,17 @@ $ docker-compose up
       &copy;2017, Antonio F. Llamas.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/datasource.txt"
-          rel="nofollow">Page source</a></li>
+      <a href="_sources/datasource.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     
     <a href="https://github.com/gsi-upm/gsicrawler" class="github">
-        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     
 
