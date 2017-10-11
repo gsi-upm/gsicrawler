@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'GSI Crawler'
-copyright = u'2017, Antonio F. Llamas'
+copyright = u'2017, Antonio F. Llamas and Rodrigo Barbado Esteban'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -13,11 +13,11 @@ eid = 0
 with open(os.path.join(ROOT, 'blogPosting.txt'), 'r') as f:
     for line in f:
         url = 'http://{}/{}/{}/{}'.format(ENDPOINT, INDEX, "twitter", eid)
-        requests.put(url, data=line)
+        requests.put(url, data=line, headers={'Content-Type': 'application/json'})
         eid += 1
 
 with open(os.path.join(ROOT, 'comments-ld.txt'), 'r') as f:
     for line in f:
         url = 'http://{}/{}/{}/{}'.format(ENDPOINT, INDEX, "reddit", eid)
-        requests.put(url, data=line)
+        requests.put(url, data=line, headers={'Content-Type': 'application/json'})
         eid += 1
