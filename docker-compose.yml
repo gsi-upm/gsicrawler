@@ -58,15 +58,24 @@ services:
     depends_on:
       - elasticsearch
       - fuseki
+  web:
+    image: gsiupm/dashboard-gsicrawler:0.2.6
+    ports: 
+      - "8080:8080"
+    environment:
+      - FUSEKI_ENDPOINT_EXTERNAL=${FUSEKI_ENDPOINT_EXTERNAL}
+      - ES_ENDPOINT_EXTERNAL=${ES_ENDPOINT_EXTERNAL}
+    depends_on:
+      - fuseki
+      - elasticsearch
 
   dashboard:
     build: ./demodashboard/
     volumes: 
       - ./demodashboard:/usr/src/app
     ports:
-      - "8080:8080"
+      - "8090:8080"
     environment:
-      - FUSEKI_ENDPOINT_EXTERNAL=${FUSEKI_ENDPOINT_EXTERNAL}
       - ES_ENDPOINT_EXTERNAL=${ES_ENDPOINT_EXTERNAL}
     depends_on:
       - fuseki

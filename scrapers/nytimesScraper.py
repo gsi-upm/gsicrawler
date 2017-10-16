@@ -7,7 +7,6 @@ def retrieveNytimesNews(search, num, filepath):
 	r = requests.get("https://query.nytimes.com/svc/add/v1/sitesearch.json?q=" + search + "&spotlight=true&facet=true")
 
 	response = r.json()["response"]["docs"]
-
 	news = []
 	with open(filepath, 'a') as outfile:
 		for newsitem in response:
@@ -23,7 +22,10 @@ def retrieveNytimesNews(search, num, filepath):
 				aux["schema:author"] = newsitem["source"]
 				aux["schema:headline"] = newsitem["headline"]["main"]
 				aux["schema:search"] = search
-				aux["schema:thumbnailUrl"] = "https://www.nytimes.com/" + newsitem["multimedia"][0]["url"]
+				if (len(newsitem["multimedia"]) > 0):
+					aux["schema:thumbnailUrl"] = "https://www.nytimes.com/" + newsitem["multimedia"][0]["url"]
+				else: 
+					aux["schema:thumbnailUrl"] = "https://www.neto.com.au/assets/images/default_product.gif"
 				news.append(aux)
 
 		for newsitem in news:
