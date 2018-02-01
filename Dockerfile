@@ -16,4 +16,4 @@ RUN chmod +x /usr/local/bin/run-cron.sh
 
 ENTRYPOINT ["run-cron.sh"]
 
-CMD ["cron","10", "isis"]
+CMD ["cron","100", "isis"]
