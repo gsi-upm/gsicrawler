@@ -111,8 +111,11 @@ class AnalysisTask(luigi.Task):
             
         with self.output().open('w') as output:
             with self.input().open('r') as infile:
-                for line in infile:
+                lines = sum(1 for _ in infile)
+                for j,line in enumerate(infile):
                     i = json.loads(line)
+                    progress = (j*100)/lines
+                    self.set_status_message("Progress %d%" % progress)
                     i = semanticAnalysis(i)
                     output.write(json.dumps(i))
                     output.write('\n')
@@ -218,6 +221,8 @@ class Elasticsearch(CopyToIndex):
     host = ES_ENDPOINT
     #: the port used by the ElasticSearch service.
     port = ES_PORT
+    #: timeout for ES post
+    timeout = 100
 
     print(host,port)
     
