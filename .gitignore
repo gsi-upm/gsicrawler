@@ -6,3 +6,4 @@
 *.db
 .*
 /fuseki/*
+/docs/_build

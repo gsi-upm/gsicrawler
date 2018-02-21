@@ -226,33 +226,9 @@ $ sudo docker-compose up
 </pre></div>
 </div>
 </div>
-<div class="section" id="tutorial-iv-developing-your-first-dashboard">
-<h2>Tutorial IV: Developing your first dashboard<a class="headerlink" href="#tutorial-iv-developing-your-first-dashboard" title="Permalink to this headline">¶</a></h2>
-<p>In this section we will explain how to create a new dashboard for GSICrawler.
-We have create the main structure inside demodashboard folder. Open a web browser and visit <code class="docutils literal"><span class="pre">localhost:8090</span></code> to explore this new dashboard.</p>
-<p>As you can see there is a google-chart displaying how many news are created each day. To add new web components to your dashboard you have to edit dashboard-gsicrawler.html file inside demodashboard folder.</p>
-<p>Search the line that says</p>
-<div class="highlight-html"><div class="highlight"><pre><span></span><span class="cp">&lt;!— YOUR NEW COMPONENTS GOES HERE —&gt;</span>
-</pre></div>
-</div>
-<p>Below this line we are going to add a new web component, in this tutorial we are going to add a number-chart adding:</p>
-<blockquote>
-<div><div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">number-chart</span><span class="p">&gt;&lt;/</span><span class="nt">number-chart</span><span class="p">&gt;</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>Refresh your web browser and you will see your new number-chart component, but with no data. To add your data change the line added before:</p>
-<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">number-chart</span> <span class="na">data</span><span class="o">=</span><span class="s">&quot;{{data}}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">number-chart</span><span class="p">&gt;</span>
-</pre></div>
-</div>
-<p>Refresh your web browser again to see your data. As you can see it has a place for an icon, we can add it typing:</p>
-<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">number-chart</span> <span class="na">data</span><span class="o">=</span><span class="s">&quot;{{data}}&quot;</span> <span class="na">icon</span><span class="o">=</span><span class="s">&quot;/images/news.ico&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">nomber-chart</span><span class="p">&gt;</span>
-</pre></div>
-</div>
-<p>This icon must be stored inside images folder. Refresh your web browser to see your changes.</p>
-<p>This web components has many more options like changing the background color, the title... For more information visit <a class="reference external" href="https://lab.cluster.gsi.dit.upm.es/sefarad/number-chart">https://lab.cluster.gsi.dit.upm.es/sefarad/number-chart</a>.</p>
-<p>You can add as Web Components as you want, there are some examples in <a class="reference external" href="https://github.com/PolymerElements/">https://github.com/PolymerElements/</a></p>
-<p>If you wish to discover more about how to create dashboards, please visit <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/">Sefarad documentation</a>.</p>
+<div class="section" id="developing-sefarad-dashboards">
+<h2>Developing Sefarad dashboards<a class="headerlink" href="#developing-sefarad-dashboards" title="Permalink to this headline">¶</a></h2>
+<p>If you wish to discover more about how to create dashboards, please visit <a class="reference external" href="http://sefarad.readthedocs.io/en/latest/dashboard-dev">Sefarad documentation</a>.</p>
 </div>
 </div>
 
@@ -291,7 +267,7 @@ We have create the main structure inside demodashboard folder. Open a web browse
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-i-install">Tutorial I: Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-ii-crawling-news">Tutorial II: Crawling news</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-iii-semantic-enrichment-and-data-storage">Tutorial III: Semantic enrichment and data storage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tutorial-iv-developing-your-first-dashboard">Tutorial IV: Developing your first dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#developing-sefarad-dashboards">Developing Sefarad dashboards</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -316,7 +292,7 @@ We have create the main structure inside demodashboard folder. Open a web browse
       &copy;2017, Antonio F. Llamas and Rodrigo Barbado Esteban.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
