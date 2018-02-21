@@ -230,4 +230,4 @@ In the case of seeing it on Fuseki, the address would be ``localhost:13030/tutor
 Developing Sefarad dashboards
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you wish to discover more about how to create dashboards, please visit `Sefarad documentation <http://sefarad.readthedocs.io/en/latest/dashboard-dev>`_.
+For more information about dashboard creation, please visit `Sefarad documentation <http://sefarad.readthedocs.io/en/latest/dashboards-dev.html>`_.
