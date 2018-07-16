@@ -19,8 +19,8 @@ def retrieveNytimesNews(search, num, filepath):
 				aux["schema:dateModified"] = newsitem["updated"]
 				aux["schema:articleBody"] = "articletext"
 				aux["schema:about"] = [key["value"] for key in newsitem["keywords"]]
-				aux["schema:author"] = newsitem["source"]
-				aux["schema:headline"] = newsitem["headline"]["main"]
+				aux["schema:author"] = "The New York Times"
+				aux["schema.org:headline"] = newsitem["headline"]["main"]
 				aux["schema:search"] = search
 				if (len(newsitem["multimedia"]) > 0):
 					aux["schema:thumbnailUrl"] = "https://www.nytimes.com/" + newsitem["multimedia"][0]["url"]
@@ -33,8 +33,9 @@ def retrieveNytimesNews(search, num, filepath):
 			a.download()
 			a.parse()
 			newsitem["schema:articleBody"] = a.text
-			json.dump(newsitem, outfile)
-			outfile.write('\n')
+			#json.dump(newsitem, outfile)
+			#outfile.write('\n')
+	return(news)
 
 
 

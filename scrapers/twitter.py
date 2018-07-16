@@ -34,7 +34,8 @@ def retrieve_tweets(query, filePath, count=200):
             # depending on TweepError.code, one may want to retry or wait
             # to keep things simple, we will give up on an error
             break
-    with open(filePath, 'a') as output:        
+    with open(filePath, 'a') as output:  
+        final_tweets = []      
         for item in searched_tweets:
             jsontweet = json.dumps(item._json)
             tweet = json.loads(jsontweet)
@@ -65,5 +66,7 @@ def retrieve_tweets(query, filePath, count=200):
                 mytweet["schema:author"] = 'twitter'
                 mytweet["schema:datePublished"] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y'))
 
-                json.dump(mytweet, output)
-                output.write('\n')
+                #json.dump(mytweet, output)
+                #output.write('\n')
+                final_tweets.append(mytweet)
+        return(final_tweets)

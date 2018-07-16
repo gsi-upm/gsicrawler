@@ -15,62 +15,17 @@ import subprocess
 from scrapers.cnnScraper import retrieveCnnNews
 from scrapers.nytimesScraper import retrieveNytimesNews
 from scrapers.twitter import retrieve_tweets
+from scrapers.aljazeeraScraper import retrieveAlJazeeraNews
+from analyzers.analysis import expertAnalysis
 from analyzers.analysis import semanticAnalysis
+from analyzers.analysis import myAnalysis
+
 
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 ES_PORT = os.environ.get('ES_PORT')
 FUSEKI_PORT = os.environ.get('FUSEKI_PORT')
 FUSEKI_ENDPOINT = os.environ.get('FUSEKI_ENDPOINT')
 print('ES connection: {} : {}'.format(ES_ENDPOINT, ES_PORT))
-
-class ScrapyTask(luigi.Task):
-    """
-    Generates a local file containing 5 elements of data in JSON format.
-    """
-
-    #: the date parameter.
-
-    #date = luigi.DateParameter(default=datetime.date.today())
-    #field = str(random.randint(0,10000)) + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    
-    url = luigi.Parameter()
-
-    id = luigi.Parameter()
-
-    analysisType = luigi.Parameter()
-
-    num = luigi.Parameter()
-
-
-    def run(self):
-        """
-        Writes data in JSON format into the task's output target.
-        The data objects have the following attributes:
-        * `_id` is the default Elasticsearch id field,
-        * `text`: the text,
-        * `date`: the day when the data was created.
-        """
-        #today = datetime.date.today()
-        print(self.analysisType)
-        filePath = '/tmp/_scrapy-%s.json' % self.id
-        #scraperImported = imp.load_source(self.website, 'scrapers/%s.py' % (self.website))
-        #scraperImported.startScraping(self.url, filePath)
-        print(self.url, filePath)
-        retrieveCnnNews(self.url, self.num, filePath)
-        retrieveNytimesNews(self.url, self.num, filePath)
-        retrieve_tweets(self.url, filePath, self.num)
-
-    def output(self):
-        """
-        Returns the target output for this task.
-        In this case, a successful execution of this task will create a file on the local filesystem.
-        :return: the target output for this task.
-        :rtype: object (:py:class:`luigi.target.Target`)
-        """
-        return luigi.LocalTarget(path='/tmp/_scrapy-%s.json' % self.id)
-
-
-
 
 class AnalysisTask(luigi.Task):
     """
@@ -90,13 +45,6 @@ class AnalysisTask(luigi.Task):
 
     num = luigi.Parameter()
 
-    def requires(self):
-        """
-        This task's dependencies:
-        * :py:class:`~.SenpyTask`
-        :return: object (:py:class:`luigi.task.Task`)
-        """
-        return ScrapyTask(self.url, self.id, self.analysisType, self.num)
 
 
     def run(self):
@@ -107,18 +55,107 @@ class AnalysisTask(luigi.Task):
         * `text`: the text,
         * `date`: the day when the data was created.
         """
-
-            
-        with self.output().open('w') as output:
-            with self.input().open('r') as infile:
-                lines = sum(1 for _ in infile)
-                for j,line in enumerate(infile):
-                    i = json.loads(line)
-                    progress = (j*100)/lines
-                    self.set_status_message("Progress %d%" % progress)
-                    i = semanticAnalysis(i)
+        """
+        with open('dabiq_texts.txt') as infile:  
+            with self.output().open('w') as output:
+                for _ in infile:
+                    print(_)
+                    i = expertAnalysis(_)
                     output.write(json.dumps(i))
                     output.write('\n')
+                lines = sum(1 for _ in infile)
+                #lines = len(infile.readlines())
+                print(infile)
+                print(lines)
+        """
+        
+        filePath = '/tmp/_scrapy-%s.json' % self.id
+        print("Analizing")
+        print(filePath)
+        print(self.url)
+        print(self.num)
+        
+        cnn = retrieveCnnNews(self.url, 5, filePath)
+        nyt = retrieveNytimesNews(self.url, 5, filePath)
+        alj = retrieveAlJazeeraNews(self.url, 5, filePath)
+        """
+        #print("aljazeera")
+        #print(alj)
+        """
+        dabiqarticles = json.load(open('dabiqarticles.json'))
+        rumiyaharticles = json.load(open('rumiyaharticles.json'))
+        tweets = retrieve_tweets("islamic state", filePath, 5)
+        
+        with self.output().open('w') as output:
+
+            for article in dabiqarticles:
+                #print(article)
+                if article["@type"] == "schema:Article":
+                    print("inside")
+                    try:
+                        i = myAnalysis(article)
+                        output.write(json.dumps(i))
+                        output.write('\n')
+                    except:
+                        pass
+            for article in rumiyaharticles:
+                #print(article)
+                if article["@type"] == "schema:Article":
+                    print("inside")
+                    try:
+                        i = myAnalysis(article)
+                        output.write(json.dumps(i))
+                        output.write('\n')
+                    except:
+                        pass
+            
+      
+            for newsitem in alj:
+                i = myAnalysis(newsitem)
+                output.write(json.dumps(i))
+                output.write('\n')
+            
+            for newsitem in cnn:
+                i = myAnalysis(newsitem)
+                output.write(json.dumps(i))
+                output.write('\n')
+            
+            for newsitem in nyt:
+                i = myAnalysis(newsitem)
+                output.write(json.dumps(i))
+                output.write('\n')
+
+            for tweet in tweets:
+                i = myAnalysis(tweet)
+                output.write(json.dumps(i))
+                output.write('\n')
+
+            
+            """
+            for tweet in tweets:
+                i = semanticAnalysis(tweet)
+                output.write(json.dumps(i))
+                output.write('\n')
+            """
+           
+        """
+        #retrieveNytimesNews(self.url, self.num, filePath)
+        #retrieve_tweets(self.url, filePath, self.num)
+
+        """
+        """
+        articles = json.load(open('blank.json'))
+        with self.output().open('w') as output:
+            for article in articles:
+                print(article)
+                if article["@type"][0] == "http://schema.org/Article":
+                    print("inside")
+                    i = semanticAnalysis(article)
+                    output.write(json.dumps(i))
+                    output.write('\n')
+        """        
+
+
 
     def output(self):
         """

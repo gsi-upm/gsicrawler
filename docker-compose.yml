@@ -14,14 +14,27 @@ services:
       - "http.cors.enabled=true"
       - 'http.cors.allow-origin=*'
     volumes:
-      - esdata:/usr/share/elasticsearch/data/
+      - testelastic:/usr/share/elasticsearch/data/
 
     ports:
       - 19200:9200
       - 19300:9300
     networks:
       - sefarad-network
+  #senpy:
+    #image: gsiupm/sentiment-meaningcloud:0.1.7-python3.5
+    #ports: 
+    #  - "5000:5000"
+    #networks:
+    #  - sefarad-network
 
+  senpy:
+    image: gsiupm/senpy
+    command: --default-plugins
+    ports:
+     - "8000:5000"
+    networks:
+      - sefarad-network
 
   fuseki:
     image: stain/jena-fuseki
@@ -58,32 +71,10 @@ services:
     depends_on:
       - elasticsearch
       - fuseki
-  web:
-    image: gsiupm/dashboard-gsicrawler:0.2.6
-    ports: 
-      - "8080:8080"
-    environment:
-      - FUSEKI_ENDPOINT_EXTERNAL=${FUSEKI_ENDPOINT_EXTERNAL}
-      - ES_ENDPOINT_EXTERNAL=${ES_ENDPOINT_EXTERNAL}
-    depends_on:
-      - fuseki
-      - elasticsearch
-
-  dashboard:
-    build: ./demodashboard/
-    volumes: 
-      - ./demodashboard:/usr/src/app
-    ports:
-      - "8090:8080"
-    environment:
-      - ES_ENDPOINT_EXTERNAL=${ES_ENDPOINT_EXTERNAL}
-    depends_on:
-      - fuseki
-      - elasticsearch
 
 networks:
   sefarad-network:
     driver: bridge
 
 volumes:
-  esdata:
+  testelastic:
