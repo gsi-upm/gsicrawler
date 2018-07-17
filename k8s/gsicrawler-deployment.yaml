@@ -4,40 +4,52 @@ kind: ConfigMap
 metadata:
   name: gsicrawler-config
 data:
-    ES_ENDPOINT: "$ES_ENDPOINT"
-    ES_PORT: "$ES_PORT"
-    TWITTER_CONSUMER_KEY: "$TWITTER_CONSUMER_KEY"
-    TWITTER_CONSUMER_SECRET: "$TWITTER_CONSUMER_SECRET"
-    TWITTER_ACCESS_TOKEN: "$TWITTER_ACCESS_TOKEN"
-    TWITTER_ACCESS_TOKEN_SECRET: "$TWITTER_ACCESS_TOKEN_SECRET"
-    FUSEKI_ENDPOINT: "$FUSEKI_ENDPOINT"
-    FUSEKI_PORT: "$FUSEKI_PORT"
-    API_KEY_MEANING_CLOUD: "$API_KEY_MEANING_CLOUD"
+    ES_ENDPOINT: "sefarad-es"
+    ES_PORT: "9200"
+    TWITTER_CONSUMER_KEY: "aXyLS0LMM69OBfpslDNe4oZxL"
+    TWITTER_CONSUMER_SECRET: "nWJIjYoyWT3vm282CDiEGzIQ1ZlSTF2IwPFnoTbUXih95u2fY8"
+    TWITTER_ACCESS_TOKEN: "377869454-OB1GQt1ycK5EGrdgHYoHdmJ8WbgTciezCKHXjzH2"
+    TWITTER_ACCESS_TOKEN_SECRET: "qP5kXmi85SFvasv7RdECVwYc0gpch19mMJkISTcvjKc4x"
+    FUSEKI_ENDPOINT: "sefarad-fuseki"
+    FUSEKI_PORT: "3030"
+    API_KEY_MEANING_CLOUD: "9eee4626ccd5bd8df5b10cf86a811081"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: ${NAME}
+  name: gsicrawler-trivalent
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        role: gsicrawler-luigi
-        app: ${NAME}
+        role: gsicrawler-trivalent
+        app: gsicrawler-trivalent
     spec:
       containers:
       - name: gsicrawler
-        image: ${CI_REGISTRY_IMAGE}:${VERSION}
+        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler:latest
         imagePullPolicy: Always
         resources:
           limits:
-            memory: "512Mi"
+            memory: "256Mi"
             cpu: "200m"
         ports:
-          - name: luigiweb
+          - name: gsicrawler
             containerPort: 8082
         envFrom:
         - configMapRef:
             name: gsicrawler-config
-
+      - name: senpy
+        image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/senpy:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        ports:
+          - name: senpy
+            containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: gsicrawler-config

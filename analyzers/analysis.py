@@ -45,9 +45,9 @@ def semanticAnalysis(i):
     for k in range(0,number_of_requests+1):
         
         if i_len - int(REQUEST_LONG*(k+1)) > 0:
-            r = requests.post('http://senpy.cluster.gsi.dit.upm.es//api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["http://schema.org/articleBody"][0]["@value"][REQUEST_LONG*k:REQUEST_LONG*k+REQUEST_LONG]})
+            r = requests.post('http://localhost:5000/api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["http://schema.org/articleBody"][0]["@value"][REQUEST_LONG*k:REQUEST_LONG*k+REQUEST_LONG]})
         else:
-            r = requests.post('http://senpy.cluster.gsi.dit.upm.es/api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["http://schema.org/articleBody"][0]["@value"][REQUEST_LONG*k:-1]})
+            r = requests.post('http://localhost:5000/api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["http://schema.org/articleBody"][0]["@value"][REQUEST_LONG*k:-1]})
         time.sleep(1)
         r = r.json()
         
@@ -190,10 +190,10 @@ def myAnalysis(i):
     for k in range(0,number_of_requests+1):
         
         if i_len - int(REQUEST_LONG*(k+1)) > 0:
-            r = requests.post('http://senpy.cluster.gsi.dit.upm.es/api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["schema:articleBody"][REQUEST_LONG*k:REQUEST_LONG*k+REQUEST_LONG]})
+            r = requests.post('http://senpy:5000/api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["schema:articleBody"][REQUEST_LONG*k:REQUEST_LONG*k+REQUEST_LONG]})
         else:
-            r = requests.post('http://senpy.cluster.gsi.dit.upm.es/api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["schema:articleBody"][REQUEST_LONG*k:-1]})
-        time.sleep(1)
+            r = requests.post('http://senpy:5000/api/', data={'algo':'sentiment-vader', 'apiKey':API_KEY_MEANING_CLOUD, 'i':i["schema:articleBody"][REQUEST_LONG*k:-1]})
+        #time.sleep(1)
         r = r.json()
         
         if not 'entries' in r:

@@ -98,6 +98,7 @@ class AnalysisTask(luigi.Task):
                         output.write('\n')
                     except:
                         pass
+            self.set_status_message("Dabiq DONE!")
             for article in rumiyaharticles:
                 #print(article)
                 if article["@type"] == "schema:Article":
@@ -108,27 +109,37 @@ class AnalysisTask(luigi.Task):
                         output.write('\n')
                     except:
                         pass
+            self.set_status_message("rumiyah DONE!")
             
       
             for newsitem in alj:
                 i = myAnalysis(newsitem)
                 output.write(json.dumps(i))
                 output.write('\n')
+
+            self.set_status_message("aljazeera DONE!")
+
             
             for newsitem in cnn:
                 i = myAnalysis(newsitem)
                 output.write(json.dumps(i))
                 output.write('\n')
+
+            self.set_status_message("CNN DONE!")
             
             for newsitem in nyt:
                 i = myAnalysis(newsitem)
                 output.write(json.dumps(i))
                 output.write('\n')
 
+            self.set_status_message("NYT DONE!")
+
             for tweet in tweets:
                 i = myAnalysis(tweet)
                 output.write(json.dumps(i))
                 output.write('\n')
+
+            self.set_status_message("twitter DONE!")
 
             
             """

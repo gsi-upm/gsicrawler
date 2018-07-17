@@ -29,7 +29,8 @@ services:
     #  - sefarad-network
 
   senpy:
-    image: gsiupm/senpy
+    build: ./senpy_vader
+    image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler/senpy:v0.5.2
     command: --default-plugins
     ports:
      - "8000:5000"
@@ -49,7 +50,7 @@ services:
 
   gsicrawler:
     build: .
-    image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler
+    image: registry.cluster.gsi.dit.upm.es/sefarad/gsicrawler:v0.5.2
     volumes:
       - .:/usr/src/app
     ports:
