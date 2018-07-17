@@ -75,16 +75,16 @@ class AnalysisTask(luigi.Task):
         print(self.url)
         print(self.num)
         
-        cnn = retrieveCnnNews(self.url, 5, filePath)
-        nyt = retrieveNytimesNews(self.url, 5, filePath)
-        alj = retrieveAlJazeeraNews(self.url, 5, filePath)
+        cnn = retrieveCnnNews(self.url, 20, filePath)
+        nyt = retrieveNytimesNews(self.url, 20, filePath)
+        alj = retrieveAlJazeeraNews(self.url, 20, filePath)
         """
         #print("aljazeera")
         #print(alj)
         """
         dabiqarticles = json.load(open('dabiqarticles.json'))
         rumiyaharticles = json.load(open('rumiyaharticles.json'))
-        tweets = retrieve_tweets("islamic state", filePath, 5)
+        tweets = retrieve_tweets("islamic state", filePath, 20)
         
         with self.output().open('w') as output:
 
